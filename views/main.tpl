@@ -67,7 +67,7 @@
       }); 
     });
   </script>
-  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/pyangui.css">
   <title>YANG Extractor and Validator</title>
 </head>

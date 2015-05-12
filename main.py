@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 from StringIO import StringIO
 from subprocess import call
@@ -9,6 +11,11 @@ from xym import *
 from bottle import route, run, template, request, static_file
 
 # requests.packages.urllib3.disable_warnings()
+
+__author__ = 'camoberg@tail-f.com'
+__copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com "
+__license__ = "New-style BSD"
+__email__ = "camoberg@cisco.com"
 
 pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
@@ -136,5 +143,13 @@ def validate_draft(draft):
 @route('/static/:path#.+#', name='static')
 def static(path):
 	return static_file(path, root='static')
+
+@error(403)
+def mistake403(code):
+    return 'There is a mistake in your url!'
+
+@error(404)
+def mistake404(code):
+    return 'Sorry, this page does not exist!'
 
 run(host='0.0.0.0', port=8080)

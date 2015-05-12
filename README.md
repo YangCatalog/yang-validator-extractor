@@ -4,4 +4,4 @@ A web application that allows you to fetch, extract and validate YANG modules by
 
 ## Hardcoded prerequisites in `main.py`
 - The pyang binary in `/usr/local/bin/`
-- Supporting YANG modules (e.g. `ietf-ip@2014-06-16.yang`) in `/opt/local/share/yang/`
+- YANG modules commonly required for validation (e.g. the IETF modules for interface and ip configuration as well as the types) in `/opt/local/share/yang/`
