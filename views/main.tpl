@@ -86,6 +86,16 @@
         </div>
       </form>
 
+      <form name="uploadid" id="uploadid" action="/draft-validator" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="data" class="info">Upload Internet Draft</label>
+          <div class="form-inline">
+            <input type="file" id="data" name="data" class="form-control" multiple="multiple" />
+            <button id="file_submit" class="btn btn-default">Validate</button>
+          </div>
+        </div>
+      </form>
+
       <form name="rfcform" id="rfcform">
         <div class="form-group">
           <label for="rfc_number" class="info" >Fetch and validate IETF RFC by number</label>

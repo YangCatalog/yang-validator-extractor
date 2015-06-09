@@ -66,6 +66,20 @@ def validate_yangfile(infilename, workdir):
 def validator():
 	return template('main', results = {})
 
+@route('/draft-validator', method="POST")
+def upload_draft():
+	results = {}
+	savedfiles = []
+	savedir = mkdtemp()
+
+	uploaded_file = request.files.get("data")
+	filepath = os.path.join(savedir, uploaded_file.raw_filename)
+	uploaded_file.save(filepath)
+	results = create_output(filepath)
+
+	rmtree(savedir)
+
+	return template('main', results = results)
 
 @route('/validator', method="POST")
 def upload_file():
@@ -88,8 +102,13 @@ def upload_file():
 			zf = ZipFile(zipfilename, "r")
 			zf.extractall(savedir)
 			for filename in zf.namelist():
-				# print "Expanded file", filename, "from", zipfilename
 				savedfiles.append(filename)
+
+		# It's an Internet Draft!
+		if ext == ".txt":
+			file.save(os.path.join(savedir, file.raw_filename))
+			savedfiles.append(file.raw_filename)
+
 
 	for file in savedfiles:
 		pyang_stderr, pyang_output = validate_yangfile(file, savedir)
@@ -144,12 +163,5 @@ def validate_draft(draft):
 def static(path):
 	return static_file(path, root='static')
 
-@error(403)
-def mistake403(code):
-    return 'There is a mistake in your url!'
-
-@error(404)
-def mistake404(code):
-    return 'Sorry, this page does not exist!'
-
-run(host='0.0.0.0', port=8080)
+if __name__ == '__main__':
+	run(host='0.0.0.0', port=8080)
