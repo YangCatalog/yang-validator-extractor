@@ -62,6 +62,7 @@ def validate_yangfile(infilename, workdir):
 
 	return pyang_stderr, pyang_output
 
+@route('/')
 @route('/validator')
 def validator():
 	return template('main', results = {})
