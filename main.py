@@ -164,5 +164,13 @@ def validate_draft(draft):
 def static(path):
 	return static_file(path, root='static')
 
+@route('/rest')
+def rest():
+	return(template('rest'))
+
+@route('/about')
+def rest():
+	return(template('about'))
+
 if __name__ == '__main__':
 	run(host='0.0.0.0', port=8080)
