@@ -16,7 +16,7 @@
     </ul>
     <h1>Fetch, extract and validate YANG models using REST</h1>
     <p class="lead">The REST API described below allows you to perform the fetch, extract and validate steps provided using HTTP GET.</p>
-    <p> The URLs below accepts GET requests and return their payload in JSON with the with the <code>Content-Type</code> header set to <code>application/json.</code></p>
+    <p> The URLs below accepts GET requests and return their payload in JSON with the with the <code>Content-Type</code> header set to <code>application/json</code>.</p>
     <dl>
       <dt><code>/api/rfc/&lt;rfc&gt;</code></dt>
       <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently available IETF RFCs. Replace <code>&lt;rfc&gt;</code> with the <b>number</b> ot the RFC, e.g. <mark>7223</mark>.</dd>

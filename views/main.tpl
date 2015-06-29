@@ -145,6 +145,7 @@
     </div>
   % end 
 % end
+  <small class="text-muted">xym version: {{xym_version}}</small>
 </div>
 </body>
 

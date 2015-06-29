@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-import os
+import os, sys, cgi
 from StringIO import StringIO
 from subprocess import call
 from tempfile import *
 from shutil import *
 from zipfile import *
 
-from xym import *
-from bottle import route, run, template, request, static_file
+import xym
+from bottle import route, run, template, request, static_file, error
 
 # requests.packages.urllib3.disable_warnings()
 
@@ -16,6 +16,7 @@ __author__ = 'camoberg@tail-f.com'
 __copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com "
 __license__ = "New-style BSD"
 __email__ = "camoberg@cisco.com"
+version = "1.0"
 
 pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
@@ -29,9 +30,9 @@ def create_output(url):
 	# Trickery to capture stderr from the xym tools for later use
 	stderr_ = sys.stderr
 	sys.stderr = result
-	extracted_models = xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, debug_level = 0)
+	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, debug_level = 0)
 	sys.stderr = stderr_
-	xym_stderr = result.getvalue()
+	xym_stderr = cgi.escape(result.getvalue())
 
 	for em in extracted_models:
 		pyang_stderr, pyang_output = validate_yangfile(em, workdir)
@@ -65,7 +66,7 @@ def validate_yangfile(infilename, workdir):
 @route('/')
 @route('/validator')
 def validator():
-	return template('main', results = {})
+	return template('main', results = {}, xym_version = xym.__version__)
 
 @route('/draft-validator', method="POST")
 def upload_draft():
@@ -109,7 +110,6 @@ def upload_file():
 		if ext == ".txt":
 			file.save(os.path.join(savedir, file.raw_filename))
 			savedfiles.append(file.raw_filename)
-
 
 	for file in savedfiles:
 		pyang_stderr, pyang_output = validate_yangfile(file, savedir)
@@ -171,6 +171,10 @@ def rest():
 @route('/about')
 def rest():
 	return(template('about'))
+
+@error(404)
+def error404(error):
+	return 'Nothing here, sorry.'
 
 if __name__ == '__main__':
 	run(host='0.0.0.0', port=8080)
