@@ -81,7 +81,7 @@ def upload_draft():
 
 	rmtree(savedir)
 
-	return template('main', results = results)
+	return template('main', results = results, xym_version = xym.__version__)
 
 @route('/validator', method="POST")
 def upload_file():
@@ -116,7 +116,7 @@ def upload_file():
 		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output }
 
  	rmtree(savedir)
-	return template('main', results = results)
+	return template('main', results = results, xym_version = xym.__version__)
 
 @route('/api/rfc/<rfc>')
 def json_validate_rfc(rfc):
