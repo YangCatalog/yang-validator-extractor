@@ -139,7 +139,7 @@
       <hr>
       <h2 id="{{name.split("@")[0].replace(".", "_")}}">{{name}}</h2>
       % if "xym_stderr" in content:
-      <h3>ExtractionX</h3>
+      <h3>Extraction</h3>
       <pre class="stderr">{{!content["xym_stderr"]}}</pre>
       % end
       <h3>Validation</h3>
