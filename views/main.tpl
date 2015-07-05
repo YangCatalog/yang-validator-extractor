@@ -138,10 +138,14 @@
     <div>
       <hr>
       <h2 id="{{name.split("@")[0].replace(".", "_")}}">{{name}}</h2>
+      % if "xym_stderr" in content:
+      <h3>ExtractionX</h3>
+      <pre class="stderr">{{!content["xym_stderr"]}}</pre>
+      % end
       <h3>Validation</h3>
-      <pre class="stderr">{{content["pyang_stderr"]}}</pre>
+      <pre class="stderr">{{!content["pyang_stderr"]}}</pre>
       <h3>Output</h3>
-      <pre class="output">{{content["pyang_output"]}}</pre>
+      <pre class="output">{{!content["pyang_output"]}}</pre>
     </div>
   % end 
 % end

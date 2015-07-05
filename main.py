@@ -32,11 +32,14 @@ def create_output(url):
 	sys.stderr = result
 	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, debug_level = 0)
 	sys.stderr = stderr_
-	xym_stderr = cgi.escape(result.getvalue())
+	xym_stderr = result.getvalue()
 
 	for em in extracted_models:
 		pyang_stderr, pyang_output = validate_yangfile(em, workdir)
-		results[em] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output, "xym_stderr": xym_stderr }
+		results[em] = { "pyang_stderr": cgi.escape(pyang_stderr),
+						"pyang_output": cgi.escape(pyang_output),
+						"xym_stderr": cgi.escape(xym_stderr) }
+
 	rmtree(workdir)
 
 	return results
@@ -81,7 +84,7 @@ def upload_draft():
 
 	rmtree(savedir)
 
-	return template('main', results = results, xym_version = xym.__version__)
+	return template('main', results = results, xym_version = xym.__version__, noescape=True)
 
 @route('/validator', method="POST")
 def upload_file():
@@ -106,11 +109,6 @@ def upload_file():
 			for filename in zf.namelist():
 				savedfiles.append(filename)
 
-		# It's an Internet Draft!
-		if ext == ".txt":
-			file.save(os.path.join(savedir, file.raw_filename))
-			savedfiles.append(file.raw_filename)
-
 	for file in savedfiles:
 		pyang_stderr, pyang_output = validate_yangfile(file, savedir)
 		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output }
@@ -128,7 +126,7 @@ def json_validate_rfc(rfc):
 @route('/api/draft/<draft>')
 def json_validate_draft(draft):
 	response = []
-	url = 'http://www.ietf.org/id/{!s}'.format(draft)
+	url = 'http://tools.ietf.org/id/{!s}'.format(draft)
 	results = create_output(url)
 	return results
 
@@ -142,7 +140,7 @@ def validate_rfc_param():
 @route('/draft', method='GET')
 def validate_rfc_param():
 	draft = request.query['name']
-	url = 'http://www.ietf.org/id/{!s}'.format(draft)
+	url = 'http://tools.ietf.org/id/{!s}'.format(draft)
 	results = create_output(url)
 	return template('result', results = results)
 
