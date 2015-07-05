@@ -8,18 +8,21 @@ from shutil import *
 from zipfile import *
 
 import xym
+import pyang
 from bottle import route, run, template, request, static_file, error
 
 # requests.packages.urllib3.disable_warnings()
 
 __author__ = 'camoberg@tail-f.com'
-__copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com "
+__copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com"
 __license__ = "New-style BSD"
 __email__ = "camoberg@cisco.com"
-version = "1.0"
+__version__ = "0.2"
 
 pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
+
+versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__}
 
 def create_output(url):
 	workdir = mkdtemp()
@@ -69,7 +72,7 @@ def validate_yangfile(infilename, workdir):
 @route('/')
 @route('/validator')
 def validator():
-	return template('main', results = {}, xym_version = xym.__version__)
+	return template('main', results = {}, versions = versions)
 
 @route('/draft-validator', method="POST")
 def upload_draft():
@@ -84,7 +87,7 @@ def upload_draft():
 
 	rmtree(savedir)
 
-	return template('main', results = results, xym_version = xym.__version__, noescape=True)
+	return template('main', results = results, versions = versions)
 
 @route('/validator', method="POST")
 def upload_file():
@@ -114,7 +117,7 @@ def upload_file():
 		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output }
 
  	rmtree(savedir)
-	return template('main', results = results, xym_version = xym.__version__)
+	return template('main', results = results, versions = versions)
 
 @route('/api/rfc/<rfc>')
 def json_validate_rfc(rfc):
