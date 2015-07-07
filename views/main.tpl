@@ -29,9 +29,9 @@
                 '<h3>Extraction</h3><pre class="xymstderr"/>' +
                 '<h3>Validation</h3><pre class="stderr"/>' +
                 '<h3>Output</h3><pre class="output"/>');
-            $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr);
-            $( '#' + sanitized + ' > pre.stderr' ).append(data[key].pyang_stderr);
-            $( '#' + sanitized + ' > pre.output' ).append(data[key].pyang_output);
+            $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.stderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.output' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
           }
         });
         return(false);
@@ -58,9 +58,9 @@
                 '<h3>Extraction</h3><pre class="xymstderr"/>' +
                 '<h3>Validation</h3><pre class="stderr"/>' +
                 '<h3>Output</h3><pre class="output"/>');
-            $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr);
-            $( '#' + sanitized + ' > pre.stderr' ).append(data[key].pyang_stderr);
-            $( '#' + sanitized + ' > pre.output' ).append(data[key].pyang_output);
+            $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.stderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.output' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
           }
         });
         return(false);
@@ -140,12 +140,12 @@
         <h2 id="{{name.split("@")[0].replace(".", "_")}}">{{name}}</h2>
         % if "xym_stderr" in content:
         <h3>Extraction</h3>
-        <pre class="stderr">{{!content["xym_stderr"]}}</pre>
+        <pre class="stderr">{{!content["xym_stderr"] if len(content["xym_stderr"]) != 0 else "No warnings or errors"}}</pre>
         % end
         <h3>Validation</h3>
-        <pre class="stderr">{{!content["pyang_stderr"]}}</pre>
+        <pre class="stderr">{{!content["pyang_stderr"] if len(content["pyang_stderr"]) != 0 else "No warnings or errors"}}</pre>
         <h3>Output</h3>
-        <pre class="output">{{!content["pyang_output"]}}</pre>
+        <pre class="output">{{!content["pyang_output"] if len(content["pyang_output"]) != 0 else "No warnings or errors"}}</pre>
       </div>
     % end 
   % end

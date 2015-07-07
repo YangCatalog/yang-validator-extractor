@@ -22,7 +22,7 @@ __version__ = "0.2"
 pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
 
-versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__}
+versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__ }
 
 def create_output(url):
 	workdir = mkdtemp()
@@ -87,6 +87,8 @@ def upload_draft():
 
 	rmtree(savedir)
 
+	print "RESULTS", results
+
 	return template('main', results = results, versions = versions)
 
 @route('/validator', method="POST")
@@ -117,6 +119,9 @@ def upload_file():
 		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output }
 
  	rmtree(savedir)
+
+	print "RESULTS", results
+
 	return template('main', results = results, versions = versions)
 
 @route('/api/rfc/<rfc>')
@@ -152,6 +157,7 @@ def validate_rfc(rfc):
 	response = []
 	url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
 	results = create_output(url)
+	print "RESULTS", results
 	return template('result', results = results)
 
 @route('/draft/<draft>')
@@ -159,6 +165,7 @@ def validate_draft(draft):
 	response = []
 	url = 'http://www.ietf.org/id/{!s}'.format(draft)
 	results = create_output(url)
+	print "RESULTS", results
 	return template('result', results = results)
 
 @route('/static/:path#.+#', name='static')
