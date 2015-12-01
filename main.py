@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
-import os, sys, cgi
+import os, sys, cgi, argparse
 from StringIO import StringIO
 from subprocess import call
 from tempfile import *
 from shutil import *
 from zipfile import *
 
-import xym
+from xym import xym
 import pyang
 from bottle import route, run, template, request, static_file, error
-
-# requests.packages.urllib3.disable_warnings()
 
 __author__ = 'camoberg@tail-f.com'
 __copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com"
@@ -23,6 +21,8 @@ pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
 
 versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__ }
+
+debug = False
 
 def create_output(url):
 	workdir = mkdtemp()
@@ -87,8 +87,6 @@ def upload_draft():
 
 	rmtree(savedir)
 
-	print "RESULTS", results
-
 	return template('main', results = results, versions = versions)
 
 @route('/validator', method="POST")
@@ -119,8 +117,6 @@ def upload_file():
 		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output }
 
  	rmtree(savedir)
-
-	print "RESULTS", results
 
 	return template('main', results = results, versions = versions)
 
@@ -180,9 +176,26 @@ def rest():
 def rest():
 	return(template('about'))
 
+@route('/versions')
+def get_versions():
+	return versions
+
 @error(404)
 def error404(error):
 	return 'Nothing here, sorry.'
 
 if __name__ == '__main__':
-	run(host='0.0.0.0', port=8080)
+	port = 8080
+
+	parser = argparse.ArgumentParser(description='A YANG fetching, extracting and validating web application.')
+	parser.add_argument('-p', '--port', dest='port', type=int, help='Port to listen to (default is 8080)')
+	parser.add_argument('-d', '--debug', help='Turn on debugging output', action="store_true")
+	args = parser.parse_args()
+
+	if args.port:
+		port = args.port
+
+	if args.debug:
+		debug = True
+
+	run(server='cherrypy', host='0.0.0.0', port=port)
