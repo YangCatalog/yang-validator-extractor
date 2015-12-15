@@ -11,11 +11,13 @@ from xym import xym
 import pyang
 from bottle import route, run, template, request, static_file, error
 
+# requests.packages.urllib3.disable_warnings()
+
 __author__ = 'camoberg@tail-f.com'
 __copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com"
 __license__ = "New-style BSD"
 __email__ = "camoberg@cisco.com"
-__version__ = "0.2"
+__version__ = "0.2.1"
 
 pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
@@ -33,7 +35,7 @@ def create_output(url):
 	# Trickery to capture stderr from the xym tools for later use
 	stderr_ = sys.stderr
 	sys.stderr = result
-	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, strict_examples = False, debug_level = 0)
+	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, debug_level = 0)
 	sys.stderr = stderr_
 	xym_stderr = result.getvalue()
 
@@ -198,4 +200,4 @@ if __name__ == '__main__':
 	if args.debug:
 		debug = True
 
-	run(server='cherrypy', host='0.0.0.0', port=port)
+	run(host='0.0.0.0', port=port)

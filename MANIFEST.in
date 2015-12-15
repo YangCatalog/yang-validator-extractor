@@ -1,0 +1,3 @@
+include README.md
+recursive-include bottle-yang-extractor-validator/static *
+recursive-include bottle-yang-extractor-validator/views *

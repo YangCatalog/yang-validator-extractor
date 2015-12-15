@@ -21,7 +21,7 @@
       <dt><code>/api/rfc/&lt;rfc&gt;</code></dt>
       <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently available IETF RFCs. Replace <code>&lt;rfc&gt;</code> with the <b>number</b> ot the RFC, e.g. <mark>7223</mark>.</dd>
       <dt><code>/api/draft/&lt;draft&gt;</code></dt>
-      <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently published IETF drafts. Replace <code>&lt;draft&gt;</code> with the canonical <b>name</b> of the draft, e.g. <mark>draft-ietf-netmod-ip-cfg-14</mark>. Remove the version number at the end of the name to retrieve the most recent version published.</dd>
+      <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently published IETF drafts. Replace <code>&lt;draft&gt;</code> with the canonical <b>name</b> of the draft, e.g. <mark>draft-ietf-netmod-ip-cfg-14</mark>. Remove the version number at the end of the name to retrieve the most recent version published (e.g. <mark>draft-ietf-netmod-ip-cfg</mark>).</dd>
     </dl>
     <p>The response JSON consists of a list of objects (one per extracted YANG modules) with the name of the extracted YANG module and the following content:
       <ul>

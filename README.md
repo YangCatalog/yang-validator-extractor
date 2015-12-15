@@ -4,6 +4,7 @@ A web application that allows you to fetch, extract and validate YANG modules by
 
 ## Hardcoded prerequisites in `main.py`
 - The bottle application defaults to using the [cherrypy](http://www.cherrypy.org/) web framework, so this needs to be preinstalled.
+- We require the [xym](https://github.com/xym-tool/xym) tool and library to be preinstalled
 - The pyang binary is expected to be in `/usr/local/bin/`
 - YANG modules commonly required for validation (e.g. the IETF modules for interface and ip configuration as well as the types) are expected to be in `/opt/local/share/yang/`
 - The default port is 8080 to avoid requiring root privileges. Change the port argument in the `run` function to 80 and call the `main.py` program with root privileges to listen to the default HTTP port.
