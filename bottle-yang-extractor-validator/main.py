@@ -35,7 +35,7 @@ def create_output(url):
 	# Trickery to capture stderr from the xym tools for later use
 	stderr_ = sys.stderr
 	sys.stderr = result
-	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, debug_level = 0)
+	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, strict_examples = False, debug_level = 0)
 	sys.stderr = stderr_
 	xym_stderr = result.getvalue()
 
@@ -200,4 +200,4 @@ if __name__ == '__main__':
 	if args.debug:
 		debug = True
 
-	run(host='0.0.0.0', port=port)
+	run(server='cherrypy', host='0.0.0.0', port=port)
