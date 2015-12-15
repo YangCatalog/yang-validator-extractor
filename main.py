@@ -7,7 +7,7 @@ from tempfile import *
 from shutil import *
 from zipfile import *
 
-import xym
+from xym import xym
 import pyang
 from bottle import route, run, template, request, static_file, error
 
@@ -33,7 +33,7 @@ def create_output(url):
 	# Trickery to capture stderr from the xym tools for later use
 	stderr_ = sys.stderr
 	sys.stderr = result
-	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, debug_level = 0)
+	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, strict_examples = False, debug_level = 0)
 	sys.stderr = stderr_
 	xym_stderr = result.getvalue()
 
