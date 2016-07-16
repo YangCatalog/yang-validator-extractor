@@ -13,16 +13,18 @@ from bottle import route, run, template, request, static_file, error
 
 # requests.packages.urllib3.disable_warnings()
 
-__author__ = 'camoberg@tail-f.com'
-__copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com"
+__author__ = 'camoberg@cisco.com'
+__copyright__ = "Copyright (c) 2016, Carl Moberg, camoberg@cisco.com"
 __license__ = "New-style BSD"
 __email__ = "camoberg@cisco.com"
-__version__ = "0.2"
+__version__ = "0.3"
 
-pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
+pyang_cmd = '/usr/local/bin/pyang'
+confdc_cmd = '/usr/local/bin/confdc'
+confdc_version = '6.2'
 
-versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__ }
+versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version }
 
 debug = False
 
@@ -40,10 +42,11 @@ def create_output(url):
 	xym_stderr = result.getvalue()
 
 	for em in extracted_models:
-		pyang_stderr, pyang_output = validate_yangfile(em, workdir)
+		pyang_stderr, pyang_output, confdc_output = validate_yangfile(em, workdir)
 		results[em] = { "pyang_stderr": cgi.escape(pyang_stderr),
 						"pyang_output": cgi.escape(pyang_output),
-						"xym_stderr": cgi.escape(xym_stderr) }
+						"xym_stderr": cgi.escape(xym_stderr),
+						"confd_output": cgi.escape(confdc_output) }
 
 	rmtree(workdir)
 
@@ -51,12 +54,13 @@ def create_output(url):
 
 def validate_yangfile(infilename, workdir):
 	pyang_stderr = pyang_output = ""
+	confdc_output = "SUCCESS!"
 	infile = os.path.join(workdir, infilename)
 	pyang_outfile = str(os.path.join(workdir, infilename) + '.out')
 	pyang_resfile = str(os.path.join(workdir, infilename) + '.res')
 
 	resfp = open(pyang_resfile, 'w+')
-	status = call([pyangcmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = resfp)
+	status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = resfp)
 
 	if os.path.isfile(pyang_outfile):
 		outfp = open(pyang_outfile, 'r')
@@ -69,7 +73,7 @@ def validate_yangfile(infilename, workdir):
 	for line in resfp.readlines():
 		pyang_stderr += os.path.basename(line)
 
-	return pyang_stderr, pyang_output
+	return pyang_stderr, pyang_output, confdc_output
 
 @route('/')
 @route('/validator')
