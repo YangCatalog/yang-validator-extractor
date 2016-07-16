@@ -78,7 +78,7 @@ def validate_yangfile(infilename, workdir):
 
 	cresfp.seek(0)
 
-	for line in presfp.readlines():
+	for line in cresfp.readlines():
 		confdc_stderr += os.path.basename(line)
 
 	return pyang_stderr, pyang_output, confdc_stderr
