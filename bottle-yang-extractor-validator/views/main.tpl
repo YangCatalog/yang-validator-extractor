@@ -55,13 +55,14 @@
             $( '#maincanvas' ).append('<hr>');
             sanitized = key.split("@")[0].replace(".", "_");
             $( '#maincanvas' ).append('<div id="' + sanitized + '"> <h2>' + key + '</h2>' +
-                '<h3>Extraction</h3><pre class="xymstderr"/>' +
-                '<h3>Validation</h3><pre class="stderr"/>' +
-                '<h3>Output</h3><pre class="output"/>');
+                '<h3>XYM Extraction</h3><pre class="xymstderr"/>' +
+                '<h3>Pyang Validation</h3><pre class="stderr"/>' +
+                '<h3>Pyang Output</h3><pre class="output"/>' +
+                '<h3>Confdc Output</h3><pre class="output"/>');
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.stderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.output' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
-          }
+            $( '#' + sanitized + ' > pre.output' ).append(data[key].confdc_output.length > 0 ? data[key].confdc_output : "No output");          }
         });
         return(false);
       }); 
@@ -146,10 +147,11 @@
         <pre class="stderr">{{!content["pyang_stderr"] if len(content["pyang_stderr"]) != 0 else "No warnings or errors"}}</pre>
         <h3>Output</h3>
         <pre class="output">{{!content["pyang_output"] if len(content["pyang_output"]) != 0 else "No warnings or errors"}}</pre>
+        <pre class="output">{{!content["confdc_output"] if len(content["confdc_output"]) != 0 else "No warnings or errors"}}</pre>
       </div>
     % end 
   % end
-    <small class="text-muted">xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}}</small>
+    <small class="text-muted">xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}} confdc version: {{versions["confdc_version"]}}</small>
   </div>
 </body>
 

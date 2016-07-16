@@ -46,7 +46,7 @@ def create_output(url):
 		results[em] = { "pyang_stderr": cgi.escape(pyang_stderr),
 						"pyang_output": cgi.escape(pyang_output),
 						"xym_stderr": cgi.escape(xym_stderr),
-						"confd_output": cgi.escape(confdc_stderr) }
+						"confdc_output": cgi.escape(confdc_stderr) }
 
 	rmtree(workdir)
 
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='A YANG fetching, extracting and validating web application.')
 	parser.add_argument('-p', '--port', dest='port', type=int, help='Port to listen to (default is 8080)')
 	parser.add_argument('-d', '--debug', help='Turn on debugging output', action="store_true")
-	parser.add_argument('-c', '--confd-install-path', dest='confd_path', type=string, help='Path to ConfD')
+	parser.add_argument('-c', '--confd-install-path', dest='confd_path', help='Path to ConfD')
 	args = parser.parse_args()
 
 	if args.port:
