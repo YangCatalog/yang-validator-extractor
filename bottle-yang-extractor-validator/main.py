@@ -73,7 +73,7 @@ def validate_yangfile(infilename, workdir):
 	for line in presfp.readlines():
 		pyang_stderr += os.path.basename(line)
 
-	cresfp = open(pyang_resfile, 'w+')
+	cresfp = open(confdc_resfile, 'w+')
 	status = call([confdc_cmd, '-W', 'all', '-c', infile], stderr = cresfp)
 
 	cresfp.seek(0)
