@@ -153,7 +153,7 @@
       </div>
     % end 
   % end
-    <small class="text-muted">validator versio: {{versions["validator_version"]}} xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}} confdc version: {{versions["confdc_version"]}}</small>
+    <small class="text-muted">validator version: {{versions["validator_version"]}}, xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}} confdc version: {{versions["confdc_version"]}}</small>
   </div>
 </body>
 
