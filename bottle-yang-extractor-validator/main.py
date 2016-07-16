@@ -42,25 +42,25 @@ def create_output(url):
 	xym_stderr = result.getvalue()
 
 	for em in extracted_models:
-		pyang_stderr, pyang_output, confdc_output = validate_yangfile(em, workdir)
+		pyang_stderr, pyang_output, confdc_stderr = validate_yangfile(em, workdir)
 		results[em] = { "pyang_stderr": cgi.escape(pyang_stderr),
 						"pyang_output": cgi.escape(pyang_output),
 						"xym_stderr": cgi.escape(xym_stderr),
-						"confd_output": cgi.escape(confdc_output) }
+						"confd_output": cgi.escape(confdc_stderr) }
 
 	rmtree(workdir)
 
 	return results
 
 def validate_yangfile(infilename, workdir):
-	pyang_stderr = pyang_output = ""
-	confdc_output = "SUCCESS!"
+	pyang_stderr = pyang_output = confdc_stderr = ""
 	infile = os.path.join(workdir, infilename)
-	pyang_outfile = str(os.path.join(workdir, infilename) + '.out')
-	pyang_resfile = str(os.path.join(workdir, infilename) + '.res')
+	pyang_outfile = str(os.path.join(workdir, infilename) + '.pout')
+	pyang_resfile = str(os.path.join(workdir, infilename) + '.pres')
+	confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
 
-	resfp = open(pyang_resfile, 'w+')
-	status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = resfp)
+	presfp = open(pyang_resfile, 'w+')
+	status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
 
 	if os.path.isfile(pyang_outfile):
 		outfp = open(pyang_outfile, 'r')
@@ -68,12 +68,20 @@ def validate_yangfile(infilename, workdir):
 	else:
 		pass
 
-	resfp.seek(0)
+	presfp.seek(0)
 
-	for line in resfp.readlines():
+	for line in presfp.readlines():
 		pyang_stderr += os.path.basename(line)
 
-	return pyang_stderr, pyang_output, confdc_output
+	cresfp = open(pyang_resfile, 'w+')
+	status = call([confdc_cmd, '-W', 'all', '-c', infile], stderr = cresfp)
+
+	cresfp.seek(0)
+
+	for line in presfp.readlines():
+		confdc_stderr += os.path.basename(line)
+
+	return pyang_stderr, pyang_output, confdc_stderr
 
 @route('/')
 @route('/validator')
@@ -196,6 +204,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='A YANG fetching, extracting and validating web application.')
 	parser.add_argument('-p', '--port', dest='port', type=int, help='Port to listen to (default is 8080)')
 	parser.add_argument('-d', '--debug', help='Turn on debugging output', action="store_true")
+	parser.add_argument('-c', '--confd-install-path', dest='confd_path', type=string, help='Path to ConfD')
 	args = parser.parse_args()
 
 	if args.port:
@@ -203,5 +212,9 @@ if __name__ == '__main__':
 
 	if args.debug:
 		debug = True
+
+	if args.confd_path:
+		confd_path = args.confd_path
+		confdc_cmd = confd_path + '/bin/confdc'
 
 	run(server='cherrypy', host='0.0.0.0', port=port)
