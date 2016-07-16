@@ -30,6 +30,10 @@
         <li>A <code>pyang_output</code> object with the output of the pyang tree rendering step</li>
       </ul>
     </p>
+    <dl>
+      <dt><code>/version</code></dt>
+      <dd>This URL returns the version strings for xym and pyang.</dd>
+    </dl>
   </div>
 </body>
 

@@ -1,4 +1,3 @@
-import os
 from setuptools import setup
 
 def read(fname):
@@ -14,7 +13,7 @@ setup(
   author_email = 'camoberg@cisco.com',
   license = 'New-style BSD',
   url = 'https://github.com/cmoberg/bottle-yang-extractor-validator',
-  install_requires = ['bottle>=0.12', 'xym>=0.1'],
+  install_requires = ['bottle>=0.12', 'xym>=0.2', 'CherryPy>=3.8'],
   include_package_data = True,
   keywords = ['yang', 'extraction', 'validation'],
   classifiers = [],
