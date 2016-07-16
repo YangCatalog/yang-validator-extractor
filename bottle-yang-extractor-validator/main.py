@@ -24,7 +24,7 @@ pyang_cmd = '/usr/local/bin/pyang'
 confdc_cmd = '/usr/local/bin/confdc'
 confdc_version = '6.2'
 
-versions = { "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version }
+versions = { "validator_version" = __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version }
 
 debug = False
 

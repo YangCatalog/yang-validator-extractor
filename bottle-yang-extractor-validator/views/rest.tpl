@@ -19,7 +19,7 @@
     <p> The URLs below accepts GET requests and return their payload in JSON with the with the <code>Content-Type</code> header set to <code>application/json</code>.</p>
     <dl>
       <dt><code>/api/rfc/&lt;rfc&gt;</code></dt>
-      <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently available IETF RFCs. Replace <code>&lt;rfc&gt;</code> with the <b>number</b> ot the RFC, e.g. <mark>7223</mark>.</dd>
+      <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently available IETF RFCs. Replace <code>&lt;rfc&gt;</code> with the <b>number</b> of the RFC, e.g. <mark>7223</mark>.</dd>
       <dt><code>/api/draft/&lt;draft&gt;</code></dt>
       <dd>This URL allows you to fetch, extract and validate YANG modules that are part of currently published IETF drafts. Replace <code>&lt;draft&gt;</code> with the canonical <b>name</b> of the draft, e.g. <mark>draft-ietf-netmod-ip-cfg-14</mark>. Remove the version number at the end of the name to retrieve the most recent version published (e.g. <mark>draft-ietf-netmod-ip-cfg</mark>).</dd>
     </dl>
@@ -28,11 +28,12 @@
         <li>A <code>xym_stderr</code> object with the output of the xym extraction step</li>
         <li>A <code>pyang_stderr</code> object with the output of the pyang validation step</li>
         <li>A <code>pyang_output</code> object with the output of the pyang tree rendering step</li>
+        <li>A <code>confdc_stderr</code> object with the output of the confdc compiler step</li>
       </ul>
     </p>
     <dl>
       <dt><code>/version</code></dt>
-      <dd>This URL returns the version strings for xym and pyang.</dd>
+      <dd>This URL returns the version strings for all involved components (validation application, xym, pyang and confdc).</dd>
     </dl>
   </div>
 </body>
