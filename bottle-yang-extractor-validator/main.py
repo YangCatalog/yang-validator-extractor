@@ -74,7 +74,8 @@ def validate_yangfile(infilename, workdir):
 		pyang_stderr += os.path.basename(line)
 
 	cresfp = open(confdc_resfile, 'w+')
-	status = call([confdc_cmd, '-W', 'all', '-c', infile], stderr = cresfp)
+	status = call([confdc_cmd, '-W', 'all', '--yangpath', workdir, '-c', infile], stderr = cresfp)
+
 
 	cresfp.seek(0)
 

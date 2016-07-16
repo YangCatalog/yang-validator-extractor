@@ -60,7 +60,7 @@
                 '<h3>XYM Extraction</h3><pre class="xymstderr"/>' +
                 '<h3>Pyang Validation</h3><pre class="pyangstderr"/>' +
                 '<h3>Pyang Output</h3><pre class="pyangoutput"/>' +
-                '<h3>Confdc Output</h3><pre class="confdcoutput"/>');
+                '<h3>Confdc Output</h3><pre class="confdcstderr"/>');
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangstderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangoutput' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
