@@ -26,9 +26,9 @@
             $( '#maincanvas' ).append('<hr>');
             sanitized = key.split("@")[0].replace(".", "_");
             $( '#maincanvas' ).append('<div id="' + sanitized + '"> <h2>' + key + '</h2>' +
-                '<h3>Extraction</h3><pre class="xymstderr"/>' +
-                '<h3>Validation</h3><pre class="stderr"/>' +
-                '<h3>Output</h3><pre class="output"/>');
+                '<h3>XYM Extraction</h3><pre class="xymstderr"/>' +
+                '<h3>Pyang Validation</h3><pre class="stderr"/>' +
+                '<h3>Pyang Output</h3><pre class="output"/>');
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.stderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.output' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");

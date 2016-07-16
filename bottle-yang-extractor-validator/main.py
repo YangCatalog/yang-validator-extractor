@@ -17,7 +17,7 @@ __author__ = 'camoberg@tail-f.com'
 __copyright__ = "Copyright (c) 2015, Carl Moberg, camoberg@cisco.com"
 __license__ = "New-style BSD"
 __email__ = "camoberg@cisco.com"
-__version__ = "0.2.1"
+__version__ = "0.2"
 
 pyangcmd = '/usr/local/bin/pyang'
 yang_import_dir = '/opt/local/share/yang'
