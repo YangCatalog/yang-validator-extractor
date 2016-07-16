@@ -46,7 +46,7 @@ def create_output(url):
 		results[em] = { "pyang_stderr": cgi.escape(pyang_stderr),
 						"pyang_output": cgi.escape(pyang_output),
 						"xym_stderr": cgi.escape(xym_stderr),
-						"confdc_output": cgi.escape(confdc_stderr) }
+						"confdc_stderr": cgi.escape(confdc_stderr) }
 
 	rmtree(workdir)
 
