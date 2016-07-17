@@ -74,7 +74,7 @@ def validate_yangfile(infilename, workdir):
 		pyang_stderr += os.path.basename(line)
 
 	cresfp = open(confdc_resfile, 'w+')
-	status = call([confdc_cmd, '-W', 'all', '--yangpath', workdir, '-c', infile], stderr = cresfp)
+	status = call([confdc_cmd, '-W', 'all', '--yangpath', workdir, '--yangpath', yang_import_dir, '-c', infile], stderr = cresfp)
 
 
 	cresfp.seek(0)
@@ -128,8 +128,8 @@ def upload_file():
 				savedfiles.append(filename)
 
 	for file in savedfiles:
-		pyang_stderr, pyang_output = validate_yangfile(file, savedir)
-		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output }
+		pyang_stderr, pyang_output, confdc_stderr = validate_yangfile(file, savedir)
+		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output, "confdc_stderr": confdc_stderr}
 
  	rmtree(savedir)
 
