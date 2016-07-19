@@ -6,10 +6,13 @@ from subprocess import call
 from tempfile import *
 from shutil import *
 from zipfile import *
+from datetime import datetime
+from functools import wraps
+import logging
 
 from xym import xym
 import pyang
-from bottle import route, run, template, request, static_file, error
+from bottle import route, run, install, template, request, response, static_file, error
 
 # requests.packages.urllib3.disable_warnings()
 
@@ -27,6 +30,33 @@ confdc_version = '6.2'
 versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version }
 
 debug = False
+
+logger = logging.getLogger('yang-extractor-validator')
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler('yangvalidator.log')
+formatter = logging.Formatter('%(msg)s')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+def log_to_logger(fn):
+    '''
+    Wrap a Bottle request so that a log line is emitted after it's handled.
+    (This decorator can be extended to take the desired logger as a param.)
+    '''
+    @wraps(fn)
+    def _log_to_logger(*args, **kwargs):
+        request_time = datetime.now()
+        actual_response = fn(*args, **kwargs)
+        # modify this to log exactly what you need:
+        logger.info('%s %s %s %s %s' % (request.remote_addr,
+                                        request_time,
+                                        request.method,
+                                        request.url,
+                                        response.status))
+        return actual_response
+    return _log_to_logger
+
 
 def create_output(url):
 	workdir = mkdtemp()
@@ -217,5 +247,7 @@ if __name__ == '__main__':
 	if args.confd_path:
 		confd_path = args.confd_path
 		confdc_cmd = confd_path + '/bin/confdc'
+
+	install(log_to_logger)
 
 	run(server='cherrypy', host='0.0.0.0', port=port)
