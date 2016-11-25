@@ -25,7 +25,7 @@ __version__ = "0.3"
 yang_import_dir = '/opt/local/share/yang'
 pyang_cmd = '/usr/local/bin/pyang'
 confdc_cmd = '/usr/local/bin/confdc'
-confdc_version = '6.2'
+confdc_version = '6.2.1'
 
 versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version }
 
@@ -67,7 +67,7 @@ def create_output(url):
 	# Trickery to capture stderr from the xym tools for later use
 	stderr_ = sys.stderr
 	sys.stderr = result
-	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, strict_examples = False, debug_level = 0)
+	extracted_models = xym.xym(source_id = url, dstdir = workdir, srcdir = "", strict = True, strict_examples = True, debug_level = 0)
 	sys.stderr = stderr_
 	xym_stderr = result.getvalue()
 
