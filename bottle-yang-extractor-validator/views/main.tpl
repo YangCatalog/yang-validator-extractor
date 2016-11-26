@@ -7,7 +7,6 @@
     $( document ).ready(function() {
       var rfc_number = 0;
       var draft_name = "";
-
       $( "#rfc_submit" ).click(function() {
         rfc_number = $( "#rfc_number" ).val();
         $.ajax({
@@ -90,7 +89,7 @@
             <label for="data" class="info">Upload multiple YANG files or a zip archive</label>
             <div class="form-inline">
               <input type="file" id="data" name="data" class="form-control" multiple="multiple" />
-              <button id="file_submit" class="btn btn-default">Validate</button>
+              <button id="yang_file_submit" class="btn btn-default">Validate</button>
             </div>
           </div>
         </form>
@@ -100,7 +99,7 @@
             <label for="data" class="info">Upload Internet Draft</label>
             <div class="form-inline">
               <input type="file" id="data" name="data" class="form-control" multiple="multiple" />
-              <button id="file_submit" class="btn btn-default">Validate</button>
+              <button id="id_file_submit" class="btn btn-default">Validate</button>
             </div>
           </div>
         </form>
