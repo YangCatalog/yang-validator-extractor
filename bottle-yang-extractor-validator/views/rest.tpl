@@ -32,7 +32,7 @@
       </ul>
     </p>
     <dl>
-      <dt><code>/version</code></dt>
+      <dt><code>/api/versions</code></dt>
       <dd>This URL returns the version strings for all involved components (validation application, xym, pyang and confdc).</dd>
     </dl>
   </div>
