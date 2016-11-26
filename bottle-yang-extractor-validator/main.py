@@ -179,6 +179,10 @@ def json_validate_draft(draft):
 	results = create_output(url)
 	return results
 
+@route('/api/versions')
+def get_versions():
+    return versions
+
 @route('/rfc', method='GET')
 def validate_rfc_param():
 	rfc = request.query['number']
@@ -218,12 +222,8 @@ def rest():
 	return(template('rest'))
 
 @route('/about')
-def rest():
+def about():
 	return(template('about'))
-
-@route('/versions')
-def get_versions():
-	return versions
 
 @error(404)
 def error404(error):
