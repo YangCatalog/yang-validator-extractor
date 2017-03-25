@@ -29,6 +29,7 @@
         <li>A <code>pyang_stderr</code> object with the output of the pyang validation step</li>
         <li>A <code>pyang_output</code> object with the output of the pyang tree rendering step</li>
         <li>A <code>confdc_stderr</code> object with the output of the confdc compiler step</li>
+        <li>A <code>yanglint_stderr</code> object with the output of the yanglint validation step</li>
       </ul>
     </p>
     <dl>

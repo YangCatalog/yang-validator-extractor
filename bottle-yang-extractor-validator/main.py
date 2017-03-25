@@ -2,7 +2,7 @@
 
 import os, sys, cgi, argparse
 from StringIO import StringIO
-from subprocess import call
+from subprocess import call, check_output
 from tempfile import *
 from shutil import *
 from zipfile import *
@@ -24,10 +24,12 @@ __version__ = "0.3"
 
 yang_import_dir = '/opt/local/share/yang'
 pyang_cmd = '/usr/local/bin/pyang'
+yanglint_cmd = '/usr/local/bin/yanglint'
+yanglint_version = check_output(yanglint_cmd + " --version", shell=True)
 confdc_cmd = '/usr/local/bin/confdc'
 confdc_version = '6.2.1'
 
-versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version }
+versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version, "yanglint_version": yanglint_version }
 
 debug = False
 
@@ -72,22 +74,24 @@ def create_output(url):
 	xym_stderr = result.getvalue()
 
 	for em in extracted_models:
-		pyang_stderr, pyang_output, confdc_stderr = validate_yangfile(em, workdir)
+		pyang_stderr, pyang_output, confdc_stderr, yanglint_stderr = validate_yangfile(em, workdir)
 		results[em] = { "pyang_stderr": cgi.escape(pyang_stderr),
 						"pyang_output": cgi.escape(pyang_output),
 						"xym_stderr": cgi.escape(xym_stderr),
-						"confdc_stderr": cgi.escape(confdc_stderr) }
+						"confdc_stderr": cgi.escape(confdc_stderr),
+						"yanglint_stderr": cgi.escape(yanglint_stderr) }
 
 	rmtree(workdir)
 
 	return results
 
 def validate_yangfile(infilename, workdir):
-	pyang_stderr = pyang_output = confdc_stderr = ""
+	pyang_stderr = pyang_output = confdc_stderr = yanglint_stderr = ""
 	infile = os.path.join(workdir, infilename)
 	pyang_outfile = str(os.path.join(workdir, infilename) + '.pout')
 	pyang_resfile = str(os.path.join(workdir, infilename) + '.pres')
 	confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
+	yanglint_resfile = str(os.path.join(workdir, infilename) + '.lres')
 
 	presfp = open(pyang_resfile, 'w+')
 	status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
@@ -106,13 +110,22 @@ def validate_yangfile(infilename, workdir):
 	cresfp = open(confdc_resfile, 'w+')
 	status = call([confdc_cmd, '-W', 'all', '--yangpath', workdir, '--yangpath', yang_import_dir, '-c', infile], stderr = cresfp)
 
-
 	cresfp.seek(0)
 
 	for line in cresfp.readlines():
 		confdc_stderr += os.path.basename(line)
 
-	return pyang_stderr, pyang_output, confdc_stderr
+
+	yresfp = open(yanglint_resfile, 'w+')
+	status = call([yanglint_cmd, '-p', workdir, '-f', 'tree', '-V', infile], stderr = yresfp)
+
+	yresfp.seek(0)
+
+	for line in yresfp.readlines():
+		yanglint_stderr += os.path.basename(line)
+
+
+	return pyang_stderr, pyang_output, confdc_stderr, yanglint_stderr
 
 @route('/')
 @route('/validator')
@@ -158,8 +171,8 @@ def upload_file():
 				savedfiles.append(filename)
 
 	for file in savedfiles:
-		pyang_stderr, pyang_output, confdc_stderr = validate_yangfile(file, savedir)
-		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output, "confdc_stderr": confdc_stderr}
+		pyang_stderr, pyang_output, confdc_stderr, yanglint_stderr = validate_yangfile(file, savedir)
+		results[file] = { "pyang_stderr": pyang_stderr, "pyang_output": pyang_output, "confdc_stderr": confdc_stderr, "yanglint_stderr": yanglint_stderr}
 
  	rmtree(savedir)
 
@@ -236,6 +249,7 @@ if __name__ == '__main__':
 	parser.add_argument('-p', '--port', dest='port', type=int, help='Port to listen to (default is 8080)')
 	parser.add_argument('-d', '--debug', help='Turn on debugging output', action="store_true")
 	parser.add_argument('-c', '--confd-install-path', dest='confd_path', help='Path to ConfD')
+	parser.add_argument('-y', '--yanglint-install-path', dest='yanglint_path', help='Path (install prefix) to yanglint')
 	args = parser.parse_args()
 
 	if args.port:
@@ -247,6 +261,9 @@ if __name__ == '__main__':
 	if args.confd_path:
 		confd_path = args.confd_path
 		confdc_cmd = confd_path + '/bin/confdc'
+
+	if args.yanglint_path:
+		yanglint_cmd = args.yanglint_path + '/bin/yanglint'
 
 	install(log_to_logger)
 
