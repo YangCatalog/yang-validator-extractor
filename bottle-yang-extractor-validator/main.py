@@ -117,7 +117,7 @@ def validate_yangfile(infilename, workdir):
 
 
 	yresfp = open(yanglint_resfile, 'w+')
-	status = call([yanglint_cmd, '-p', workdir, '-f', 'tree', '-V', infile], stderr = yresfp)
+	status = call([yanglint_cmd, '-p', workdir, '-p', yang_import_dir, '-V', infile], stderr = yresfp)
 
 	yresfp.seek(0)
 
