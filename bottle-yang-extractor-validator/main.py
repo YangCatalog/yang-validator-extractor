@@ -261,4 +261,4 @@ if __name__ == '__main__':
 
 	install(log_to_logger)
 
-	run(server='cherrypy', host='localhost', port=port)
+	run(server='cherrypy', host='0.0.0.0', port=port)
