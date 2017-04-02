@@ -7,7 +7,6 @@
     $( document ).ready(function() {
       var rfc_number = 0;
       var draft_name = "";
-
       $( "#rfc_submit" ).click(function() {
         rfc_number = $( "#rfc_number" ).val();
         $.ajax({
@@ -29,11 +28,13 @@
                 '<h3>XYM Extraction</h3><pre class="xymstderr"/>' +
                 '<h3>Pyang Validation</h3><pre class="pyangstderr"/>' +
                 '<h3>Pyang Output</h3><pre class="pyangoutput"/>' +
-                '<h3>Confdc Output</h3><pre class="confdcstderr"/>');
+                '<h3>Confdc Output</h3><pre class="confdcstderr"/>' +
+                '<h3>yanglint Validation</h3><pre class="yanglintstderr"/>' +
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangstderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangoutput' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
             $( '#' + sanitized + ' > pre.confdcstderr' ).append(data[key].confdc_stderr.length > 0 ? data[key].confdc_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.yanglintstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yanglint_stderr : "No warnings or errors");
           }
         });
         return(false);
@@ -60,11 +61,13 @@
                 '<h3>XYM Extraction</h3><pre class="xymstderr"/>' +
                 '<h3>Pyang Validation</h3><pre class="pyangstderr"/>' +
                 '<h3>Pyang Output</h3><pre class="pyangoutput"/>' +
-                '<h3>Confdc Output</h3><pre class="confdcstderr"/>');
+                '<h3>Confdc Output</h3><pre class="confdcstderr"/>' +
+                '<h3>yanglint Validation</h3><pre class="yanglintstderr"/>');
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangstderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangoutput' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
-            $( '#' + sanitized + ' > pre.confdcstderr' ).append(data[key].confdc_stderr.length > 0 ? data[key].confdc_stderr : "No output");          }
+            $( '#' + sanitized + ' > pre.confdcstderr' ).append(data[key].confdc_stderr.length > 0 ? data[key].confdc_stderr : "No output");
+            $( '#' + sanitized + ' > pre.yanglintstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yanglint_stderr : "No warnings or errors"); }
         });
         return(false);
       }); 
@@ -90,7 +93,7 @@
             <label for="data" class="info">Upload multiple YANG files or a zip archive</label>
             <div class="form-inline">
               <input type="file" id="data" name="data" class="form-control" multiple="multiple" />
-              <button id="file_submit" class="btn btn-default">Validate</button>
+              <button id="yang_file_submit" class="btn btn-default">Validate</button>
             </div>
           </div>
         </form>
@@ -100,7 +103,7 @@
             <label for="data" class="info">Upload Internet Draft</label>
             <div class="form-inline">
               <input type="file" id="data" name="data" class="form-control" multiple="multiple" />
-              <button id="file_submit" class="btn btn-default">Validate</button>
+              <button id="id_file_submit" class="btn btn-default">Validate</button>
             </div>
           </div>
         </form>
@@ -151,10 +154,12 @@
         <pre class="output">{{!content["pyang_output"] if len(content["pyang_output"]) != 0 else "No warnings or errors"}}</pre>
         <h3>Confdc Output</h3>
         <pre class="output">{{!content["confdc_stderr"] if len(content["confdc_stderr"]) != 0 else "No warnings or errors"}}</pre>
+        <h3>yanglint Validation</h3>
+        <pre class="stderr">{{!content["yanglint_stderr"] if len(content["yanglint_stderr"]) != 0 else "No warnings or errors"}}</pre>
       </div>
     % end 
   % end
-    <small class="text-muted">validator version: {{versions["validator_version"]}}, xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}} confdc version: {{versions["confdc_version"]}}</small>
+    <small class="text-muted">validator version: {{versions["validator_version"]}}, xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}} confdc version: {{versions["confdc_version"]}}, yanglint version: {{versions["yanglint_version"]}}</small>
   </div>
 </body>
 

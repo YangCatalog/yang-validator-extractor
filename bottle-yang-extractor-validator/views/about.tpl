@@ -15,7 +15,7 @@
       <li role="presentation" class="active"><a href="/about">About</a></li>
     </ul>
     <h1>About</h1>
-    <p class="lead">This application is written using the <a href="http://bottlepy.org/docs/dev/index.html">Bottle</a> framework using a combination of <a href="https://github.com/YangModels/yang/tree/master/tools/xym">xym</a> to fetch and extract YANG modules from IETF specifications, and <a href="https://github.com/mbj4668/pyang">pyang</a> to validate the extracted modules. All code is available in <a href="https://github.com/cmoberg/bottle-yang-extractor-validator">github</a> under a <a href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</a>. If you have feedback, feature requests or a bug to report, please open an <a href="https://github.com/cmoberg/bottle-yang-extractor-validator/issues">issue</a> on github.</p>
+    <p class="lead">This application is written using the <a href="http://bottlepy.org/docs/dev/index.html">Bottle</a> framework using a combination of <a href="https://github.com/YangModels/yang/tree/master/tools/xym">xym</a> to fetch and extract YANG modules from IETF specifications, <a href="https://github.com/mbj4668/pyang">pyang</a> to validate the extracted modules, and the confdc YANG validator and compiler from the <a href="http://www.tail-f.com/confd-basic/">ConfD</a> management agent toolkit. The web application code is available in <a href="https://github.com/cmoberg/bottle-yang-extractor-validator">github</a> under a <a href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</a>. If you have feedback, feature requests or a bug to report, please open an <a href="https://github.com/cmoberg/bottle-yang-extractor-validator/issues">issue</a> on github.</p>
   </div>
 </body>
 
