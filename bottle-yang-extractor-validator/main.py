@@ -99,6 +99,8 @@ def validate_yangfile(infilename, workdir):
 		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--mef', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
 	elif infilename.startswith("ieee", 0):
 		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ieee', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+	elif infilename.startswith("bbf", 0):
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--bbf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
         # Default validation
 	else:
 		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
