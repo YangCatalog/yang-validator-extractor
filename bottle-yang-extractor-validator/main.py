@@ -94,8 +94,21 @@ def validate_yangfile(infilename, workdir):
 	yanglint_resfile = str(os.path.join(workdir, infilename) + '.lres')
 
 	presfp = open(pyang_resfile, 'w+')
-	status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
-
+	if infilename.startswith("ietf", 0):
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ietf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+        # Validate a Cisco YANG module that can start with Cisco or cisco.
+	elif infilename.startswith("isco", 1):
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--cisco', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+	elif infilename.startswith("mef", 0):
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--mef', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+	elif infilename.startswith("ieee", 0):
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--ieee', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+	elif infilename.startswith("bbf", 0):
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '--bbf', '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+        # Default validation
+	else:
+		status = call([pyang_cmd, '-p', yang_import_dir, '-p', workdir, '-f', 'tree', infile, '-o', pyang_outfile], stderr = presfp)
+                
 	if os.path.isfile(pyang_outfile):
 		outfp = open(pyang_outfile, 'r')
 		pyang_output = str(outfp.read())
