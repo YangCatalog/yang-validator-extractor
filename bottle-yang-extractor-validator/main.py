@@ -135,7 +135,7 @@ def validate_yangfile(infilename, workdir):
 	yresfp.seek(0)
 
 	for line in yresfp.readlines():
-		yanglint_stderr += os.path.basename(line)
+		yanglint_stderr += line
 
 
 	return pyang_stderr, pyang_output, confdc_stderr, yanglint_stderr
