@@ -38,7 +38,7 @@
           }
         });
         return(false);
-      });
+      };
 
       $( "#draft_submit" ).click(function() {
         draft_name = $( "#draft_name" ).val();
@@ -71,7 +71,7 @@
         });
         return(false);
       }); 
-    });
+    });     
   </script>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/pyangui.css">
