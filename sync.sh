@@ -3,7 +3,7 @@
 # found YANG modules and packs it up in a tarball.
 #
 
-TMPDIR=$(mktemp -d /var/tmp/ietfmirror)
+TMPDIR=$(mktemp -d /var/tmp/yangmodules)
 if [ $? -ne 0 ]; then
 	echo "$0: Can't create temp file, exiting..."
 	exit 1
