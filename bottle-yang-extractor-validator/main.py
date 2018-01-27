@@ -2,7 +2,7 @@
 
 import os, sys, cgi, argparse
 from StringIO import StringIO
-from subprocess import call, check_output
+from subprocess import call, check_output, CalledProcessError
 from tempfile import *
 from shutil import *
 from zipfile import *
@@ -27,7 +27,10 @@ pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
 yanglint_version = check_output(yanglint_cmd + " --version", shell=True)
 confdc_cmd = '/usr/local/bin/confdc'
-confdc_version = check_output(confdc_cmd + " --version", shell=True)
+try:
+    confdc_version = check_output(confdc_cmd + " --version", shell=True)
+except CalledProcessError:
+    pass
 
 versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version, "yanglint_version": yanglint_version }
 
