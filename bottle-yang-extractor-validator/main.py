@@ -27,12 +27,6 @@ pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
 yanglint_version = check_output(yanglint_cmd + " --version", shell=True)
 confdc_cmd = '/usr/local/bin/confdc'
-try:
-    confdc_version = check_output(confdc_cmd + " --version", shell=True)
-except CalledProcessError:
-    pass
-
-versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version, "yanglint_version": yanglint_version }
 
 debug = False
 
@@ -282,5 +276,12 @@ if __name__ == '__main__':
         yanglint_cmd = args.yanglint_path + '/bin/yanglint'
 
     install(log_to_logger)
+
+    try:
+        confdc_version = check_output(confdc_cmd + " --version", stderr=STDOUT, shell=True)
+    except CalledProcessError:
+        pass
+
+    versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__, "confdc_version": confdc_version, "yanglint_version": yanglint_version }
 
     run(server='cherrypy', host='0.0.0.0', port=port)
