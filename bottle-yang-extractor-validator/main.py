@@ -22,7 +22,7 @@ __license__ = "New-style BSD"
 __email__ = "camoberg@cisco.com"
 __version__ = "0.3"
 
-yang_import_dir = '/var/tmp/yangmodules'
+yang_import_dir = '/var/tmp/yangmodules/extracted'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
 yanglint_version = check_output(yanglint_cmd + " --version", shell=True)
