@@ -17,5 +17,5 @@ setup(
   install_requires = ['bottle>=0.12.13', 'xym>=0.4.2', 'CherryPy<9.0.0', 'pyang==1.7.3'],
   include_package_data = True,
   keywords = ['yang', 'extraction', 'validation'],
-  classifiers = [],
+  classifiers = []
 )
