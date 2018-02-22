@@ -117,7 +117,6 @@ def validate_yangfile(infilename, workdir):
     for line in presfp.readlines():
         pyang_stderr += os.path.basename(line)
 
-    print("CONFDC_CMD: %s" % confdc_cmd)
     cresfp = open(confdc_resfile, 'w+')
     status = call([confdc_cmd, '-W', 'all', '--yangpath', workdir, '--yangpath', yang_import_dir, '-c', infile], stderr = cresfp)
 
