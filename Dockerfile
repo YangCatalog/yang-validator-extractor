@@ -3,6 +3,7 @@ FROM ubuntu:latest
 RUN apt-get update
 RUN apt-get -y install rsync python-pip
 RUN pip2 install --upgrade pip
+RUN pip2 install requests
 RUN pip2 install xym
 
 COPY ./sync.sh .
@@ -10,17 +11,28 @@ RUN ./sync.sh
 
 
 FROM ubuntu:latest
-ENV confd_version 6.5.3
+ENV confd_version 6.7
 
-RUN echo "deb http://download.opensuse.org/repositories/home:/liberouter/xUbuntu_17.04/ /" > /etc/apt/sources.list.d/libyang.list
 RUN apt-get update
-RUN apt-get install --allow-unauthenticated -y \
+RUN apt-get install -y \
+    wget \
+    gnupg2
+
+RUN echo "deb http://download.opensuse.org/repositories/home:/liberouter/xUbuntu_18.04/ /" > /etc/apt/sources.list.d/libyang.list
+RUN wget -nv https://download.opensuse.org/repositories/home:liberouter/xUbuntu_18.04/Release.key -O Release.key
+RUN apt-key add - < Release.key
+
+RUN apt-get update
+
+RUN apt-get install -y \
 	libyang \
 	python-pip
 
 RUN pip2 install --upgrade pip
 RUN pip2 install \
-	pyang
+	pyang \
+    requests
+
 
 RUN groupadd web
 RUN useradd -d /home/bottle -m bottle
