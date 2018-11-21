@@ -26,9 +26,10 @@ RUN apt-get update
 
 RUN apt-get install -y \
 	libyang \
-	python-pip
+	python-pip \
+    openssh-client
 
-RUN pip2 install --upgrade pip
+RUN pip2 install pip==9.0.3
 RUN pip2 install \
 	pyang \
     requests
