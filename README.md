@@ -16,18 +16,21 @@ The following tools will need to be manually preinstalled:
 - The default port is 8080 to avoid requiring root privileges. Use the `--port=80` option with root privileges to listen to the default HTTP port.
 
 ## Preparing the YANG modules
+
 The `sync.sh` script uses rsync to download all IETF RFCs and drafts to a temporary directory, and then extracts all found YANG modules using `xym`. Please *read and understand* the script before you run it.
 
 ## Building and Deploying Docker Image
+
 The `Dockerfile` contains a two-stage build with the first stage downloading and preparing the YANG modules, and the second stage installs the runtime requirements and the prepared modules in single image ready for deployment.
 
-The NSO configuraiton is setup to listen to port 8080 to avoid requiring root to run it, so remember to use portmapping when you start the container: 
+The NSO configuration is setup to listen to port 8080 to avoid requiring root to run it, so remember to use portmapping when you start the container: 
 
-```
-$ docker run -p 0.0.0.0:80:8080
+```console
+docker run -p 0.0.0.0:80:8080
 ```
 
 ## Running the Validator in AWS
+
 The current yangvalidator.org instance is running on docker on an AWS EC2 `t2.micro` instance. The docker image is pushed to a repository in [Amazon ECS](https://aws.amazon.com/ecs/) and then pulled from the EC2 instance.
 
 Remember to set up the appropriate Security Group definition for the EC2 instance if you expect to reach the web server from the outside.

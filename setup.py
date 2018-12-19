@@ -14,7 +14,7 @@ setup(
   author_email = 'camoberg@cisco.com',
   license = 'New-style BSD',
   url = 'https://github.com/cmoberg/bottle-yang-extractor-validator',
-  install_requires = ['bottle>=0.12.13', 'xym>=0.4.2', 'CherryPy<9.0.0', 'pyang==1.7.3'],
+  install_requires = ['bottle>=0.12.13', 'xym>=0.4.2', 'CherryPy<9.0.0', 'pyang==1.7.5'],
   include_package_data = True,
   keywords = ['yang', 'extraction', 'validation'],
   classifiers = []

@@ -225,7 +225,6 @@ def validate_rfc(rfc):
     response = []
     url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
     results = create_output(url)
-    print "RESULTS", results
     return template('result', results = results)
 
 @route('/draft/<draft>')
@@ -233,7 +232,6 @@ def validate_draft(draft):
     response = []
     url = 'http://www.ietf.org/id/{!s}'.format(draft)
     results = create_output(url)
-    print "RESULTS", results
     return template('result', results = results)
 
 @route('/static/:path#.+#', name='static')
