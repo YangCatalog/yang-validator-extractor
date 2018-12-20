@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
   name = 'bottle-yang-extractor-validator',
-  version = '0.3.1',
+  version = '0.3.2',
   description = ('A web application that allows you to fetch, extract and validate YANG modules by RFC number, by IETF draft name, or by uploading YANG files.'),
   long_description=read('README.md'),
   packages = ['bottle-yang-extractor-validator'],
