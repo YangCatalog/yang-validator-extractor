@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+
+{% load staticfiles %}
+
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,13 +11,15 @@
       var rfc_number = 0;
       var draft_name = "";
       $( "#rfc_submit" ).click(function() {
+        $('.loader').show();
         rfc_number = $( "#rfc_number" ).val();
         $.ajax({
-            url: "/api/rfc/" + rfc_number,
+            url: "/yangvalidator/api/rfc/" + rfc_number,
         }).then(function(data, textStatus, jqXHR) {
+          $('.loader').hide();
           $( "#maincanvas" ).empty()
           $( '#maincanvas' ).append('<hr>');
-          $( '#maincanvas' ).append('<p>Extracted ' + Object.keys(data).length + ' YANG module(s)</p>');          
+          $( '#maincanvas' ).append('<p>Extracted ' + Object.keys(data).length + ' YANG module(s)</p>');
           $( '#maincanvas' ).append('<ul>');
           for (var key in data) {
             sanitized = key.split("@")[0].replace(".", "_");
@@ -41,13 +46,15 @@
       });
 
       $( "#draft_submit" ).click(function() {
+        $('.loader').show();
         draft_name = $( "#draft_name" ).val();
         $.ajax({
-            url: "/api/draft/" + draft_name,
+            url: "/yangvalidator/api/draft/" + draft_name,
         }).then(function(data, textStatus, jqXHR) {
+          $('.loader').hide();
           $( "#maincanvas" ).empty()
           $( '#maincanvas' ).append('<hr>');
-          $( '#maincanvas' ).append('<p>Extracted ' + Object.keys(data).length + ' YANG module(s)</p>');          
+          $( '#maincanvas' ).append('<p>Extracted ' + Object.keys(data).length + ' YANG module(s)</p>');
           $( '#maincanvas' ).append('<ul>');
           for (var key in data) {
             sanitized = key.split("@")[0].replace(".", "_");
@@ -70,25 +77,32 @@
             $( '#' + sanitized + ' > pre.yanglintstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yanglint_stderr : "No warnings or errors"); }
         });
         return(false);
-      }); 
-    });     
+      });
+      $('.loader').hide();
+      $('.loader').bind('ajaxStart', function(){
+         $(this).show();
+      }).bind('ajaxStop', function(){
+         $(this).hide();
+      });
+    });
   </script>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/pyangui.css">
+  <link rel="stylesheet" href="{% static "css/pyangui.css" %}">
   <title>YANG Extractor and Validator</title>
 </head>
 <body>
   <div class="container">
   <a href="https://github.com/cmoberg/bottle-yang-extractor-validator"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
       <ul class="nav nav-pills">
-        <li role="presentation" class="active"><a href="/">Home</a></li>
-        <li role="presentation"><a href="/rest">REST API</a></li>
-        <li role="presentation"><a href="/about">About</a></li>
+        <li role="presentation" class="active"><a href="/yangvalidator">Home</a></li>
+        <li role="presentation"><a href="rest">REST API</a></li>
+        <li role="presentation"><a href="about">About</a></li>
       </ul>
-  <h1>Fetch, extract and validate YANG models</h1>
+  <h1>Fetch, extract and validate YANG models {{ my }}</h1>
     <p class="lead" >The form below allows you to fetch, extract and validate YANG modules by RFC number, by IETF draft name, or by uploading IETF drafts or YANG files.</p>
 
-        <form name="uploadform" id="uploadform" action="/validator" method="post" enctype="multipart/form-data">
+        <form name="uploadform" id="uploadform" action="/yangvalidator/validator" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
           <div class="form-group">
             <label for="data" class="info">Upload multiple YANG files or a zip archive</label>
             <div class="form-inline">
@@ -98,7 +112,8 @@
           </div>
         </form>
 
-        <form name="uploadid" id="uploadid" action="/draft-validator" method="post" enctype="multipart/form-data">
+        <form name="uploadid" id="uploadid" action="/yangvalidator/draft-validator" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
           <div class="form-group">
             <label for="data" class="info">Upload Internet Draft</label>
             <div class="form-inline">
@@ -127,39 +142,56 @@
             </div>
           </div>
         </form>
-
-    <div id="maincanvas" />
+    <div class="loader"></div>
+    <div id="maincanvas" >
       <hr>
-  % if len(results) != 0:
-      <p>Extracted {{len(results)}} YANG modules</p>
+  {% if results %}
+      <p>Extracted {{ results|length }} YANG modules</p>
       <ul>
-    % for name, content in results.iteritems():
-        <li><a href="#{{name.split("@")[0].replace(".", "_")}}">{{name}}</a></li>
-    % end
+    {% for name, content in results.items %}
+        <li><a href="#{{ content.name_split }}"> {{ name }} </a></li>
+    {% endfor %}
       </ul>
-  %end
 
-  % if len(results) != 0:
-    % for name, content in results.iteritems():
-      <div>
+    {% for name, content in results.items %}
+      <div id="{{ content.name_split }}">
         <hr>
-        <h2 id="{{name.split("@")[0].replace(".", "_")}}">{{name}}</h2>
-        % if "xym_stderr" in content:
+        <h2 > {{ name }} </h2>
         <h3>XYM Extraction</h3>
-        <pre class="stderr">{{!content["xym_stderr"] if len(content["xym_stderr"]) != 0 else "No warnings or errors"}}</pre>
-        % end
+        {% if content.xym_stderr %}
+            <pre class="xymstderr">{{ content.xym_stderr }}</pre>
+        {% else %}
+            <pre class="xymstderr">No warnings or errors</pre>
+        {% endif %}
         <h3>Pyang Validation</h3>
-        <pre class="stderr">{{!content["pyang_stderr"] if len(content["pyang_stderr"]) != 0 else "No warnings or errors"}}</pre>
+        {% if content.pyang_stderr %}
+            <pre class="pyangstderr"> {{ content.pyang_stderr }} </pre>
+        {% else %}
+            <pre class="pyangstderr">No warnings or errors</pre>
+        {% endif %}
         <h3>Pyang Output</h3>
-        <pre class="output">{{!content["pyang_output"] if len(content["pyang_output"]) != 0 else "No warnings or errors"}}</pre>
+        {% if content.pyang_output %}
+            <pre class="pyangoutput">{{ content.pyang_output }}</pre>
+        {% else %}
+            <pre class="pyangoutput">No warnings or errors</pre>
+        {% endif %}
         <h3>Confdc Output</h3>
-        <pre class="output">{{!content["confdc_stderr"] if len(content["confdc_stderr"]) != 0 else "No warnings or errors"}}</pre>
+        {% if content.confdc_stderr %}
+            <pre class="confdcstderr">{{ content.confdc_stderr }}</pre>
+        {% else %}
+            <pre class="confdcstderr">No warnings or errors</pre>
+        {% endif %}
         <h3>yanglint Validation</h3>
-        <pre class="stderr">{{!content["yanglint_stderr"] if len(content["yanglint_stderr"]) != 0 else "No warnings or errors"}}</pre>
+        {% if content.yanglint_stderr %}
+            <pre class="yanglintstderr">{{ content.yanglint_stderr }}</pre>
+        {% else %}
+            <pre class="yanglintstderr">No warnings or errors</pre>
+        {% endif %}
       </div>
-    % end 
-  % end
-    <small class="text-muted">validator version: {{versions["validator_version"]}}, xym version: {{versions["xym_version"]}}, pyang version: {{versions["pyang_version"]}} confdc version: {{versions["confdc_version"]}}, yanglint version: {{versions["yanglint_version"]}}</small>
+    {% endfor %}
+  {% endif %}
+    </div>
+    <small class="text-muted">validator version: {{ validator_version }}, xym version: {{ xym_version }}, pyang version: {{ pyang_version }}, confdc version: {{ confdc_version }}, yanglint version: {{ yanglint_version }}</small>
   </div>
 </body>
 

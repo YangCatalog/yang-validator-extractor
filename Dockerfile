@@ -1,10 +1,10 @@
 FROM ubuntu:latest
 
 RUN apt-get update
-RUN apt-get -y install rsync python-pip
-RUN pip2 install --upgrade pip
-RUN pip2 install requests
-RUN pip2 install xym
+RUN apt-get -y install rsync python3.6 python3-pip
+RUN pip3 install --upgrade pip
+RUN pip3 install requests
+RUN pip3 install xym
 
 COPY ./sync.sh .
 RUN ./sync.sh
@@ -26,25 +26,26 @@ RUN apt-get update
 
 RUN apt-get install -y \
 	libyang \
-	python-pip \
+	python3.6 \
+	python3-pip \
     openssh-client
 
-RUN pip2 install pip==9.0.3
-RUN pip2 install \
-	pyang \
-    requests
+RUN pip3 install --upgrade pip
+RUN pip3 install requests
+RUN pip3 install xym
+COPY ./requirements.txt .
+RUN pip3 install -r requirements.txt
 
 
 RUN groupadd web
 RUN useradd -d /home/bottle -m bottle
 
-COPY . /home/bottle/
+COPY ./* /home/bottle/bottle-yang-extractor-validator/
 
 WORKDIR /home/bottle
-RUN pip2 install .
 
 RUN mkdir /home/bottle/confd-${confd_version}
-RUN /home/bottle/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
+RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
 
 RUN mkdir -pv /var/tmp/yangmodules/extracted 
 COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted 
@@ -53,4 +54,5 @@ WORKDIR /home/bottle/bottle-yang-extractor-validator
 
 EXPOSE 8080
 
-ENTRYPOINT /usr/bin/python /home/bottle/bottle-yang-extractor-validator/main.py --confd-install-path /home/bottle/confd-${confd_version}
+CMD exec uwsgi --http :8005 --protocol uwsgi --plugin python3 \
+  -w yangvalidator.wsgi:application --need-app
