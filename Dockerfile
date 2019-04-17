@@ -52,7 +52,7 @@ COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted
 
 WORKDIR /home/bottle/bottle-yang-extractor-validator
 
-EXPOSE 8080
+EXPOSE 8090
 
 CMD exec uwsgi --http :8005 --protocol uwsgi --plugin python3 \
   -w yangvalidator.wsgi:application --need-app
