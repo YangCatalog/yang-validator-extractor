@@ -21,6 +21,8 @@ from . import views
 
 app_name = 'yangvalidator'
 urlpatterns = [
+    path('', views.index, name='index'),
+    path('/', views.index, name='index'),
     path('yangvalidator/', views.index, name='index'),
     path('yangvalidator/rest', views.rest, name='rest'),
     path('yangvalidator/about', views.about, name='about'),

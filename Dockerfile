@@ -52,7 +52,9 @@ COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted
 
 WORKDIR /home/bottle/bottle-yang-extractor-validator
 
+RUN ln -s /usr/bin/yanglint /usr/local/bin/yanglint
 EXPOSE 8090
-
-CMD exec uwsgi --http :8005 --protocol uwsgi --plugin python3 \
+# Support arbitrary UIDs as per OpenShift guidelines
+USER 1000:1001
+CMD exec uwsgi --socket :8090 --protocol uwsgi --plugin python3 \
   -w yangvalidator.wsgi:application --need-app

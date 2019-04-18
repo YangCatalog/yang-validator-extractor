@@ -35,7 +35,8 @@ ALLOWED_HOSTS = [
     'yangcatalog.org',
     'www.yangcatalog.org',
     'new.yangcatalog.org',
-    'localhost'
+    'localhost',
+    '127.0.0.1'
 ]
 
 
