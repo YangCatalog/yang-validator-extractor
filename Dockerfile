@@ -36,7 +36,6 @@ RUN pip3 install xym
 COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
 
-
 RUN groupadd web
 RUN useradd -d /home/bottle -m bottle
 
