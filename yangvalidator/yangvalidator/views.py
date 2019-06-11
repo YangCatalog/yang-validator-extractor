@@ -24,7 +24,7 @@ __version__ = "0.4.0"
 
 
 logger = logging.getLogger(__name__)
-yang_import_dir = '/var/tmp/yangmodules/extracted'
+yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
 yanglint_version = check_output(yanglint_cmd + " --version", shell=True).decode('utf-8').rstrip()
