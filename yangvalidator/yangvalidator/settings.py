@@ -29,7 +29,7 @@ django_secret_key = config.get('Yang-Search-Section', 'yangvalidator_secret_key'
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'yangcatalog.org',
