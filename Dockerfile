@@ -9,7 +9,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install requests
 RUN pip3 install xym
 
-COPY ./sync.sh .
+COPY ./bottle-yang-extractor-validator/sync.sh .
 RUN ./sync.sh
 
 
@@ -36,17 +36,18 @@ RUN apt-get install -y \
 RUN pip3 install --upgrade pip
 RUN pip3 install requests
 RUN pip3 install xym
-COPY ./requirements.txt .
+COPY ./bottle-yang-extractor-validator/requirements.txt .
 RUN pip3 install -r requirements.txt
 
 RUN groupadd web
 RUN useradd -d /home/bottle -m bottle
 
-COPY ./* /home/bottle/bottle-yang-extractor-validator/
+COPY ./bottle-yang-extractor-validator/* /home/bottle/bottle-yang-extractor-validator/
 
 WORKDIR /home/bottle
 
 RUN mkdir /home/bottle/confd-${confd_version}
+COPY ./resources/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin
 RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
 
 RUN mkdir -pv /var/tmp/yangmodules/extracted 
