@@ -21,26 +21,25 @@ RUN apt-get install -y \
     wget \
     gnupg2
 
+RUN apt-get update \
+  && apt-get -y install clang cmake libpcre3-dev git libxml2-dev \
+  && cd /home; mkdir w3cgrep \
+  && cd /home; git clone https://github.com/CESNET/libyang.git \
+  && cd /home/libyang; mkdir build \
+  && cd /home/libyang/build && cmake .. && make && make install
 
 # Install Java.
 RUN \
   apt-get update && \
-#  apt-get install -y libffi libssl1.0 libcrypto.so.6 openjdk-7-jdk openssh-client build-essential ant && \
   apt-get install -y openssh-client build-essential libssl-dev libssl1.0.0
-
-
-RUN echo "deb http://download.opensuse.org/repositories/home:/liberouter/xUbuntu_18.04/ /" > /etc/apt/sources.list.d/libyang.list
-RUN wget -nv https://download.opensuse.org/repositories/home:liberouter/xUbuntu_18.04/Release.key -O Release.key
-RUN apt-key add - < Release.key
 
 RUN apt-get update
 
 RUN apt-get install -y \
-	libyang \
 	python3.6 \
 	python3-pip \
     openssh-client \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install requests
@@ -64,7 +63,6 @@ COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted
 
 WORKDIR /home/bottle/bottle-yang-extractor-validator
 
-RUN ln -s /usr/bin/yanglint /usr/local/bin/yanglint
 EXPOSE 8090
 # Support arbitrary UIDs as per OpenShift guidelines
 USER ${YANG_ID_GID}:${YANG_ID_GID}
