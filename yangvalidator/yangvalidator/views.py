@@ -40,7 +40,6 @@ __version__ = "0.4.0"
 
 
 logger = logging.getLogger(__name__)
-logger.error('level is ' + logging.getLogger(__name__).level)
 yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
