@@ -194,6 +194,7 @@ def validate_yangfile(infilename, workdir):
     poutresfp.close()
 
     for line in presfp.readlines():
+        logger.info(line)
         pyang_stderr += os.path.basename(line)
     pyang_res['stderr'] = pyang_stderr
     pyang_res['name'] = 'pyang'
