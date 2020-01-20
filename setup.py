@@ -37,7 +37,7 @@ setup(
     author_email='camoberg@cisco.com, miroslav.kovac@pantheon.tech',
     license='New-style BSD',
     url='https://github.com/cmoberg/bottle-yang-extractor-validator',
-    install_requires=['xym>=0.4.4', 'pyang==1.7.8', 'Django>=2.1.2', 'uWSGI>=2.0.18', 'certifi==2018.11.29',
+    install_requires=['xym>=0.4.7', 'pyang==1.7.8', 'Django>=2.1.2', 'uWSGI>=2.0.18', 'certifi==2018.11.29',
                       'chardet==3.0.4', 'idna==2.8', 'lxml==4.3.2', 'pytz==2018.9', 'requests==2.21.0',
                       'urllib3>=1.24.2'],
     include_package_data=True,
