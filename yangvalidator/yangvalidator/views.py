@@ -23,14 +23,17 @@ from io import StringIO
 from shutil import *
 from subprocess import CalledProcessError, call, check_output
 from tempfile import *
-from zipfile import *
+from zipfile import ZipFile
 
 import pyang
 from django import forms
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.shortcuts import render
+from pyang import error
+from pyang import plugin
 from xym import xym
+from .yangParser import create_context
 
 __author__ = "Miroslav Kovac, Carl Moberg"
 __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
@@ -122,15 +125,28 @@ def create_output(url, for_datatracker=False):
     return results
 
 
+def print_pyang_output(ctx):
+    err = ''
+    out = ''
+    for (epos, etag, eargs) in ctx.errors:
+        elevel = error.err_level(etag)
+        if error.is_warning(elevel):
+            kind = "warning"
+        else:
+            kind = "error"
+
+        err += str(epos) + ': %s: ' % kind + \
+                error.err_to_str(etag, eargs) + '\n'
+    return err, out
+
+
 def validate_yangfile(infilename, workdir):
     logger.info('validating {}'.format(infilename))
     pyang_res = {}
     yanglint_res = {}
     confdc_res = {}
-    pyang_stderr = pyang_output = confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = ""
+    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = ""
     infile = os.path.join(workdir, infilename)
-    pyang_outfile = str(os.path.join(workdir, infilename) + '.pout')
-    pyang_resfile = str(os.path.join(workdir, infilename) + '.pres')
     confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
     confdc_outfile = str(os.path.join(workdir, infilename) + '.cout')
     yanglint_resfile = str(os.path.join(workdir, infilename) + '.lres')
@@ -138,64 +154,58 @@ def validate_yangfile(infilename, workdir):
 
     basic_append_p = []
     confdc_append = []
+    pyang_command = []
     pyang_command_to_json = []
     confdc_command_to_json = []
+
+    pyang_context_directories = [workdir]
     libs = ''
     if os.path.exists(yang_import_dir):
         confdc_append = ['--yangpath', yang_import_dir]
         basic_append_p = ['-p', yang_import_dir]
+        pyang_context_directories.append(yang_import_dir)
         yang_import_dir_split = yang_import_dir.split('/')
         yang_import_dir_split[-1] = 'libs-{}'.format(yang_import_dir_split[-1])
         libs = '/'.join(yang_import_dir_split)
         pyang_command_to_json.extend([pyang_cmd, '-p', libs])
         confdc_command_to_json.extend([confdc_cmd, '--yangpath', libs])
-    presfp = open(pyang_resfile, 'w+')
-    poutresfp = open(pyang_outfile, 'w+')
     cmds = [pyang_cmd]
     cmds.extend(basic_append_p)
     workdir_split = workdir.split('/')
     workdir_split[-1] = 'workdir-{}'.format(workdir_split[-1])
-    workdir_to_json = '/'.join(workdir_split)
-    if infilename.startswith("ietf", 0):
-        pyang_command = cmds + ['-p', workdir, '--ietf', infile]
-        pyang_command_to_json.extend(['-p', workdir_to_json, '--ietf', '{}/{}'.format(workdir_to_json, infilename)])
-        status = call(pyang_command, stdout=poutresfp, stderr=presfp)
-        # Validate a Cisco YANG module that can start with 'Cisco' or 'cisco'.
-    elif infilename.startswith("isco", 1):
-        pyang_command = cmds + ['-p', workdir, '--cisco',infile]
-        pyang_command_to_json.extend(['-p', workdir_to_json, '--cisco', '{}/{}'.format(workdir_to_json, infilename)])
-        status = call(pyang_command, stdout=poutresfp, stderr=presfp)
-    elif infilename.startswith("mef", 0):
-        pyang_command = cmds + ['-p', workdir, '--mef', infile]
-        pyang_command_to_json.extend(['-p', workdir_to_json, '--mef', '{}/{}'.format(workdir_to_json, infilename)])
-        status = call(pyang_command, stdout=poutresfp, stderr=presfp)
-    elif infilename.startswith("ieee", 0):
-        pyang_command = cmds + ['-p', workdir, '--ieee', infile]
-        pyang_command_to_json.extend(['-p', workdir_to_json, '--ieee', '{}/{}'.format(workdir_to_json, infilename)])
-        status = call(pyang_command, stdout=poutresfp, stderr=presfp)
-    elif infilename.startswith("bbf", 0):
-        pyang_command = cmds + ['-p', workdir, '--bbf', infile]
-        pyang_command_to_json.extend(['-p', workdir_to_json, '--bbf', '{}/{}'.format(workdir_to_json, infilename)])
-        status = call(pyang_command, stdout=poutresfp, stderr=presfp)
-        # Default validation
-    else:
-        pyang_command = cmds + ['-p', workdir, infile]
-        pyang_command_to_json.extend(['-p', workdir_to_json, '{}/{}'.format(workdir_to_json, infilename)])
-        status = call(pyang_command, stdout=poutresfp, stderr=presfp)
-    pyang_res['time'] = datetime.now(timezone.utc).isoformat()
-    if os.path.isfile(pyang_outfile):
-        poutresfp.seek(0)
-        for line in poutresfp.readlines():
-            pyang_output += os.path.basename(line)
-    else:
-        pass
-    pyang_res['stdout'] = pyang_output
-    presfp.seek(0)
-    poutresfp.close()
+    plugin.init([])
+    ctx = create_context(':'.join(pyang_context_directories))
 
-    for line in presfp.readlines():
-        logger.info(line)
-        pyang_stderr += os.path.basename(line)
+    ctx.opts.lint_namespace_prefixes = []
+    ctx.opts.lint_modulename_prefixes = []
+    if infilename.startswith("ietf", 0):
+        ctx.opts.ietf = True
+        pyang_command = cmds + ['-p', workdir, '--ietf', infile]
+        pyang_command_to_json.extend(['-p', workdir, '--ietf', infile])
+    elif infilename.startswith("mef", 0):
+        ctx.opts.mef = True
+        pyang_command = cmds + ['-p', workdir, '--mef', infile]
+        pyang_command_to_json.extend(['-p', workdir, '--mef', infile])
+    elif infilename.startswith("ieee", 0):
+        ctx.opts.ieee = True
+        pyang_command = cmds + ['-p', workdir, '--ieee', infile]
+        pyang_command_to_json.extend(['-p', workdir, '--ieee', infile])
+    elif infilename.startswith("bbf", 0):
+        ctx.opts.bbf = True
+        pyang_command = cmds + ['-p', workdir, '--bbf', infile]
+        pyang_command_to_json.extend(['-p', workdir, '--bbf', infile])
+    pyang_res['time'] = datetime.now(timezone.utc).isoformat()
+
+
+    for p in plugin.plugins:
+        p.setup_ctx(ctx)
+    with open(infile, 'r') as yang_file:
+        ctx.add_module(infile, yang_file.read())
+    ctx.validate()
+
+    status = 0 if not pyang_stderr else 1
+
+    pyang_res['stdout'] = pyang_output
     pyang_res['stderr'] = pyang_stderr
     pyang_res['name'] = 'pyang'
     pyang_res['version'] = versions['pyang_version']
@@ -207,7 +217,7 @@ def validate_yangfile(infilename, workdir):
     cmds = [confdc_cmd, '-f', workdir, '-W', 'all']
     cmds.extend(confdc_append)
     confdc_command = cmds + ['-c', infile]
-    confdc_command_to_json.extend(['-f', workdir_to_json, '-W', 'all', '-c', '{}/{}'.format(workdir_to_json, infilename)])
+    confdc_command_to_json.extend(['-f', workdir, '-W', 'all', '-c', infile])
     outfp = open(confdc_outfile, 'w+')
     status = call(confdc_command, stdout=outfp, stderr=cresfp)
 
@@ -239,7 +249,7 @@ def validate_yangfile(infilename, workdir):
     yanglint_command_to_json = [yanglint_cmd, '-i']
     if libs != '':
         yanglint_command_to_json.extend(['-p', libs])
-    yanglint_command_to_json = ['-p', workdir_to_json, '-V', '{}/{}'.format(workdir_to_json, infilename)]
+    yanglint_command_to_json = ['-p', workdir, '-V', infile]
     outfp = open(yanglint_outfile, 'w+')
     status = call(yanglint_command, stdout=outfp, stderr=yresfp)
     yanglint_res['time'] = datetime.now(timezone.utc).isoformat()
@@ -401,4 +411,5 @@ def rest(request):
 
 def about(request):
     return render(request, 'about.html')
+
 
