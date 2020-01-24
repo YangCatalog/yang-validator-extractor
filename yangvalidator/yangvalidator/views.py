@@ -203,6 +203,7 @@ def validate_yangfile(infilename, workdir):
         ctx.add_module(infile, yang_file.read())
     ctx.validate()
 
+    pyang_stderr, pyang_output = print_pyang_output(ctx)
     status = 0 if not pyang_stderr else 1
 
     pyang_res['stdout'] = pyang_output
