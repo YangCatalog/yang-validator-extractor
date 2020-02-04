@@ -58,14 +58,18 @@ WORKDIR /home/bottle
 
 RUN mkdir /home/bottle/confd-${confd_version}
 COPY ./resources/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin
+COPY ./resources/yumapro-client-18.10-9.u1804.amd64.deb home/bottle/bottle-yang-extractor-validator/yumapro-client-18.10-9.u1804.amd64.deb
 RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
 
 COPY ./bottle-yang-extractor-validator/yangvalidator.ini-dist $VIRTUAL_ENV/yangvalidator.ini
 
+COPY ./conf/yangdump-pro-yangvalidator.conf /etc/yumapro/yangdump-pro-yangvalidator.conf
+RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-18.10-9.u1804.amd64.deb
+
 RUN mkdir /var/run/yang
 
-RUN mkdir -pv /var/tmp/yangmodules/extracted 
-COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted 
+RUN mkdir -pv /var/tmp/yangmodules/extracted
+COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted
 
 WORKDIR /home/bottle/bottle-yang-extractor-validator
 

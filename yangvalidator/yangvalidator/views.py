@@ -48,6 +48,7 @@ pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
 yanglint_version = check_output(yanglint_cmd + " --version", shell=True).decode('utf-8').rstrip()
 confdc_cmd = '/home/bottle/confd-6.7/bin/confdc'
+yangdump_cmd = '/usr/bin/yangdump-pro'
 
 debug = False
 try:
@@ -55,8 +56,13 @@ try:
 except CalledProcessError:
     confdc_version = 'undefined'
 
+try:
+    yangdump_version = check_output(yangdump_cmd + " --version", shell=True).decode('utf-8').strip()
+except CalledProcessError:
+    yangdump_version = 'undefined'
+
 versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__,
-            "confdc_version": confdc_version, "yanglint_version": yanglint_version}
+            "confdc_version": confdc_version, "yanglint_version": yanglint_version, "yangdump_version": yangdump_version}
 
 
 class UploadFileForm(forms.Form):
@@ -105,10 +111,10 @@ def create_output(url, for_datatracker=False):
 
     for em in extracted_models:
         file_name = em.split("@")[0].replace(".", "_")
-        pyang_res, confdc_res, yanglint_res = validate_yangfile(em, workdir)
+        pyang_res, confdc_res, yanglint_res, yangdump_res = validate_yangfile(em, workdir)
         if for_datatracker:
             modules.append({'name': em,
-                            'checks': [pyang_res, confdc_res, yanglint_res]
+                            'checks': [pyang_res, confdc_res, yanglint_res, yangdump_res]
                             })
 
         else:
@@ -117,6 +123,7 @@ def create_output(url, for_datatracker=False):
                            "xym_stderr": cgi.escape(xym_res['stderr']),
                            "confdc_stderr": cgi.escape(confdc_res['stderr']),
                            "yanglint_stderr": cgi.escape(yanglint_res['stderr']),
+                           "yangdump_stderr": cgi.escape(yangdump_res['stderr']),
                            "name_split": file_name}
     if for_datatracker:
         results['modules'] = modules
@@ -145,12 +152,15 @@ def validate_yangfile(infilename, workdir):
     pyang_res = {}
     yanglint_res = {}
     confdc_res = {}
-    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = ""
+    yangdump_res = {}
+    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr= ""
     infile = os.path.join(workdir, infilename)
     confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
     confdc_outfile = str(os.path.join(workdir, infilename) + '.cout')
     yanglint_resfile = str(os.path.join(workdir, infilename) + '.lres')
     yanglint_outfile = str(os.path.join(workdir, infilename) + '.lout')
+    yangdump_resfile = str(os.path.join(workdir, infilename) + '.ypres')
+    yangdump_outfile = str(os.path.join(workdir, infilename) + '.ypout')
 
     basic_append_p = []
     confdc_append = []
@@ -268,6 +278,7 @@ def validate_yangfile(infilename, workdir):
     for line in yresfp.readlines():
         yanglint_stderr += line
     outfp.close()
+    yresfp.close()
     yanglint_res['stderr'] = yanglint_stderr
     yanglint_res['name'] = 'yanglint'
     yanglint_res['version'] = versions['yanglint_version']
@@ -275,7 +286,37 @@ def validate_yangfile(infilename, workdir):
     yanglint_res['command'] = ' '.join(yanglint_command_to_json)
     logger.info(' '.join(yanglint_command))
 
-    return pyang_res, confdc_res, yanglint_res
+    ypresfp = open(yangdump_resfile, 'w+')
+    cmds = [yangdump_cmd, '--quiet-mode', '--config', '/etc/yumapro/yangdump-pro-yangvalidator.conf']
+    yangdump_command = cmds + [infile]
+    yangdump_command_to_json = yangdump_command
+
+    ypoutfp = open(yangdump_outfile, 'w+')
+    status = call(yangdump_command, stdout=ypoutfp, stderr=ypresfp)
+    yangdump_res['time'] = datetime.now(timezone.utc).isoformat()
+
+    if os.path.isfile(yangdump_outfile):
+        ypoutfp.seek(0)
+        for line in ypoutfp.readlines():
+            yangdump_output += os.path.basename(line)
+    else:
+        pass
+    yangdump_res['stdout'] = yangdump_output
+
+    ypresfp.seek(0)
+
+    for line in ypresfp.readlines():
+        yangdump_stderr += line
+    ypoutfp.close()
+    ypresfp.close()
+    yangdump_res['stderr'] = yangdump_stderr
+    yangdump_res['name'] = 'yangdump-pro'
+    yangdump_res['version'] = versions['yangdump_version']
+    yangdump_res['code'] = status
+    yangdump_res['command'] = ' '.join(yangdump_command_to_json)
+    logger.info(' '.join(yangdump_command))
+
+    return pyang_res, confdc_res, yanglint_res, yangdump_res
 
 
 def upload_draft(request):

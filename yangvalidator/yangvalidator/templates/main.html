@@ -34,12 +34,14 @@
                 '<h3>Pyang Validation</h3><pre class="pyangstderr"/>' +
                 '<h3>Pyang Output</h3><pre class="pyangoutput"/>' +
                 '<h3>Confdc Output</h3><pre class="confdcstderr"/>' +
-                '<h3>Yanglint Validation</h3><pre class="yanglintstderr"/>');
+                '<h3>Yanglint Validation</h3><pre class="yanglintstderr"/>' +
+                '<h3>Yangdump-pro Validation</h3><pre class="yangdumpstderr"/>');
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangstderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangoutput' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
             $( '#' + sanitized + ' > pre.confdcstderr' ).append(data[key].confdc_stderr.length > 0 ? data[key].confdc_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.yanglintstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yanglint_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.yangdumpstderr' ).append(data[key].yangdump_stderr.length > 0 ? data[key].yangdump_stderr : "No warnings or errors");
           }
         });
         return(false);
@@ -69,12 +71,14 @@
                 '<h3>Pyang Validation</h3><pre class="pyangstderr"/>' +
                 '<h3>Pyang Output</h3><pre class="pyangoutput"/>' +
                 '<h3>Confdc Output</h3><pre class="confdcstderr"/>' +
-                '<h3>yanglint Validation</h3><pre class="yanglintstderr"/>');
+                '<h3>Yanglint Validation</h3><pre class="yanglintstderr"/>' +
+                '<h3>Yangdump-pro Validation</h3><pre class="yangdumpstderr"/>');
             $( '#' + sanitized + ' > pre.xymstderr' ).append(data[key].xym_stderr.length > 0 ? data[key].xym_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangstderr' ).append(data[key].pyang_stderr.length > 0 ? data[key].pyang_stderr : "No warnings or errors");
             $( '#' + sanitized + ' > pre.pyangoutput' ).append(data[key].pyang_output.length > 0 ? data[key].pyang_output : "No output");
             $( '#' + sanitized + ' > pre.confdcstderr' ).append(data[key].confdc_stderr.length > 0 ? data[key].confdc_stderr : "No output");
-            $( '#' + sanitized + ' > pre.yanglintstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yanglint_stderr : "No warnings or errors"); }
+            $( '#' + sanitized + ' > pre.yanglintstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yanglint_stderr : "No warnings or errors");
+            $( '#' + sanitized + ' > pre.yangdumpstderr' ).append(data[key].yanglint_stderr.length > 0 ? data[key].yangdump_stderr : "No warnings or errors"); }
         });
         return(false);
       });
@@ -98,7 +102,7 @@
         <li role="presentation"><a href="rest">REST API</a></li>
         <li role="presentation"><a href="about">About</a></li>
       </ul>
-  <h1>Fetch, extract and validate YANG models {{ my }}</h1>
+  <h1>Fetch, extract and validate YANG models</h1>
     <p class="lead" >The form below allows you to fetch, extract and validate YANG modules by RFC number, by IETF draft name, or by uploading IETF drafts or YANG files.</p>
 
         <form name="uploadform" id="uploadform" action="/yangvalidator/validator" method="post" enctype="multipart/form-data">
@@ -187,11 +191,17 @@
         {% else %}
             <pre class="yanglintstderr">No warnings or errors</pre>
         {% endif %}
+        <h3>yangdump-pro Validation</h3>
+        {% if content.yangdump_stderr %}
+            <pre class="yangdumpstderr">{{ content.yangdump_stderr }}</pre>
+        {% else %}
+            <pre class="yangdumpstderr">No warnings or errors</pre>
+        {% endif %}
       </div>
     {% endfor %}
   {% endif %}
     </div>
-    <small class="text-muted">validator version: {{ validator_version }}, xym version: {{ xym_version }}, pyang version: {{ pyang_version }}, confdc version: {{ confdc_version }}, yanglint version: {{ yanglint_version }}</small>
+    <small class="text-muted">validator version: {{ validator_version }}, xym version: {{ xym_version }}, pyang version: {{ pyang_version }}, confdc version: {{ confdc_version }}, yanglint version: {{ yanglint_version }}, yangdump-pro version: {{ yangdump_version }}</small>
   </div>
 </body>
 
