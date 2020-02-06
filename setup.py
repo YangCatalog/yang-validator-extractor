@@ -39,7 +39,7 @@ setup(
     url='https://github.com/cmoberg/bottle-yang-extractor-validator',
     install_requires=['xym>=0.4.7', 'pyang==2.1.1', 'Django>=2.1.2', 'uWSGI>=2.0.18', 'certifi==2018.11.29',
                       'chardet==3.0.4', 'idna==2.8', 'lxml==4.3.2', 'pytz==2018.9', 'requests==2.21.0',
-                      'urllib3>=1.24.2'],
+                      'urllib3>=1.24.2', "jinja2>=2.10.1"],
     include_package_data=True,
     keywords=['yang', 'extraction', 'validation'],
     classifiers=[]

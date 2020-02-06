@@ -14,9 +14,14 @@
 # limitations under the License.
 
 import cgi
+import glob
+import io
 import json
 import logging
 import os
+import random
+import shutil
+import string
 import sys
 from datetime import datetime, timezone
 from io import StringIO
@@ -25,6 +30,7 @@ from subprocess import CalledProcessError, call, check_output
 from tempfile import *
 from zipfile import ZipFile
 
+import jinja2
 import pyang
 from django import forms
 from django.core.serializers.json import DjangoJSONEncoder
@@ -32,15 +38,20 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from pyang import error
 from pyang import plugin
+from pyang.plugins.depend import emit_depend
 from xym import xym
+
 from .yangParser import create_context
 
+if sys.version_info >= (3, 4):
+    import configparser as ConfigParser
+else:
+    import ConfigParser
 __author__ = "Miroslav Kovac, Carl Moberg"
 __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
 __email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
 __version__ = "0.4.0"
-
 
 logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
@@ -62,7 +73,8 @@ except CalledProcessError:
     yangdump_version = 'undefined'
 
 versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__,
-            "confdc_version": confdc_version, "yanglint_version": yanglint_version, "yangdump_version": yangdump_version}
+            "confdc_version": confdc_version, "yanglint_version": yanglint_version,
+            "yangdump_version": yangdump_version}
 
 
 class UploadFileForm(forms.Form):
@@ -103,7 +115,9 @@ def create_output(url, for_datatracker=False):
     workdir_split = workdir.split('/')
     workdir_split[-1] = 'workdir-{}'.format(workdir_split[-1])
     workdir_to_json = '/'.join(workdir_split)
-    xym_res['command'] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False, debug_level=0)'.format(url, workdir_to_json)
+    xym_res[
+        'command'] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False, debug_level=0)'.format(
+        url, workdir_to_json)
 
     if for_datatracker:
         results = {'extraction': xym_res}
@@ -143,8 +157,27 @@ def print_pyang_output(ctx):
             kind = "error"
 
         err += str(epos) + ': %s: ' % kind + \
-                error.err_to_str(etag, eargs) + '\n'
+               error.err_to_str(etag, eargs) + '\n'
     return err, out
+
+
+def copy_dependencies(f):
+    config_path = '/etc/yangcatalog/yangcatalog.conf'
+    config = ConfigParser.ConfigParser()
+    config._interpolation = ConfigParser.ExtendedInterpolation()
+    config.read(config_path)
+    yang_models = config.get('Directory-Section', 'save-file-dir')
+    tmp = config.get('Directory-Section', 'temp')
+    out = f.getvalue()
+    letters = string.ascii_letters
+    suffix = ''.join(random.choice(letters) for i in range(8))
+    dep_dir = '{}/yangvalidator-dependencies-{}'.format(tmp, suffix)
+    os.mkdir(dep_dir)
+    dependencies = out.split(':')[1].strip().split(' ')
+    for dep in dependencies:
+        for file in glob.glob(r'{}/{}*.yang'.format(yang_models, dep)):
+            shutil.copy(file, dep_dir)
+    return dep_dir
 
 
 def validate_yangfile(infilename, workdir):
@@ -153,7 +186,7 @@ def validate_yangfile(infilename, workdir):
     yanglint_res = {}
     confdc_res = {}
     yangdump_res = {}
-    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr= ""
+    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr = ""
     infile = os.path.join(workdir, infilename)
     confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
     confdc_outfile = str(os.path.join(workdir, infilename) + '.cout')
@@ -163,7 +196,6 @@ def validate_yangfile(infilename, workdir):
     yangdump_outfile = str(os.path.join(workdir, infilename) + '.ypout')
 
     basic_append_p = []
-    confdc_append = []
     pyang_command = []
     pyang_command_to_json = []
     confdc_command_to_json = []
@@ -171,7 +203,6 @@ def validate_yangfile(infilename, workdir):
     pyang_context_directories = [workdir]
     libs = ''
     if os.path.exists(yang_import_dir):
-        confdc_append = ['--yangpath', yang_import_dir]
         basic_append_p = ['-p', yang_import_dir]
         pyang_context_directories.append(yang_import_dir)
         yang_import_dir_split = yang_import_dir.split('/')
@@ -206,12 +237,18 @@ def validate_yangfile(infilename, workdir):
         pyang_command_to_json.extend(['-p', workdir, '--bbf', infile])
     pyang_res['time'] = datetime.now(timezone.utc).isoformat()
 
-
+    ctx.opts.depend_recurse = True
+    ctx.opts.depend_ignore = []
     for p in plugin.plugins:
         p.setup_ctx(ctx)
+    m = []
     with open(infile, 'r') as yang_file:
-        ctx.add_module(infile, yang_file.read())
+        m = [ctx.add_module(infile, yang_file.read())]
     ctx.validate()
+
+    f = io.StringIO()
+    emit_depend(ctx, m, f)
+    dep_dir = copy_dependencies(f)
 
     pyang_stderr, pyang_output = print_pyang_output(ctx)
     status = 0 if not pyang_stderr else 1
@@ -226,7 +263,7 @@ def validate_yangfile(infilename, workdir):
 
     cresfp = open(confdc_resfile, 'w+')
     cmds = [confdc_cmd, '-f', workdir, '-W', 'all']
-    cmds.extend(confdc_append)
+    cmds.extend(['--yangpath', dep_dir])
     confdc_command = cmds + ['-c', infile]
     confdc_command_to_json.extend(['-f', workdir, '-W', 'all', '-c', infile])
     outfp = open(confdc_outfile, 'w+')
@@ -255,7 +292,7 @@ def validate_yangfile(infilename, workdir):
 
     yresfp = open(yanglint_resfile, 'w+')
     cmds = [yanglint_cmd, '-i', '-p', workdir]
-    cmds.extend(basic_append_p)
+    cmds.extend(['-p', dep_dir])
     yanglint_command = cmds + ['-V', infile]
     yanglint_command_to_json = [yanglint_cmd, '-i']
     if libs != '':
@@ -286,8 +323,19 @@ def validate_yangfile(infilename, workdir):
     yanglint_res['command'] = ' '.join(yanglint_command_to_json)
     logger.info(' '.join(yanglint_command))
 
+    context = {'path': dep_dir}
+
+    path, filename = os.path.split(
+        os.path.dirname(__file__) + '/templates/yangdump-pro-yangvalidator.conf')
+    rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
+                                              ).get_template(filename).render(context)
+    conf_yangdump_dir = '{}-conf'.format(dep_dir)
+    os.mkdir(conf_yangdump_dir)
+    yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'
+    with open(yangdump_config_file.format(conf_yangdump_dir), 'w') as ff:
+        ff.write(rendered_config_text)
     ypresfp = open(yangdump_resfile, 'w+')
-    cmds = [yangdump_cmd, '--quiet-mode', '--config', '/etc/yumapro/yangdump-pro-yangvalidator.conf']
+    cmds = [yangdump_cmd, '--quiet-mode', '--config', yangdump_config_file]
     yangdump_command = cmds + [infile]
     yangdump_command_to_json = yangdump_command
 
@@ -315,6 +363,16 @@ def validate_yangfile(infilename, workdir):
     yangdump_res['code'] = status
     yangdump_res['command'] = ' '.join(yangdump_command_to_json)
     logger.info(' '.join(yangdump_command))
+
+    try:
+        shutil.rmtree(dep_dir)
+    except OSError as e:
+        print("Error: %s : %s" % (dep_dir, e.strerror))
+
+    try:
+        shutil.rmtree(conf_yangdump_dir)
+    except OSError as e:
+        print("Error: %s : %s" % (dep_dir, e.strerror))
 
     return pyang_res, confdc_res, yanglint_res, yangdump_res
 
@@ -362,9 +420,11 @@ def upload_file(request):
 
     for file in savedfiles:
         file_name = file.split("@")[0].replace(".", "_")
-        pyang_res, confdc_res, yanglint_res = validate_yangfile(file, savedir)
-        context['results'][file] = {"pyang_stderr": pyang_res['stderr'], "pyang_output": pyang_res['stdout'], "confdc_stderr": confdc_res['stderr'],
-                         "yanglint_stderr": yanglint_res['stderr'], "name_split": file_name}
+        pyang_res, confdc_res, yanglint_res, yangdump_res = validate_yangfile(file, savedir)
+        context['results'][file] = {"pyang_stderr": pyang_res['stderr'], "pyang_output": pyang_res['stdout'],
+                                    "confdc_stderr": confdc_res['stderr'],
+                                    "yanglint_stderr": yanglint_res['stderr'],
+                                    "yangdump_stderr": yangdump_res['stderr'], "name_split": file_name}
 
     rmtree(savedir)
 
@@ -453,5 +513,3 @@ def rest(request):
 
 def about(request):
     return render(request, 'about.html')
-
-
