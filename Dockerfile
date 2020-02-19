@@ -63,7 +63,6 @@ RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x8
 
 COPY ./bottle-yang-extractor-validator/yangvalidator.ini-dist $VIRTUAL_ENV/yangvalidator.ini
 
-COPY ./conf/yangdump-pro-yangvalidator.conf /etc/yumapro/yangdump-pro-yangvalidator.conf
 RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-18.10-9.u1804.amd64.deb
 
 RUN mkdir /var/run/yang
