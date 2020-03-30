@@ -14,7 +14,7 @@ RUN ./sync.sh
 
 
 FROM ubuntu:latest
-ENV confd_version 6.7
+ENV confd_version 7.3.1
 
 RUN apt-get update
 RUN apt-get install -y \
