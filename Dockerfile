@@ -76,4 +76,4 @@ WORKDIR /home/bottle/bottle-yang-extractor-validator
 EXPOSE 8090
 # Support arbitrary UIDs as per OpenShift guidelines
 
-CMD chown -R ${YANG_ID_GID}:${YANG_ID_GID} && /var/run/yang uwsgi --ini yangvalidator.ini
+CMD chown -R ${YANG_ID_GID}:${YANG_ID_GID} /var/run/yang && uwsgi --ini yangvalidator.ini
