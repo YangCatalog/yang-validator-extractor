@@ -58,7 +58,7 @@ yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
 yanglint_version = check_output(yanglint_cmd + " --version", shell=True).decode('utf-8').rstrip()
-confdc_cmd = '/home/bottle/confd-6.7/bin/confdc'
+confdc_cmd = '/home/bottle/confd-7.3.1/bin/confdc'
 yangdump_cmd = '/usr/bin/yangdump-pro'
 
 debug = False
