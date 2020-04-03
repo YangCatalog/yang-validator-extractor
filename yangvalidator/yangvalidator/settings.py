@@ -59,7 +59,7 @@ ALLOWED_HOSTS = [
     'new.yangcatalog.org',
     'localhost',
     '127.0.0.1',
-    '4.31.198.58'
+    'yang2.amsl.com'
 ]
 
 
