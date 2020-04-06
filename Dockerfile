@@ -1,7 +1,9 @@
 FROM ubuntu:latest
-ARG YANG_ID_GID
+ARG YANG_ID
+ARG YANG_GID
 
-ENV YANG_ID_GID "$YANG_ID_GID"
+ENV YANG_ID "$YANG_ID"
+ENV YANG_GID "$YANG_GID"
 
 RUN apt-get update
 RUN apt-get -y install rsync python3.6 python3-pip
@@ -66,7 +68,7 @@ COPY ./bottle-yang-extractor-validator/yangvalidator.ini-dist $VIRTUAL_ENV/yangv
 RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-6.u1804.amd64.deb
 
 RUN mkdir /var/run/yang
-RUN chown -R ${YANG_ID_GID}:${YANG_ID_GID} /var/run/yang
+RUN chown -R ${YANG_ID}:${YANG_GID} /var/run/yang
 
 RUN mkdir -pv /var/tmp/yangmodules/extracted
 COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted
@@ -76,4 +78,4 @@ WORKDIR /home/bottle/bottle-yang-extractor-validator
 EXPOSE 8090
 # Support arbitrary UIDs as per OpenShift guidelines
 
-CMD chown -R ${YANG_ID_GID}:${YANG_ID_GID} /var/run/yang && uwsgi --ini yangvalidator.ini
+CMD chown -R ${YANG_ID}:${YANG_GID} /var/run/yang && uwsgi --ini yangvalidator.ini
