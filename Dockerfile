@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:18.04
 ARG YANG_ID
 ARG YANG_GID
 
@@ -15,7 +15,7 @@ COPY ./bottle-yang-extractor-validator/sync.sh .
 RUN ./sync.sh
 
 
-FROM ubuntu:latest
+FROM ubuntu:18.04
 ENV confd_version 7.3.1
 
 RUN apt-get update
