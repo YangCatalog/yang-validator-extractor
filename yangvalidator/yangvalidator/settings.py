@@ -47,7 +47,7 @@ config_path = '/etc/yangcatalog/yangcatalog.conf'
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
 config.read(config_path)
-django_secret_key = config.get('Yang-Search-Section', 'yangvalidator_secret_key')
+django_secret_key = config.get('Yang-Search-Section', 'yangvalidator_secret_key').strip('"')
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -59,7 +59,9 @@ ALLOWED_HOSTS = [
     'new.yangcatalog.org',
     'localhost',
     '127.0.0.1',
-    'yang2.amsl.com'
+    'yang2.amsl.com',
+    'www.yangvalidator.com',
+    'yangvalidator.com'
 ]
 
 
@@ -168,7 +170,8 @@ logging.config.dictConfig({
     'formatters': {
         'console': {
             # exact format is not important, this is the minimum information
-            'format': '%(asctime)s %(name)-12s:%(lineno)d %(levelname)-8s %(message)s'
+            'format': '%(asctime)-15s %(levelname)-8s %(name)5s => %(message)s - %(lineno)d',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
     'handlers': {
