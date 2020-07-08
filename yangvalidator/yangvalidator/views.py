@@ -242,8 +242,15 @@ def validate_yangfile(infilename, workdir):
     for p in plugin.plugins:
         p.setup_ctx(ctx)
     m = []
-    with open(infile, 'r') as yang_file:
-        m = [ctx.add_module(infile, yang_file.read())]
+    with open(infile, 'r', encoding="utf-8") as yang_file:
+        module = yang_file.read()
+        if module is None:
+            logger.info('no module provided')
+        m = ctx.add_module(infile, module)
+        if m is None:
+            m = []
+        else:
+            m = [m]
     ctx.validate()
 
     f = io.StringIO()
@@ -432,6 +439,7 @@ def upload_file(request):
 
 
 def json_validate_rfc(request, rfc):
+    logger.info('validating rfc {}'.format(rfc))
     url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
     results = create_output(url)
     results = json.dumps(results, cls=DjangoJSONEncoder)
@@ -439,7 +447,10 @@ def json_validate_rfc(request, rfc):
 
 
 def json_validate_draft(request, draft):
-    url = 'http://tools.ietf.org/id/{!s}'.format(draft)
+    if draft.endswith('.txt'):
+        draft = draft[:-4]
+    logger.info('validating draft {}'.format(draft))
+    url = 'http://tools.ietf.org/id/{!s}.txt'.format(draft)
     results = create_output(url)
     results = json.dumps(results, cls=DjangoJSONEncoder)
     return HttpResponse(results, content_type='application/json')
@@ -449,6 +460,7 @@ def datatracker_rfc(request):
     documents = []
     rfcs = request.GET.getlist('doc')
     for doc in rfcs:
+        logger.info('validating rfc {}'.format(doc))
         url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(doc)
         results = create_output(url, for_datatracker=True)
         results["name"] = doc
@@ -463,7 +475,10 @@ def datatracker_draft(request):
     documents = []
     drafts = request.GET.getlist('doc')
     for doc in drafts:
-        url = 'http://tools.ietf.org/id/{!s}'.format(doc)
+        if doc.endswith('.txt'):
+            doc = doc[:-4]
+        logger.info('validating draft {}'.format(doc))
+        url = 'http://tools.ietf.org/id/{!s}.txt'.format(doc)
         results = create_output(url, for_datatracker=True)
         results["name"] = doc
         documents.append(results)
@@ -479,6 +494,7 @@ def get_versions(request):
 
 def validate_rfc_param(request):
     rfc = request.GET['number']
+    logger.info('validating rfc {}'.format(rfc))
     url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
     results = {}
     results['results'] = create_output(url)
@@ -487,13 +503,17 @@ def validate_rfc_param(request):
 
 def validate_draft_param(request):
     draft = request.GET['name']
-    url = 'http://tools.ietf.org/id/{!s}'.format(draft)
+    if draft.endswith('.txt'):
+        draft = draft[:-4]
+    logger.info('validating draft {}'.format(draft))
+    url = 'http://tools.ietf.org/id/{!s}.txt'.format(draft)
     results = {}
     results['results'] = create_output(url)
     return render(request, 'result.html', results)
 
 
 def validate_rfc(request, rfc):
+    logger.info('validating rfc {}'.format(rfc))
     url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
     results = {}
     results['results'] = create_output(url)
@@ -501,7 +521,10 @@ def validate_rfc(request, rfc):
 
 
 def validate_draft(request, draft):
-    url = 'http://www.ietf.org/id/{!s}'.format(draft)
+    if draft.endswith('.txt'):
+        draft = draft[:-4]
+    logger.info('validating draft {}'.format(draft))
+    url = 'http://www.ietf.org/id/{!s}.txt'.format(draft)
     results = {}
     results['results'] = create_output(url)
     return render(request, 'main.html', results)
