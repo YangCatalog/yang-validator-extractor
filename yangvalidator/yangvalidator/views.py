@@ -51,7 +51,7 @@ __author__ = "Miroslav Kovac, Carl Moberg"
 __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
 __email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
-__version__ = "0.4.0"
+__version__ = "1.1.0"
 
 logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
