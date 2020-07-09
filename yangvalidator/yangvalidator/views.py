@@ -169,11 +169,15 @@ def copy_dependencies(f):
     yang_models = config.get('Directory-Section', 'save-file-dir')
     tmp = config.get('Directory-Section', 'temp')
     out = f.getvalue()
+    logger.info('dependencies received in following format: {}'.format(out))
     letters = string.ascii_letters
     suffix = ''.join(random.choice(letters) for i in range(8))
     dep_dir = '{}/yangvalidator-dependencies-{}'.format(tmp, suffix)
     os.mkdir(dep_dir)
-    dependencies = out.split(':')[1].strip().split(' ')
+    if len(out.split(':')) == 2:
+        dependencies = out.split(':')[1].strip().split(' ')
+    else:
+        dependencies = []
     for dep in dependencies:
         for file in glob.glob(r'{}/{}*.yang'.format(yang_models, dep)):
             shutil.copy(file, dep_dir)
