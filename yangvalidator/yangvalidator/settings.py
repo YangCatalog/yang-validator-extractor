@@ -47,7 +47,7 @@ config_path = '/etc/yangcatalog/yangcatalog.conf'
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
 config.read(config_path)
-django_secret_key = config.get('Yang-Search-Section', 'yangvalidator_secret_key').strip('"')
+django_secret_key = config.get('Secrets-Section', 'yangvalidator-secret-key').strip('"')
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
