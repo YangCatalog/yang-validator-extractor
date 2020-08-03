@@ -58,4 +58,5 @@ urlpatterns = [
     path('yangvalidator/draft-validator', views.upload_draft, name='upload_draft'),
     path('yangvalidator/draft', views.validate_draft_param, name='validate_draft'),
     path('yangvalidator/rfc', views.validate_rfc_param, name='validate_rfc'),
+    path('yangvalidator/ping', csrf_exempt(views.ping), name='ping')
 ]
