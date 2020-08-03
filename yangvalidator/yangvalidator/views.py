@@ -540,3 +540,15 @@ def rest(request):
 
 def about(request):
     return render(request, 'about.html')
+
+
+def ping(request):
+    logger.info('Ping from healthcheck')
+    req_data = json.loads(request.body)
+
+    if req_data['input']['data'] == 'ping':
+        return HttpResponse(json.dumps({'info': 'Success'}, cls=DjangoJSONEncoder),
+                            content_type='application/json', status=200)
+    else:
+        return HttpResponse(json.dumps({'error': 'Bad request body'}, cls=DjangoJSONEncoder),
+                            content_type='application/json', status=400)
