@@ -218,6 +218,8 @@ def validate_yangfile(infilename, workdir):
     cmds.extend(basic_append_p)
     workdir_split = workdir.split('/')
     workdir_split[-1] = 'workdir-{}'.format(workdir_split[-1])
+    # Plugins array must be emptied before plugin init
+    plugin.plugins = []
     plugin.init([])
     ctx = create_context(':'.join(pyang_context_directories))
 
