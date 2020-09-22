@@ -61,6 +61,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'yang2.amsl.com',
     'www.yangvalidator.com',
+    'www.yangvalidator.org',
     'yangvalidator.com',
     'yangvalidator.org',
     '18.224.127.129'
