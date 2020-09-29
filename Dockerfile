@@ -20,8 +20,8 @@ ENV confd_version 7.3.1
 
 RUN apt-get update
 RUN apt-get install -y \
-  wget \
-  gnupg2
+    wget \
+    gnupg2
 
 RUN apt-get update \
   && apt-get -y install clang cmake libpcre3-dev git libxml2-dev \
@@ -38,10 +38,10 @@ RUN \
 RUN apt-get update
 
 RUN apt-get install -y \
-  python3.6 \
-  python3-pip \
-  openssh-client uwsgi uwsgi-plugin-python3 \
-  && rm -rf /var/lib/apt/lists/*
+	python3.6 \
+	python3-pip \
+    openssh-client uwsgi uwsgi-plugin-python3 \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install requests
