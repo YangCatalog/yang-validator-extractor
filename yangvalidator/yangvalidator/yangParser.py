@@ -28,6 +28,8 @@ from pyang.context import Context
 from pyang.error import error_codes
 from pyang.repository import FileRepository
 from pyang.yang_parser import YangParser
+from pyang import statements
+from .default_statements import StatementsDefault
 
 DEFAULT_OPTIONS = {
     'path': [],
@@ -201,3 +203,25 @@ def parse(text, ctx = None):
     ast = parser.parse(ctx_, filename, text)
 
     return ast
+
+
+def restore_statements():
+    statements_default = StatementsDefault()
+
+    statements._validation_map = statements_default._validation_map
+    statements.data_definition_keywords = statements_default.data_definition_keywords
+    statements._validation_phases = statements_default._validation_phases
+    statements._v_i_children = statements_default._v_i_children
+    statements._v_i_children_keywords = statements_default._v_i_children_keywords
+    statements._keyword_with_children = statements_default._keyword_with_children
+    statements.data_keywords = statements_default.data_keywords
+    statements._keywords_with_no_explicit_config = statements_default._keywords_with_no_explicit_config
+    statements._copy_uses_keywords = statements_default._copy_uses_keywords
+    statements._copy_augment_keywords = statements_default._copy_augment_keywords
+    statements._refinements = statements_default._refinements
+    statements._singleton_keywords = statements_default._singleton_keywords
+    statements._deviate_delete_singleton_keywords = statements_default._deviate_delete_singleton_keywords
+    statements._valid_deviations = statements_default._valid_deviations
+    statements.STMT_CLASS_FOR_KEYWD = statements_default.STMT_CLASS_FOR_KEYWD
+
+    statements._validation_variables = statements._validation_variables[0:2]

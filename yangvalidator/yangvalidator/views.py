@@ -41,7 +41,7 @@ from pyang import plugin
 from pyang.plugins.depend import emit_depend
 from xym import xym
 
-from .yangParser import create_context
+from .yangParser import create_context, restore_statements
 
 if sys.version_info >= (3, 4):
     import configparser as ConfigParser
@@ -264,6 +264,11 @@ def validate_yangfile(infilename, workdir):
     dep_dir = copy_dependencies(f)
 
     pyang_stderr, pyang_output = print_pyang_output(ctx)
+
+    # Data cleanup due to a recursion problem
+    restore_statements()
+    del ctx
+
     status = 0 if not pyang_stderr else 1
 
     pyang_res['stdout'] = pyang_output
