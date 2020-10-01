@@ -54,18 +54,18 @@ RUN useradd -d /home/bottle -m bottle
 
 COPY ./bottle-yang-extractor-validator/* /home/bottle/bottle-yang-extractor-validator/
 
-env VIRTUAL_ENV=/home/bottle/bottle-yang-extractor-validator
+ENV VIRTUAL_ENV=/home/bottle/bottle-yang-extractor-validator
 
 WORKDIR /home/bottle
 
 RUN mkdir /home/bottle/confd-${confd_version}
 COPY ./resources/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin
-COPY ./resources/yumapro-client-19.10-6.u1804.amd64.deb home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-6.u1804.amd64.deb
+COPY ./resources/yumapro-client-19.10-12.u1804.amd64.deb home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-12.u1804.amd64.deb
 RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
 
 COPY ./bottle-yang-extractor-validator/yangvalidator.ini-dist $VIRTUAL_ENV/yangvalidator.ini
 
-RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-6.u1804.amd64.deb
+RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-12.u1804.amd64.deb
 
 RUN mkdir /var/run/yang
 RUN chown -R ${YANG_ID}:${YANG_GID} /var/run/yang
