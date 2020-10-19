@@ -40,7 +40,7 @@ RUN apt-get update
 RUN apt-get install -y \
 	python3.6 \
 	python3-pip \
-    openssh-client uwsgi uwsgi-plugin-python3 \
+    openssh-client gunicorn \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
@@ -63,8 +63,6 @@ COPY ./resources/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/
 COPY ./resources/yumapro-client-19.10-12.u1804.amd64.deb home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-12.u1804.amd64.deb
 RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
 
-COPY ./bottle-yang-extractor-validator/yangvalidator.ini-dist $VIRTUAL_ENV/yangvalidator.ini
-
 RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-19.10-12.u1804.amd64.deb
 
 RUN mkdir /var/run/yang
@@ -78,4 +76,4 @@ WORKDIR /home/bottle/bottle-yang-extractor-validator
 EXPOSE 8090
 # Support arbitrary UIDs as per OpenShift guidelines
 
-CMD chown -R ${YANG_ID}:${YANG_GID} /var/run/yang && uwsgi --ini yangvalidator.ini
+CMD chown -R ${YANG_ID}:${YANG_GID} /var/run/yang && gunicorn yangvalidator.wsgi:application -c gunicorn.conf.py
