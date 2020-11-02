@@ -5,7 +5,7 @@ ARG YANG_GID
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
 
-RUN apt-get update
+RUN apt-get -y update
 RUN apt-get -y install rsync python3.6 python3-pip
 RUN pip3 install --upgrade pip
 RUN pip3 install requests
@@ -18,12 +18,12 @@ RUN ./sync.sh
 FROM ubuntu:18.04
 ENV confd_version 7.3.1
 
-RUN apt-get update
+RUN apt-get -y update
 RUN apt-get install -y \
     wget \
     gnupg2
 
-RUN apt-get update \
+RUN apt-get -y update \
   && apt-get -y install clang cmake libpcre3-dev git libxml2-dev \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
@@ -32,12 +32,12 @@ RUN apt-get update \
 
 # Install Java.
 RUN \
-  apt-get update && \
-  apt-get install -y openssh-client build-essential libssl-dev libssl1.0.0
+  apt-get -y update && \
+  apt-get -y install openssh-client build-essential libssl-dev libssl1.0.0
 
-RUN apt-get update
+RUN apt-get -y update
 
-RUN apt-get install -y \
+RUN apt-get -y install \
 	python3.6 \
 	python3-pip \
     openssh-client gunicorn \
