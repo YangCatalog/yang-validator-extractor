@@ -36,9 +36,9 @@ from django import forms
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.shortcuts import render
-from pyang import error
-from pyang import plugin
+from pyang import error, plugin
 from pyang.plugins.depend import emit_depend
+from xym import __version__ as xym_version
 from xym import xym
 
 from .yangParser import create_context, restore_statements
@@ -72,7 +72,7 @@ try:
 except CalledProcessError:
     yangdump_version = 'undefined'
 
-versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym.__version__,
+versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym_version,
             "confdc_version": confdc_version, "yanglint_version": yanglint_version,
             "yangdump_version": yangdump_version}
 
