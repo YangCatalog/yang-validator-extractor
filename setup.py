@@ -18,13 +18,16 @@ __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Tru
 __license__ = "Apache License, Version 2.0"
 __email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
 
-from setuptools import setup
 import os
+
+from setuptools import setup
 
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 setup(
     name='bottle-yang-extractor-validator',
@@ -37,9 +40,7 @@ setup(
     author_email='camoberg@cisco.com, miroslav.kovac@pantheon.tech',
     license='New-style BSD',
     url='https://github.com/cmoberg/bottle-yang-extractor-validator',
-    install_requires=['xym==0.4.10', 'pyang==2.3.2', 'Django>=2.1.2', 'uWSGI>=2.0.18', 'certifi==2018.11.29',
-                      'chardet==3.0.4', 'idna==2.8', 'lxml==4.3.2', 'pytz==2018.9', 'requests==2.21.0',
-                      'urllib3>=1.24.2', "jinja2>=2.10.1"],
+    install_requires=requirements,
     include_package_data=True,
     keywords=['yang', 'extraction', 'validation'],
     classifiers=[]
