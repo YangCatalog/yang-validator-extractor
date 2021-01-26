@@ -16,7 +16,7 @@ RUN ./sync.sh
 
 
 FROM ubuntu:18.04
-ENV confd_version 7.3.1
+ENV confd_version 7.5
 
 RUN apt-get -y update
 RUN apt-get install -y \
