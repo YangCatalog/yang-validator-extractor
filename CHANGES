@@ -1,6 +1,0 @@
-3.0 - 2016-07-16
-  - Started a CHANGELOG to track major changes :-)
-  - Added a new validation step using the confdc compiler from the ConfD
-    Management Agent[1]. This changes the output content to include new JSON
-    payload elements and new output fields in the web interface.
-[1] https://developer.cisco.com/site/confD/downloads/
