@@ -2,7 +2,7 @@ certifi==2018.11.29
 chardet==3.0.4
 Django>=2.1.9
 idna==2.8
-lxml==4.3.2
+lxml==4.6.2
 pyang==2.4.0
 pytz==2018.9
 requests==2.25.1
