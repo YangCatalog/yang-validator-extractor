@@ -517,7 +517,8 @@ def datatracker_draft(request):
 
 
 def get_versions(request):
-    return versions
+    results = json.dumps(versions, cls=DjangoJSONEncoder)
+    return HttpResponse(results, content_type='application/json')
 
 
 def validate_rfc_param(request):
