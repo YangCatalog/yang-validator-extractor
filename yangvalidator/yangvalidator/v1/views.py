@@ -25,7 +25,6 @@ import string
 import sys
 from datetime import datetime, timezone
 from io import StringIO
-from shutil import *
 from subprocess import CalledProcessError, call, check_output
 from tempfile import *
 from zipfile import ZipFile
@@ -41,7 +40,9 @@ from pyang.plugins.depend import emit_depend
 from xym import __version__ as xym_version
 from xym import xym
 
-from .yangParser import create_context, restore_statements
+from yangvalidator.yangParser import create_context, restore_statements
+
+from yangvalidator.settings import BASE_DIR
 
 if sys.version_info >= (3, 4):
     import configparser as ConfigParser
@@ -184,7 +185,7 @@ def copy_dependencies(f):
     else:
         dependencies = []
     for dep in dependencies:
-        for file in glob.glob(r'{}/{}*.yang'.format(yang_models, dep)):
+        for file in glob.glob(r'{}/{}@*.yang'.format(yang_models, dep)):
             shutil.copy(file, dep_dir)
     return dep_dir
 
@@ -222,8 +223,7 @@ def validate_yangfile(infilename, workdir):
             confdc_command_to_json.extend([confdc_cmd, '--yangpath', libs])
         cmds = [pyang_cmd]
         cmds.extend(basic_append_p)
-        workdir_split = workdir.split('/')
-        workdir_split[-1] = 'workdir-{}'.format(workdir_split[-1])
+
         # Plugins array must be emptied before plugin init
         plugin.plugins = []
         plugin.init([])
@@ -275,13 +275,11 @@ def validate_yangfile(infilename, workdir):
         restore_statements()
         del ctx
 
-        status = 0 if not pyang_stderr else 1
-
         pyang_res['stdout'] = pyang_output
         pyang_res['stderr'] = pyang_stderr
         pyang_res['name'] = 'pyang'
         pyang_res['version'] = versions['pyang_version']
-        pyang_res['code'] = status
+        pyang_res['code'] = 0 if not pyang_stderr else 1
         pyang_res['command'] = ' '.join(pyang_command_to_json)
         logger.info(' '.join(pyang_command))
 
@@ -478,7 +476,7 @@ def json_validate_draft(request, draft):
     if draft.endswith('.txt'):
         draft = draft[:-4]
     logger.info('validating draft {}'.format(draft))
-    url = 'http://tools.ietf.org/id/{!s}.txt'.format(draft)
+    url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
     results = create_output(url)
     results = json.dumps(results, cls=DjangoJSONEncoder)
     return HttpResponse(results, content_type='application/json')
@@ -553,7 +551,7 @@ def validate_draft(request, draft):
     if draft.endswith('.txt'):
         draft = draft[:-4]
     logger.info('validating draft {}'.format(draft))
-    url = 'http://www.ietf.org/id/{!s}.txt'.format(draft)
+    url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
     results = {}
     results['results'] = create_output(url)
     return render(request, 'main.html', results)

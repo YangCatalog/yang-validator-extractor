@@ -17,10 +17,18 @@ __copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
 __email__ = "miroslav.kovac@pantheon.tech"
 
-from django.urls import path, include
+from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
+
+from . import views
 
 app_name = 'yangvalidator'
 urlpatterns = [
-    path('yangvalidator/', include('yangvalidator.v1.urls')),
-    path('yangvalidator/v2/', include('yangvalidator.v2.urls'))
+    path('validate', csrf_exempt(views.validate), name='validate'),
+    path('draft', csrf_exempt(views.validate_draft), name='validate_draft'),
+    path('rfc', csrf_exempt(views.validate_rfc), name='validate_rfc'),
+    path('upload-files-setup', csrf_exempt(views.upload_setup), name='upload_setup'),
+    path('validator/<id>', csrf_exempt(views.upload_file), name='upload_file'),
+    path('draft-validator/<id>', csrf_exempt(views.upload_draft_id), name='upload_draft_id'),
+    path('draft-validator', csrf_exempt(views.upload_draft), name='upload_draft')
 ]
