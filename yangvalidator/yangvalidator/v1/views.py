@@ -350,7 +350,7 @@ def validate_yangfile(infilename, workdir):
         context = {'path': dep_dir}
 
         path, filename = os.path.split(
-            os.path.dirname(__file__) + '/templates/yangdump-pro-yangvalidator.conf')
+            os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
         rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
                                                 ).get_template(filename).render(context)
         conf_yangdump_dir = '{}-conf'.format(dep_dir)

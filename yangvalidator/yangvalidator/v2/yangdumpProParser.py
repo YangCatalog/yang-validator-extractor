@@ -43,7 +43,7 @@ class YangdumpProParser:
         dep_dir = context_directories[0]
         context = {'path': dep_dir}
         path, filename = os.path.split(
-            os.path.dirname(__file__) + '/templates/yangdump-pro-yangvalidator.conf')
+            os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
         rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
                                               ).get_template(filename).render(context)
         yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'
