@@ -125,7 +125,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
             # merge results of one file
             results[module_to_validate] = {'pyang': results_pyang,
                                            'confd': results_confd,
-                                           'yangliny': results_yanglint,
+                                           'yanglint': results_yanglint,
                                            'yangdump-pro': results_yangdump_pro
                                            }
     except Exception as e:
