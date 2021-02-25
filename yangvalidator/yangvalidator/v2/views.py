@@ -277,6 +277,9 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
     checker = ModelsChecker(yang_models, working_dir, extracted_modules)
     checker.check()
     missing = checker.find_missing()
+    # if each missing has only one repo module use latest we are using that one anyway
+    if check_missing_amount_one_only(missing):
+        latest = True
     if len(extracted_modules) == 0:
         if xym_response is None:
             response_content = json.dumps({'Error': 'Failed to load any yang modules. Please provide at least one'
@@ -386,3 +389,10 @@ def load_config():
     config._interpolation = ConfigParser.ExtendedInterpolation()
     config.read(config_path)
     return config
+
+
+def check_missing_amount_one_only(missing: dict):
+    for val in missing.values():
+        if len(val) > 1:
+            return False
+    return True
