@@ -24,7 +24,7 @@ RUN apt-get install -y \
     gnupg2
 
 RUN apt-get -y update \
-  && apt-get -y install clang cmake libpcre3-dev git libxml2-dev \
+  && apt-get -y install clang cmake libpcre3-dev git libxml2-dev rsyslog systemd \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
@@ -76,4 +76,4 @@ WORKDIR /home/bottle/bottle-yang-extractor-validator
 EXPOSE 8090
 # Support arbitrary UIDs as per OpenShift guidelines
 
-CMD chown -R ${YANG_ID}:${YANG_GID} /var/run/yang && gunicorn yangvalidator.wsgi:application -c gunicorn.conf.py
+CMD chown -R ${YANG_ID}:${YANG_GID} /var/run/yang && service rsyslog start && gunicorn yangvalidator.wsgi:application -c gunicorn.conf.py
