@@ -107,21 +107,17 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         # Validate each yang file with all parsers use only working directory for all dependencies
         for module_to_validate in modules_to_validate:
             # validate pyang
-            results_pyang = {}
             pyang_parser = PyangParser([work_dir], module_to_validate, work_dir)
-            results_pyang[module_to_validate] = pyang_parser.parse_module()
+            results_pyang = pyang_parser.parse_module()
             # validate confd
-            results_confd = {}
             confd_parser = ConfdParser([work_dir], module_to_validate, work_dir)
-            results_confd[module_to_validate] = confd_parser.parse_module()
+            results_confd = confd_parser.parse_module()
             # validate yanglint
-            results_yanglint = {}
             yanglint_parser = YanglintParser([work_dir], module_to_validate, work_dir)
-            results_yanglint[module_to_validate] = yanglint_parser.parse_module()
+            results_yanglint = yanglint_parser.parse_module()
             # validate yangdump-pro
-            results_yangdump_pro = {}
             yangdump_pro_parser = YangdumpProParser([work_dir], module_to_validate, work_dir)
-            results_yangdump_pro[module_to_validate] = yangdump_pro_parser.parse_module()
+            results_yangdump_pro = yangdump_pro_parser.parse_module()
             # merge results of one file
             results[module_to_validate] = {'pyang': results_pyang,
                                            'confd': results_confd,
