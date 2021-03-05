@@ -44,7 +44,7 @@ class XymParser():
 
     def parse_and_extract(self):
         extracted_models = xym.xym(source_id=self.__source, dstdir=self.__working_directory, srcdir="", strict=True,
-                                   strict_examples=False, debug_level=0)
+                                   strict_examples=False, debug_level=0, force_revision_pyang=True)
         xym_res = {'time': datetime.now(timezone.utc).isoformat()}
         sys.stderr = self.__stderr_
         sys.stdout = self.__stdout_
