@@ -69,8 +69,16 @@ class PyangParser:
             self.__pyang_command.extend(['-p', self.__working_directory, '--bbf', self.__infile])
         else:
             self.__pyang_command.extend(self.__infile)
+        for p in plugin.plugins:
+            p.setup_ctx(self.__ctx)
         pyang_res = {'time': datetime.now(timezone.utc).isoformat()}
         self.LOG.info(' '.join(self.__pyang_command))
+        with open(self.__infile, 'r', encoding="utf-8") as yang_file:
+            module = yang_file.read()
+            if module is None:
+                self.LOG.info('no module provided')
+            self.__ctx.add_module(self.__infile, module)
+
         self.__ctx.validate()
         pyang_stderr, pyang_output = self.__print_pyang_output()
 
