@@ -53,5 +53,6 @@ class XymParser():
         xym_res['name'] = 'xym'
         xym_res['version'] = xym_version
         xym_res['command'] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False,' \
-                             ' debug_level=0)'.format(self.__source, self.__working_directory)
+                             ' debug_level=0, force_revision_regexp=True)'.format(self.__source,
+                                                                                  self.__working_directory)
         return extracted_models, xym_res

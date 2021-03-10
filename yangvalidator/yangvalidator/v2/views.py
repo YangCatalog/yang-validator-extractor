@@ -281,6 +281,7 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
             response_content = json.dumps({'Error': 'Failed to load any yang modules. Please provide at least one'
                                                     ' yang module. File must have .yang extension'},
                                           cls=DjangoJSONEncoder)
+            return HttpResponse(response_content, status=400, content_type='application/json')
         elif len(xym_response.get('stderr')):
             response_content = json.dumps({'Error': 'Failed to xym parse url {}'.format(url),
                                            "xym": xym_response}, cls=DjangoJSONEncoder)
@@ -289,7 +290,7 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
                                            "xym": xym_response}, cls=DjangoJSONEncoder)
         if os.path.exists(working_dir) and remove_working_dir:
             shutil.rmtree(working_dir)
-        return HttpResponse(response_content, status=400, content_type='application/json')
+        return HttpResponse(response_content, status=200, content_type='application/json')
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
         json_body = {
