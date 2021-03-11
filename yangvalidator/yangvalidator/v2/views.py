@@ -88,20 +88,53 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     try:
         os.mkdir(work_dir)
         modules_to_validate = []
+        skipped_modules = []
+        dependencies = json_body.get('dependencies', {})
+
+        # Keep this uncommented code in here. Several lines bellow explaind why we want to keep this
+        # user_dependencies = dependencies.get('user-modules', [])
+
+        repo_dependencies = dependencies.get('repo-modules', [])
+
         # Copy modules that you need to validate to working directory
         for module_to_validate in repo_to_validate:
+            # skip modules that are in dependencies
+            skip = False
+            for repo_dependency in repo_dependencies:
+                if repo_dependency.split('@')[0] == module_to_validate.split('@')[0]:
+                    skipped_modules.append(module_to_validate)
+                    skip = True
+                    break
+            if skip:
+                continue
             shutil.copy(os.path.join(yang_models, module_to_validate), work_dir)
             modules_to_validate.append(module_to_validate)
+
         for module_to_validate in user_to_validate:
+            skip = False
+            for repo_dependency in repo_dependencies:
+                if repo_dependency.split('@')[0] == module_to_validate.split('@')[0]:
+                    skipped_modules.append(module_to_validate)
+                    skip = True
+                    break
+            if skip:
+                continue
             shutil.copy(os.path.join(tmp, json_body['cache'], module_to_validate), work_dir)
             modules_to_validate.append(module_to_validate)
 
-        dependencies = json_body.get('dependencies', {})
-        user_dependencies = dependencies.get('user-modules', [])
-        repo_dependencies = dependencies.get('repo-modules', [])
+        if len(skipped_modules) > 0:
+            results['warning'] = 'Following modules {} were skipped from validation because you chose different repo' \
+                                 ' modules as a dependency with same name'.format(', '.join(skipped_modules))
+
+        # UI sends the users dependencies anyway for better code readability but it s not used anymore in here.
+        # please keep following code for understanding why we are receiving user_dependencies.
+        # These dependencies are already copied to working directory in step above when copying user modules to
+        # validate.
+        #
+        # for dependency in user_dependencies:
+        #     shutil.copy(os.path.join(tmp, json_body['cache'], dependency), work_dir)
+
         # Copy rest of dependencies to working directory
-        for dependency in user_dependencies:
-            shutil.copy(os.path.join(tmp, json_body['cache'], dependency), work_dir)
         for dependency in repo_dependencies:
             shutil.copy(os.path.join(yang_models, dependency), work_dir)
         # Validate each yang file with all parsers use only working directory for all dependencies
