@@ -189,14 +189,15 @@ def upload_draft_id(request, id):
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
     working_dir = '{}/{}'.format(tmp, id)
-    setup = {}
     if os.path.exists(working_dir):
         with open('{}/pre-setup.json'.format(working_dir), 'r') as f:
             setup = json.load(f)
     else:
-        suffix = create_random_suffx()
-        working_dir = '{}/yangvalidator-v2-cache-{}'.format(tmp, suffix)
-        os.mkdir(working_dir)
+        return HttpResponse(json.dumps({'Error': 'Cache file with id - {} does not exist.'
+                                                 ' Please use pre setup first. Post request on path'
+                                                 ' /yangvalidator/v2/upload-files-setup where you provide'
+                                                 ' "latest" key with true or false variable'.format(id)},
+                                       cls=DjangoJSONEncoder), status=400, content_type='application/json')
 
     latest = setup.get('latest', True)
     results = []
@@ -226,11 +227,20 @@ def upload_file(request, id):
     tmp = config.get('Directory-Section', 'temp')
     working_dir = '{}/{}'.format(tmp, id)
     yang_models = config.get('Directory-Section', 'save-file-dir')
-    with open('{}/pre-setup.json'.format(working_dir), 'r') as f:
-        setup = json.load(f)
+    presetup_path = '{}/pre-setup.json'.format(working_dir)
+    if os.path.exists(presetup_path):
+        with open(presetup_path, 'r') as f:
+            setup = json.load(f)
+    else:
+        return HttpResponse(json.dumps({'Error': 'Cache file with id - {} does not exist.'
+                                                 ' Please use pre setup first. Post request on path'
+                                                 ' /yangvalidator/v2/upload-files-setup where you provide'
+                                                 ' "latest" and "get_from_options" key with true or false'
+                                                 ' variable'.format(id)},
+                                       cls=DjangoJSONEncoder), status=400, content_type='application/json')
 
     latest = setup.get('latest', False)
-    get_from_options = setup.get('get-from-options', False)
+    get_from_options = setup.get('get-from-options', True)
     try:
         for file in request.FILES.getlist('data'):
             name, ext = os.path.splitext(file.name)
@@ -338,20 +348,28 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
         return http_response
     else:
         if xym_response is not None:
-            response = {'modules-to-validate': {
-                'user-modules': extracted_modules
-            },
-                'xym': xym_response,
-                'missing': missing,
-                'cache': working_dir.split('/')[-1]
-            }
+            response =\
+                {
+                    'modules-to-validate': {
+                        'user-modules': extracted_modules
+                    },
+                    'xym': xym_response,
+                    'dependencies': {
+                        'missing': missing,
+                    },
+                    'cache': working_dir.split('/')[-1]
+                }
         else:
-            response = {'modules-to-validate': {
-                'user-modules': extracted_modules
-            },
-                'missing': missing,
-                'cache': working_dir.split('/')[-1]
-            }
+            response =\
+                {
+                    'modules-to-validate': {
+                        'user-modules': extracted_modules
+                    },
+                    'dependencies': {
+                        'missing': missing,
+                    },
+                        'cache': working_dir.split('/')[-1]
+                }
         return HttpResponse(json.dumps({'output': response}, cls=DjangoJSONEncoder),
                             status=202, content_type='application/json')
 
