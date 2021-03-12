@@ -81,7 +81,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     tmp = config.get('Directory-Section', 'temp')
     yang_models = config.get('Directory-Section', 'save-file-dir')
     suffix = create_random_suffx()
-    work_dir = '{}/yangvalidator-v2-workdir-{}'.format(tmp, suffix)
+    work_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(tmp, suffix)
     results = {}
     if xym_result is not None:
         results['xym'] = xym_result
@@ -177,7 +177,7 @@ def validate_rfc(request):
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
     suffix = create_random_suffx()
-    working_dir = '{}/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+    working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
     return extract_files(request, url, payload_body.get('latest', True), working_dir)
 
 
@@ -192,7 +192,7 @@ def validate_draft(request):
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
     suffix = create_random_suffx()
-    working_dir = '{}/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+    working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
     return extract_files(request, url, payload_body.get('latest', True), working_dir)
 
 
@@ -204,7 +204,7 @@ def upload_setup(request):
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
     suffix = create_random_suffx()
-    working_dir = '{}/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+    working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
     os.mkdir(working_dir)
     with open('{}/pre-setup.json'.format(working_dir), 'w') as f:
         json.dump({'latest': latest,
@@ -221,7 +221,7 @@ def upload_draft(request):
 def upload_draft_id(request, id):
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
-    working_dir = '{}/{}'.format(tmp, id)
+    working_dir = '{}/yangvalidator/{}'.format(tmp, id)
     if os.path.exists(working_dir):
         with open('{}/pre-setup.json'.format(working_dir), 'r') as f:
             setup = json.load(f)
@@ -236,6 +236,9 @@ def upload_draft_id(request, id):
     results = []
     try:
         for file in request.FILES.getlist('data'):
+            suffix = create_random_suffx()
+            working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+            os.mkdir(working_dir)
             filepath = os.path.join(working_dir, file.name)
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
@@ -444,3 +447,7 @@ def check_missing_amount_one_only(missing: dict):
         if len(val) > 1:
             return False
     return True
+
+
+if not os.path.exists('{}/yangvalidator'.format(load_config().get('Directory-Section', 'temp'))):
+    os.mkdir('{}/yangvalidator'.format(load_config().get('Directory-Section', 'temp')))
