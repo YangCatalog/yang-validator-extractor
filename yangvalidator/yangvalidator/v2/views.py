@@ -119,7 +119,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                     break
             if skip:
                 continue
-            shutil.copy(os.path.join(tmp, json_body['cache'], module_to_validate), work_dir)
+            shutil.copy(os.path.join(tmp, 'yangvalidator', json_body['cache'], module_to_validate), work_dir)
             modules_to_validate.append(module_to_validate)
 
         if len(skipped_modules) > 0:
