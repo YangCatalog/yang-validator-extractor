@@ -379,8 +379,6 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
             'cache': working_dir.split('/')[-1]
         }
         http_response = validate(request, xym_response, json_body)
-        if os.path.exists(working_dir) and remove_working_dir:
-            shutil.rmtree(working_dir)
         return http_response
     else:
         if xym_response is not None:
