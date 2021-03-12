@@ -233,16 +233,16 @@ def upload_draft_id(request, id):
                                        cls=DjangoJSONEncoder), status=400, content_type='application/json')
 
     latest = setup.get('latest', True)
-    results = {'output': {}}
+    results = []
     try:
         for file in request.FILES.getlist('data'):
             filepath = os.path.join(working_dir, file.name)
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            extract = json.loads(extract_files(request, filepath, latest, working_dir, remove_working_dir=False)
-                                 .content)
-            results['output'][file.name] = extract['output']
+            output = json.loads(extract_files(request, filepath, latest, working_dir, remove_working_dir=False).content)
+            output['document-name'] = file.name
+            results.append(output)
     except Exception as e:
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
