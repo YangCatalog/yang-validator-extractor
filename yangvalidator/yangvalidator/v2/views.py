@@ -142,20 +142,20 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
             # validate pyang
             pyang_parser = PyangParser([work_dir], module_to_validate, work_dir)
             results_pyang = pyang_parser.parse_module()
-            # validate confd
-            confd_parser = ConfdParser([work_dir], module_to_validate, work_dir)
-            results_confd = confd_parser.parse_module()
-            # validate yanglint
-            yanglint_parser = YanglintParser([work_dir], module_to_validate, work_dir)
-            results_yanglint = yanglint_parser.parse_module()
-            # validate yangdump-pro
-            yangdump_pro_parser = YangdumpProParser([work_dir], module_to_validate, work_dir)
-            results_yangdump_pro = yangdump_pro_parser.parse_module()
+            ## validate confd
+            #confd_parser = ConfdParser([work_dir], module_to_validate, work_dir)
+            #results_confd = confd_parser.parse_module()
+            ## validate yanglint
+            #yanglint_parser = YanglintParser([work_dir], module_to_validate, work_dir)
+            #results_yanglint = yanglint_parser.parse_module()
+            ## validate yangdump-pro
+            #yangdump_pro_parser = YangdumpProParser([work_dir], module_to_validate, work_dir)
+            #results_yangdump_pro = yangdump_pro_parser.parse_module()
             # merge results of one file
             results[module_to_validate] = {'pyang': results_pyang,
-                                           'confd': results_confd,
-                                           'yanglint': results_yanglint,
-                                           'yangdump-pro': results_yangdump_pro
+                                           #'confd': results_confd,
+                                           #'yanglint': results_yanglint,
+                                           #'yangdump-pro': results_yangdump_pro
                                            }
     except Exception as e:
         results['error'] = 'Failed to parse a document - {}'.format(e)
@@ -164,6 +164,10 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         logger.info('Removing temporary directories')
         if os.path.exists(work_dir):
             shutil.rmtree(work_dir)
+
+        cache_tmp_path = os.path.join(tmp, 'yangvalidator', json_body.get('cache', ''))
+        if os.path.exists(cache_tmp_path):
+            shutil.rmtree(cache_tmp_path)
 
     return HttpResponse(json.dumps({"output": results}, cls=DjangoJSONEncoder), content_type='application/json')
 
@@ -234,11 +238,13 @@ def upload_draft_id(request, id):
 
     latest = setup.get('latest', True)
     results = []
+    working_dirs = []
     try:
         for file in request.FILES.getlist('data'):
             suffix = create_random_suffx()
             working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
             os.mkdir(working_dir)
+            working_dirs.append(working_dir)
             filepath = os.path.join(working_dir, file.name)
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
@@ -247,13 +253,12 @@ def upload_draft_id(request, id):
             output['document-name'] = file.name
             results.append(output)
     except Exception as e:
-        if os.path.exists(working_dir):
-            shutil.rmtree(working_dir)
+        for wd in working_dirs:
+            if os.path.exists(wd):
+                shutil.rmtree(wd)
         return HttpResponse(json.dumps({'Error': "Failed to upload and validate documents - {}".format(e)},
                                        cls=DjangoJSONEncoder),
                             status=400, content_type='application/json')
-    if os.path.exists(working_dir):
-        shutil.rmtree(working_dir)
     return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder), status=200, content_type='application/json')
 
 
