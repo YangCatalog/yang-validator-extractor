@@ -142,20 +142,20 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
             # validate pyang
             pyang_parser = PyangParser([work_dir], module_to_validate, work_dir)
             results_pyang = pyang_parser.parse_module()
-            ## validate confd
-            #confd_parser = ConfdParser([work_dir], module_to_validate, work_dir)
-            #results_confd = confd_parser.parse_module()
-            ## validate yanglint
-            #yanglint_parser = YanglintParser([work_dir], module_to_validate, work_dir)
-            #results_yanglint = yanglint_parser.parse_module()
-            ## validate yangdump-pro
-            #yangdump_pro_parser = YangdumpProParser([work_dir], module_to_validate, work_dir)
-            #results_yangdump_pro = yangdump_pro_parser.parse_module()
+            # validate confd
+            confd_parser = ConfdParser([work_dir], module_to_validate, work_dir)
+            results_confd = confd_parser.parse_module()
+            # validate yanglint
+            yanglint_parser = YanglintParser([work_dir], module_to_validate, work_dir)
+            results_yanglint = yanglint_parser.parse_module()
+            # validate yangdump-pro
+            yangdump_pro_parser = YangdumpProParser([work_dir], module_to_validate, work_dir)
+            results_yangdump_pro = yangdump_pro_parser.parse_module()
             # merge results of one file
             results[module_to_validate] = {'pyang': results_pyang,
-                                           #'confd': results_confd,
-                                           #'yanglint': results_yanglint,
-                                           #'yangdump-pro': results_yangdump_pro
+                                           'confd': results_confd,
+                                           'yanglint': results_yanglint,
+                                           'yangdump-pro': results_yangdump_pro
                                            }
     except Exception as e:
         results['error'] = 'Failed to parse a document - {}'.format(e)
