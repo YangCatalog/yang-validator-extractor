@@ -266,7 +266,7 @@ def upload_file(request, id):
     saved_files = []
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
-    working_dir = '{}/{}'.format(tmp, id)
+    working_dir = '{}/yangvalidator/{}'.format(tmp, id)
     yang_models = config.get('Directory-Section', 'save-file-dir')
     presetup_path = '{}/pre-setup.json'.format(working_dir)
     if os.path.exists(presetup_path):
