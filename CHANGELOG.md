@@ -2,6 +2,8 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v3.1.0 - 2021-03-18
+
   * xym tool update to version 0.5 [deployment #50](https://github.com/YangCatalog/deployment/issues/50)
 
 * ##### v3.0.1 - 2021-02-26
