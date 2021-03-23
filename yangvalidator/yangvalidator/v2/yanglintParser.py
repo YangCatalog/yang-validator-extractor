@@ -37,7 +37,7 @@ class YanglintParser:
         cmds = [self.YANGLINT_CMD, '-i', '-p', working_directory]
         for dep_dir in context_directories:
             cmds.extend(['-p', dep_dir])
-        self.__yanglint_cmd = cmds + ['-V', file_name]
+        self.__yanglint_cmd = cmds + ['-V', '{}/{}'.format(working_directory, file_name)]
 
     def parse_module(self):
         yanglint_res = {}

@@ -39,19 +39,17 @@ class YangdumpProParser:
     def __init__(self, context_directories, file_name: str, working_directory: str):
         self.__yangdump_resfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cres')))
         self.__yangdump_outfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cout')))
-        # we are expecting only one dependency directory in here
-        dep_dir = context_directories[0]
-        context = {'path': dep_dir}
+        context = {'path': working_directory}
         path, filename = os.path.split(
             os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
         rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
                                               ).get_template(filename).render(context)
-        yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'
+        yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'.format(working_directory)
         with open(yangdump_config_file.format(working_directory), 'w') as ff:
             ff.write(rendered_config_text)
         
         cmds = [self.YANGDUMP_PRO_CMD, '--quiet-mode', '--config', yangdump_config_file]
-        self.__yangdump_command = cmds + [file_name]
+        self.__yangdump_command = cmds + ['{}/{}'.format(working_directory, file_name)]
 
 
     def parse_module(self):

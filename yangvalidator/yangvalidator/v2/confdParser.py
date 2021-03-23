@@ -42,7 +42,7 @@ class ConfdParser:
         for dep_dir in context_directories:
             self.__cmds.extend(['--yangpath', dep_dir])
         self.__cmds.extend(['--yangpath', working_directory])
-        self.__confdc_command = self.__cmds + ['-c', file_name]
+        self.__confdc_command = self.__cmds + ['-c', '{}/{}'.format(working_directory, file_name)]
 
     def parse_module(self):
         confdc_res = {}
