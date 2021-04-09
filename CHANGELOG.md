@@ -1,6 +1,8 @@
-## Backend Release Notes
+## Yangvalidator Release Notes
 
 * ##### vm.m.p - 2021-MM-DD
+
+  * YumaPro validator updated to version 20.10-6 [deployment #53](https://github.com/YangCatalog/deployment/issues/53)
 
 * ##### v3.1.0 - 2021-03-18
 
