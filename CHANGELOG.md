@@ -2,7 +2,10 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v3.2.0 - 2021-04-15
+
   * YumaPro validator updated to version 20.10-6 [deployment #53](https://github.com/YangCatalog/deployment/issues/53)
+  * lxml, urllib3 packages versions bumped
 
 * ##### v3.1.0 - 2021-03-18
 
