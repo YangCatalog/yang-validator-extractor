@@ -24,7 +24,7 @@ RUN apt-get install -y \
     gnupg2
 
 RUN apt-get -y update \
-  && apt-get -y install clang cmake libpcre3-dev git libxml2-dev rsyslog systemd \
+  && apt-get -y install clang cmake libpcre2-dev git libxml2-dev rsyslog systemd \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
