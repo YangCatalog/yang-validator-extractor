@@ -34,3 +34,4 @@ docker run -p 0.0.0.0:80:8080
 The current yangvalidator.org instance is running on docker on an AWS EC2 `t2.micro` instance. The docker image is pushed to a repository in [Amazon ECS](https://aws.amazon.com/ecs/) and then pulled from the EC2 instance.
 
 Remember to set up the appropriate Security Group definition for the EC2 instance if you expect to reach the web server from the outside.
+

@@ -7,6 +7,23 @@
   * Create new endpoints to validate modules fo new UI [#48](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/48)
   * Upgrade django file structure
 
+* ##### v3.2.1 - 2021-05-04
+
+  * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
+
+* ##### v3.2.0 - 2021-04-15
+
+  * YumaPro validator updated to version 20.10-6 [deployment #53](https://github.com/YangCatalog/deployment/issues/53)
+  * lxml, urllib3 packages versions bumped
+
+* ##### v3.1.0 - 2021-03-18
+
+  * xym tool update to version 0.5 [deployment #50](https://github.com/YangCatalog/deployment/issues/50)
+
+* ##### v3.0.1 - 2021-02-26
+
+  * rsyslog and systemd added to Docker image build [deployment #48](https://github.com/YangCatalog/deployment/issues/48)
+
 * ##### v3.0.0 - 2021-02-10
 
   * Fixed /api/versions endpoint [#45](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/45)
