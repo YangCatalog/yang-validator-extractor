@@ -160,9 +160,9 @@ USE_TZ = True
 
 STATIC_URL = '/yangvalidator/static/'
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+#STATICFILES_DIRS = (
+#    os.path.join(BASE_DIR, 'static'),
+#)
 
 
 LOGGING_CONFIG = None
