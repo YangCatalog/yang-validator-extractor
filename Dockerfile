@@ -60,10 +60,10 @@ WORKDIR /home/bottle
 
 RUN mkdir /home/bottle/confd-${confd_version}
 COPY ./resources/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin
-COPY ./resources/yumapro-client-20.10-6.u1804.amd64.deb home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-6.u1804.amd64.deb
+COPY ./resources/yumapro-client-20.10-9.u1804.amd64.deb home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
 RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
 
-RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-6.u1804.amd64.deb
+RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
 
 RUN mkdir /var/run/yang
 RUN chown -R ${YANG_ID}:${YANG_GID} /var/run/yang
