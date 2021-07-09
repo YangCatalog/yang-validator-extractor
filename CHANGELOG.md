@@ -2,10 +2,15 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.0.0 - 2021-07-09
+
+  * Pyang update to version 2.5.0 [deployment #85](https://github.com/YangCatalog/deployment/issues/85)
+  * YumaPro validator updated to version 20.10-9 [deployment #84](https://github.com/YangCatalog/deployment/issues/84)
   * Make it possible to create request to validate modules outside of webpage [#39](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/39)
   * Give options to choose which file to use as a dependency [#9](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/9)
   * Create new endpoints to validate modules fo new UI [#48](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/48)
   * Upgrade django file structure
+  * Updated libyang build requirements
 
 * ##### v3.2.1 - 2021-05-04
 
