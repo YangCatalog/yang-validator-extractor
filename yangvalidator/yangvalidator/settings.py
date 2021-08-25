@@ -30,9 +30,10 @@ __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Tru
 __license__ = "Apache License, Version 2.0"
 __email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
 
-import configparser
 import logging.config
 import os
+
+from yangvalidator.create_config import create_config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,10 +44,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-config_path = '/etc/yangcatalog/yangcatalog.conf'
-config = configparser.ConfigParser()
-config._interpolation = configparser.ExtendedInterpolation()
-config.read(config_path)
+config = create_config()
 django_secret_key = config.get('Secrets-Section', 'yangvalidator-secret-key').strip('"')
 SECRET_KEY = django_secret_key
 

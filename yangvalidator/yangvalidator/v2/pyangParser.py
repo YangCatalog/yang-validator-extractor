@@ -27,12 +27,8 @@ from datetime import datetime, timezone
 import pyang
 from pyang import error, plugin
 from pyang.plugins.depend import emit_depend
+from yangvalidator.create_config import create_config
 from yangvalidator.yangParser import create_context, restore_statements
-
-if sys.version_info >= (3, 4):
-    import configparser as ConfigParser
-else:
-    import ConfigParser
 
 
 class PyangParser:
@@ -111,10 +107,7 @@ class PyangParser:
         f = io.StringIO()
         emit_depend(self.__ctx, m, f)
 
-        config_path = '/etc/yangcatalog/yangcatalog.conf'
-        config = ConfigParser.ConfigParser()
-        config._interpolation = ConfigParser.ExtendedInterpolation()
-        config.read(config_path)
+        config = create_config()
         yang_models = config.get('Directory-Section', 'save-file-dir')
         out = f.getvalue()
         if len(out.split(':')) == 2 and out.split(':')[1].strip() != '':

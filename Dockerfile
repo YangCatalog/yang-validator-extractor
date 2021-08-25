@@ -16,6 +16,9 @@ RUN ./sync.sh
 
 
 FROM ubuntu:18.04
+ARG YANGCATALOG_CONFIG_PATH
+
+ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
 ENV confd_version 7.5
 
 RUN apt-get -y update

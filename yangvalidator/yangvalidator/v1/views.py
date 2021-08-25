@@ -40,14 +40,11 @@ from pyang.plugins.depend import emit_depend
 from xym import __version__ as xym_version
 from xym import xym
 
+from yangvalidator.create_config import create_config
 from yangvalidator.yangParser import create_context, restore_statements
 
 from yangvalidator.settings import BASE_DIR
 
-if sys.version_info >= (3, 4):
-    import configparser as ConfigParser
-else:
-    import ConfigParser
 __author__ = "Miroslav Kovac, Carl Moberg"
 __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
@@ -168,10 +165,7 @@ def print_pyang_output(ctx):
 
 
 def copy_dependencies(f):
-    config_path = '/etc/yangcatalog/yangcatalog.conf'
-    config = ConfigParser.ConfigParser()
-    config._interpolation = ConfigParser.ExtendedInterpolation()
-    config.read(config_path)
+    config = create_config()
     yang_models = config.get('Directory-Section', 'save-file-dir')
     tmp = config.get('Directory-Section', 'temp')
     out = f.getvalue()
