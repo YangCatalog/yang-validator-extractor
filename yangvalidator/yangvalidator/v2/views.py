@@ -29,6 +29,7 @@ from zipfile import ZipFile
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
+from yangvalidator.create_config import create_config
 from yangvalidator.v2.confdParser import ConfdParser
 from yangvalidator.v2.illegalMethodError import IllegalMethodError
 from yangvalidator.v2.modelsChecker import ModelsChecker
@@ -36,11 +37,6 @@ from yangvalidator.v2.pyangParser import PyangParser
 from yangvalidator.v2.xymParser import XymParser
 from yangvalidator.v2.yangdumpProParser import YangdumpProParser
 from yangvalidator.v2.yanglintParser import YanglintParser
-
-if sys.version_info >= (3, 4):
-    import configparser as ConfigParser
-else:
-    import ConfigParser
 
 logger = logging.getLogger(__name__)
 
@@ -438,10 +434,7 @@ def load_config():
     Load and parse yangcatalog config file
     :return: parsed config file
     """
-    config_path = '/etc/yangcatalog/yangcatalog.conf'
-    config = ConfigParser.ConfigParser()
-    config._interpolation = ConfigParser.ExtendedInterpolation()
-    config.read(config_path)
+    config = create_config()
     return config
 
 
