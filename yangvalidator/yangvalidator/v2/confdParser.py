@@ -29,7 +29,7 @@ class ConfdParser:
     """
     CONFDC_CMD = '/home/bottle/confd-7.5/bin/confdc'
     try:
-        VERSION = check_output(CONFDC_CMD + " --version", shell=True).decode('utf-8').rstrip()
+        VERSION = check_output('{} --version'.format(CONFDC_CMD), shell=True).decode('utf-8').rstrip()
     except CalledProcessError:
         VERSION = 'undefined'
     LOG = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class ConfdParser:
         cresfp = open(self.__confdc_resfile, 'w+')
 
         confdc_res['time'] = datetime.now(timezone.utc).isoformat()
-        self.LOG.info("Starting to confd parse use command".format(self.__confdc_command))
+        self.LOG.info('Starting to confd parse use command'.format(self.__confdc_command))
         status = call(self.__confdc_command, stdout=outfp, stderr=cresfp)
 
         confdc_output = confdc_stderr = ''
