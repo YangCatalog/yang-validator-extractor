@@ -306,7 +306,7 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
         if xym_response is None:
             response_args = {'content': {'Error': 'Failed to load any yang modules. Please provide at least one'
                                                   ' yang module. File must have .yang extension'},
-                        'status': 400}
+                             'status': 400}
         elif xym_response.get('stderr'):
             response_args = {'content': {'Error': 'Failed to xym parse url {}'.format(url),
                                                   'xym': xym_response}}
