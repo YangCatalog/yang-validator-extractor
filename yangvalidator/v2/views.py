@@ -446,4 +446,4 @@ def check_missing_amount_one_only(missing: dict):
 
 
 if not os.path.exists('{}/yangvalidator'.format(load_config().get('Directory-Section', 'temp'))):
-    os.mkdir('{}/yangvalidator'.format(load_config().get('Directory-Section', 'temp')))
+    os.makedirs('{}/yangvalidator'.format(load_config().get('Directory-Section', 'temp')))
