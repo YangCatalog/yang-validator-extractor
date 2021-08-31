@@ -35,9 +35,9 @@ class ConfdParser:
     LOG = logging.getLogger(__name__)
 
     def __init__(self, context_directories, file_name: str, working_directory: str):
-        self.__confdc_resfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cres')))
-        self.__confdc_outfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cout')))
-        fxsfile = str(os.path.join(working_directory, file_name.replace('.yang', '.fxs')))
+        self.__confdc_resfile = os.path.join(working_directory, file_name.replace('.yang', '.cres'))
+        self.__confdc_outfile = os.path.join(working_directory, file_name.replace('.yang', '.cout'))
+        fxsfile = os.path.join(working_directory, file_name.replace('.yang', '.fxs'))
         self.__cmds = [self.CONFDC_CMD, '-o', fxsfile, '-W', 'all']
         for dep_dir in context_directories:
             self.__cmds.extend(['--yangpath', dep_dir])
