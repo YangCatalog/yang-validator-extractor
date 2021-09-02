@@ -81,15 +81,3 @@ class YangdumpProParser:
         yangdump_res['code'] = status
         yangdump_res['command'] = ' '.join(self.__yangdump_command)
         return yangdump_res
-    
-    
-
-
-        
-                
-        ypresfp = open(yangdump_resfile, 'w+')
-
-        yangdump_command_to_json = yangdump_command
-
-        
-        logger.info(' '.join(yangdump_command))

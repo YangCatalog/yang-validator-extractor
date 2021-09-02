@@ -69,7 +69,7 @@ class PyangParser:
             p.setup_ctx(self.__ctx)
         pyang_res = {'time': datetime.now(timezone.utc).isoformat()}
         self.LOG.info(' '.join(self.__pyang_command))
-        with open(self.__infile, 'r', encoding="utf-8") as yang_file:
+        with open(self.__infile, 'r', encoding='utf-8') as yang_file:
             module = yang_file.read()
             if module is None:
                 self.LOG.info('no module provided')
@@ -127,10 +127,9 @@ class PyangParser:
         for (epos, etag, eargs) in self.__ctx.errors:
             elevel = error.err_level(etag)
             if error.is_warning(elevel):
-                kind = "warning"
+                kind = 'warning'
             else:
-                kind = "error"
+                kind = 'error'
 
-            err += str(epos) + ': %s: ' % kind + \
-                   error.err_to_str(etag, eargs) + '\n'
+            err += '{}: {}: {}\n'.format(epos, kind, error.err_to_str(etag, eargs))
         return err, out
