@@ -124,7 +124,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         for module_to_validate in modules_to_validate:
             results[module_to_validate] = {}
             for Parser, name in ((PyangParser, 'pyang'), (ConfdParser, 'confd'),
-                                 (YanglintParser, 'yangling'), (YangdumpProParser, 'yangdump-pro')):
+                                 (YanglintParser, 'yanglint'), (YangdumpProParser, 'yangdump-pro')):
                 parser_results = Parser([work_dir], module_to_validate, work_dir).parse_module()
                 results[module_to_validate][name] = parser_results
     except Exception as e:
