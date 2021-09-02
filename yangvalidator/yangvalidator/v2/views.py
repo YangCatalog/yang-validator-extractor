@@ -62,7 +62,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     to_validate = json_body.get('modules-to-validate')
     if to_validate is None:
         # Missing modules to validate
-        JsonResponse({'Error': 'No module received for validation'}, status=400)
+        return JsonResponse({'Error': 'No module received for validation'}, status=400)
     user_to_validate = to_validate.get('user-modules', [])
     repo_to_validate = to_validate.get('repo-modules', [])
     if len(user_to_validate) == 0 and len(repo_to_validate) == 0:
