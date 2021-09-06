@@ -199,7 +199,7 @@ def upload_setup(request):
 def upload_draft(request):
     return upload_draft_id(request, None)
 
-def load_pre_setup(working_dir):
+def load_pre_setup(working_dir, id):
     presetup_path = '{}/pre-setup.json'.format(working_dir)
     if os.path.exists(presetup_path):
         with open(presetup_path, 'r') as f:
@@ -217,7 +217,7 @@ def upload_draft_id(request, id):
     tmp = config.get('Directory-Section', 'temp')
     working_dir = '{}/yangvalidator/{}'.format(tmp, id)
 
-    result = load_pre_setup(working_dir)
+    result = load_pre_setup(working_dir, id)
     if isinstance(result, HttpResponse):
         return result
     else:
@@ -256,7 +256,7 @@ def upload_file(request, id):
     tmp = config.get('Directory-Section', 'temp')
     working_dir = '{}/yangvalidator/{}'.format(tmp, id)
 
-    result = load_pre_setup(working_dir)
+    result = load_pre_setup(working_dir, id)
     if isinstance(result, HttpResponse):
         return result
     else:
