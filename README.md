@@ -14,10 +14,6 @@ The following tools will need to be manually preinstalled:
 - YANG modules commonly required for validation (e.g. the IETF modules for interface and ip configuration as well as the types) are expected to be in `/var/tmp/yangmodules/extracted`
 - The default port is 8080 to avoid requiring root privileges. Use the `--port=80` option with root privileges to listen to the default HTTP port.
 
-## Preparing the YANG modules
-
-The `sync.sh` script uses rsync to download all IETF RFCs and drafts to a temporary directory, and then extracts all found YANG modules using `xym`. Please *read and understand* the script before you run it.
-
 ## Building and Deploying Docker Image
 
 The NSO configuration is setup to listen to port 8080 to avoid requiring root to run it, so remember to use portmapping when you start the container: 
