@@ -17,6 +17,7 @@ __copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
 __email__ = "miroslav.kovac@pantheon.tech"
 
+import fnmatch
 import json
 import logging
 import os
@@ -173,9 +174,15 @@ def validate_rfc(request):
     payload_body = json.loads(request.body)
     rfc = payload_body.get('rfc')
     logger.info('validating rfc {}'.format(rfc))
-    url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
+    ietf_dir = config.get('Directory-Section', 'ietf-directory')
+    rfc_file = 'rfc{}.txt'.format(rfc)
+    path = os.path.join(ietf_dir, 'rfc', rfc_file)
+    if os.path.exists(path):
+        url = path
+    else:
+        url = 'https://tools.ietf.org/rfc/{}'.format(rfc_file)
     suffix = create_random_suffx()
     working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
     return extract_files(request, url, payload_body.get('latest', True), working_dir)
@@ -188,9 +195,16 @@ def validate_draft(request):
     if draft.endswith('.txt'):
         draft = draft[:-4]
     logger.info('validating draft {}'.format(draft))
-    url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
     config = load_config()
     tmp = config.get('Directory-Section', 'temp')
+    ietf_dir = config.get('Directory-Section', 'ietf-directory')
+    draft_dir = os.path.join(ietf_dir, 'my-id-archive-mirror')
+    matching_drafts = fnmatch.filter(os.listdir(draft_dir), '{}*.txt'.format(draft))
+    if matching_drafts:
+        draft_file = sorted(matching_drafts)[-1]
+        url = os.join(draft_dir, draft_file)
+    else:
+        url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
     suffix = create_random_suffx()
     working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
     return extract_files(request, url, payload_body.get('latest', True), working_dir)
