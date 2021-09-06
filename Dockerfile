@@ -1,23 +1,10 @@
 FROM ubuntu:18.04
 ARG YANG_ID
 ARG YANG_GID
+ARG YANGCATALOG_CONFIG_PATH
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
-
-RUN apt-get -y update
-RUN apt-get -y install rsync python3.6 python3-pip
-RUN pip3 install --upgrade pip
-RUN pip3 install requests
-RUN pip3 install xym
-
-COPY ./bottle-yang-extractor-validator/sync.sh .
-RUN ./sync.sh
-
-
-FROM ubuntu:18.04
-ARG YANGCATALOG_CONFIG_PATH
-
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
 ENV confd_version 7.5
 
@@ -70,9 +57,6 @@ RUN dpkg -i home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u
 
 RUN mkdir /var/run/yang
 RUN chown -R ${YANG_ID}:${YANG_GID} /var/run/yang
-
-RUN mkdir -pv /var/tmp/yangmodules/extracted
-COPY --from=0 /var/tmp/yangmodules/extracted /var/tmp/yangmodules/extracted
 
 WORKDIR /home/bottle/bottle-yang-extractor-validator
 
