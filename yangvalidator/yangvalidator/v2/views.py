@@ -326,8 +326,6 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
         else:
             response_args = {'content': {'Error': 'No modules found using xym in url {}'.format(url),
                                                   'xym': xym_response}}
-        if os.path.exists(working_dir) and remove_working_dir:
-            shutil.rmtree(working_dir)
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
