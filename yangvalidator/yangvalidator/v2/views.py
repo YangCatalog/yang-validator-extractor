@@ -317,15 +317,15 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
     }
     if len(extracted_modules) == 0:
         if xym_response is None:
-            response_args = {'content': {'Error': 'Failed to load any yang modules. Please provide at least one'
-                                                  ' yang module. File must have .yang extension'},
+            response_args = {'data': {'Error': 'Failed to load any yang modules. Please provide at least one'
+                                               ' yang module. File must have .yang extension'},
                              'status': 400}
         elif xym_response.get('stderr'):
-            response_args = {'content': {'Error': 'Failed to xym parse url {}'.format(url),
-                                                  'xym': xym_response}}
+            response_args = {'data': {'Error': 'Failed to xym parse url {}'.format(url),
+                                               'xym': xym_response}}
         else:
-            response_args = {'content': {'Error': 'No modules found using xym in url {}'.format(url),
-                                                  'xym': xym_response}}
+            response_args = {'data': {'Error': 'No modules found using xym in url {}'.format(url),
+                                               'xym': xym_response}}
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
