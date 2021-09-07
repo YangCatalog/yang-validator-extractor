@@ -158,7 +158,7 @@ def validate_doc(request):
         matching_drafts = fnmatch.filter(os.listdir(draft_dir), '{}*.txt'.format(doc_name))
         if matching_drafts:
             draft_file = sorted(matching_drafts)[-1]
-            url = os.join(draft_dir, draft_file)
+            url = os.path.join(draft_dir, draft_file)
         else:
             url = 'https://tools.ietf.org/id/{!s}.txt'.format(doc_name)
     elif doc_type == 'rfc':
