@@ -45,7 +45,7 @@ class YanglintParser:
         yresfp = open(self.__yanglint_resfile, 'w+')
         outfp = open(self.__yanglint_outfile, 'w+')
         status = call(self.__yanglint_cmd, stdout=outfp, stderr=yresfp)
-        self.LOG.info("Starting to yanglint parse use command".format(self.__yanglint_cmd))
+        self.LOG.info('Starting to yanglint parse use command'.format(self.__yanglint_cmd))
         yanglint_res['time'] = datetime.now(timezone.utc).isoformat()
         yanglint_output = yanglint_stderr = ''
         if os.path.isfile(self.__yanglint_outfile):
