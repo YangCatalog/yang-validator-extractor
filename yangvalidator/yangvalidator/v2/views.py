@@ -202,7 +202,7 @@ def validate_draft(request):
     matching_drafts = fnmatch.filter(os.listdir(draft_dir), '{}*.txt'.format(draft))
     if matching_drafts:
         draft_file = sorted(matching_drafts)[-1]
-        url = os.join(draft_dir, draft_file)
+        url = os.path.join(draft_dir, draft_file)
     else:
         url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
     suffix = create_random_suffx()
@@ -224,7 +224,7 @@ def upload_setup(request):
         json.dump({'latest': latest,
                       'get-from-options': get_from_options
                       }, f)
-    
+
     return HttpResponse(json.dumps({'output': {'cache': working_dir.split('/')[-1]}}), status=200, content_type='application/json')
 
 
