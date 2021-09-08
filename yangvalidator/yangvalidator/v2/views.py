@@ -247,7 +247,7 @@ def upload_draft_id(request, id):
             if os.path.exists(wd):
                 shutil.rmtree(wd)
         return JsonResponse({'Error': 'Failed to upload and validate documents - {}'.format(e)}, status=400)
-    return JsonResponse(results, status=200)
+    return JsonResponse(results, safe=False)
 
 
 def upload_file(request, id):
