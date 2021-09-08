@@ -193,7 +193,7 @@ def upload_setup(request):
         json.dump({'latest': latest,
                       'get-from-options': get_from_options
                       }, f)
-    return JsonResponse({'output': {'cache': working_dir.split('/')[-1]}}, status=200)
+    return JsonResponse({'output': {'cache': working_dir.split('/')[-1]}})
 
 
 def upload_draft(request):
