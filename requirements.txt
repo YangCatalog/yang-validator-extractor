@@ -11,3 +11,4 @@ xym==0.5
 jinja2>=2.10.1
 gunicorn==20.0.4
 gevent==20.9.0
+coverage

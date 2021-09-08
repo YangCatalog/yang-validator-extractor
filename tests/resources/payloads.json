@@ -1,0 +1,17 @@
+{
+    "validate_json": {
+        "modules-to-validate": {
+            "repo-modules": ["yang-catalog@2018-04-03.yang"]
+        },
+        "dependencies": {
+            "repo-modules": ["yang-catalog@2018-04-03.yang"]
+        },
+        "cache": "test"
+    },
+    "create_output": {
+        "modules-to-validate": {
+            "user-modules": ["extracted"]
+        },
+        "cache": "working dir"
+    }
+}

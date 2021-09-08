@@ -24,11 +24,9 @@ import os
 import random
 import shutil
 import string
-import sys
 from zipfile import ZipFile
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, JsonResponse
 from yangvalidator.create_config import create_config
 from yangvalidator.v2.confdParser import ConfdParser
@@ -74,7 +72,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     tmp = config.get('Directory-Section', 'temp')
     yang_models = config.get('Directory-Section', 'save-file-dir')
     while True:
-        suffix = create_random_suffx()
+        suffix = create_random_suffix()
         work_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(tmp, suffix)
         if not os.path.exists(work_dir):
             break
@@ -144,8 +142,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
 
 def validate_doc(request):
     doc_type = request.path.split('/')[-1]
-    try_validate_and_load_data(request)
-    payload_body = json.loads(request.body)
+    payload_body = try_validate_and_load_data(request)
     doc_name = payload_body.get(doc_type)
     if doc_name.endswith('.txt'):
         doc_name = doc_name[:-4]
@@ -169,7 +166,7 @@ def validate_doc(request):
         else:
             url = 'https://tools.ietf.org/rfc/{}'.format(rfc_file)
     while True:
-        suffix = create_random_suffx()
+        suffix = create_random_suffix()
         working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
         if not os.path.exists(working_dir):
             break
@@ -177,14 +174,13 @@ def validate_doc(request):
 
 
 def upload_setup(request):
-    try_validate_and_load_data(request)
-    payload_body = json.loads(request.body)
+    payload_body = try_validate_and_load_data(request)
     latest = payload_body.get('latest', False)
     get_from_options = payload_body.get('get-from-options', False)
     config = create_config()
     tmp = config.get('Directory-Section', 'temp')
     while True:
-        suffix = create_random_suffx()
+        suffix = create_random_suffix()
         working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
         if not os.path.exists(working_dir):
             break
@@ -229,7 +225,7 @@ def upload_draft_id(request, id):
     try:
         for file in request.FILES.getlist('data'):
             while True:
-                suffix = create_random_suffx()
+                suffix = create_random_suffix()
                 working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
                 if not os.path.exists(working_dir):
                     break
@@ -268,6 +264,7 @@ def upload_file(request, id):
         saved_files = []
         for file in request.FILES.getlist('data'):
             name, ext = os.path.splitext(file.name)
+            logger.error(str(file.name))
 
             if ext == '.yang':
                 with open(os.path.join(working_dir, file.name), 'wb+') as f:
@@ -361,7 +358,7 @@ def try_validate_and_load_data(request: WSGIRequest):
     return json.loads(request.body)
 
 
-def create_random_suffx():
+def create_random_suffix():
     """
     Create random suffix to create new temp directory
     :return: suffix of random 8 letters
