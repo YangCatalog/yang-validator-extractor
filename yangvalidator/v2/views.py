@@ -158,7 +158,7 @@ def validate_doc(request):
         matching_drafts = fnmatch.filter(os.listdir(draft_dir), '{}*.txt'.format(doc_name))
         if matching_drafts:
             draft_file = sorted(matching_drafts)[-1]
-            url = os.join(draft_dir, draft_file)
+            url = os.path.join(draft_dir, draft_file)
         else:
             url = 'https://tools.ietf.org/id/{!s}.txt'.format(doc_name)
     elif doc_type == 'rfc':
@@ -193,7 +193,7 @@ def upload_setup(request):
         json.dump({'latest': latest,
                       'get-from-options': get_from_options
                       }, f)
-    return JsonResponse({'output': {'cache': working_dir.split('/')[-1]}}, status=200)
+    return JsonResponse({'output': {'cache': working_dir.split('/')[-1]}})
 
 
 def upload_draft(request):
@@ -247,7 +247,7 @@ def upload_draft_id(request, id):
             if os.path.exists(wd):
                 shutil.rmtree(wd)
         return JsonResponse({'Error': 'Failed to upload and validate documents - {}'.format(e)}, status=400)
-    return JsonResponse(results, status=200)
+    return JsonResponse(results, safe=False)
 
 
 def upload_file(request, id):
@@ -317,17 +317,15 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
     }
     if len(extracted_modules) == 0:
         if xym_response is None:
-            response_args = {'content': {'Error': 'Failed to load any yang modules. Please provide at least one'
-                                                  ' yang module. File must have .yang extension'},
+            response_args = {'data': {'Error': 'Failed to load any yang modules. Please provide at least one'
+                                               ' yang module. File must have .yang extension'},
                              'status': 400}
         elif xym_response.get('stderr'):
-            response_args = {'content': {'Error': 'Failed to xym parse url {}'.format(url),
-                                                  'xym': xym_response}}
+            response_args = {'data': {'Error': 'Failed to xym parse url {}'.format(url),
+                                               'xym': xym_response}}
         else:
-            response_args = {'content': {'Error': 'No modules found using xym in url {}'.format(url),
-                                                  'xym': xym_response}}
-        if os.path.exists(working_dir) and remove_working_dir:
-            shutil.rmtree(working_dir)
+            response_args = {'data': {'Error': 'No modules found using xym in url {}'.format(url),
+                                               'xym': xym_response}}
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
@@ -346,8 +344,9 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
         if xym_response is not None:
             json_body['xym'] = xym_response
         response = JsonResponse({'output': json_body}, status=202)
-    if os.path.exists(working_dir) and remove_working_dir:
-        shutil.rmtree(working_dir)
+    if not extracted_modules or latest or not missing:
+        if os.path.exists(working_dir) and remove_working_dir:
+            shutil.rmtree(working_dir)
     return response
 
 
