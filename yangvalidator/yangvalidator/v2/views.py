@@ -344,8 +344,9 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
         if xym_response is not None:
             json_body['xym'] = xym_response
         response = JsonResponse({'output': json_body}, status=202)
-    if os.path.exists(working_dir) and remove_working_dir:
-        shutil.rmtree(working_dir)
+    if not extracted_modules or latest or not missing:
+        if os.path.exists(working_dir) and remove_working_dir:
+            shutil.rmtree(working_dir)
     return response
 
 
