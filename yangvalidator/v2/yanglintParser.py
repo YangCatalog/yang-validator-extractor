@@ -20,7 +20,7 @@ __email__ = "miroslav.kovac@pantheon.tech"
 import logging
 import os
 from datetime import datetime, timezone
-from subprocess import CalledProcessError, check_output, call
+from subprocess import CalledProcessError, call, check_output
 
 
 class YanglintParser:
@@ -29,7 +29,7 @@ class YanglintParser:
     """
     YANGLINT_CMD = '/usr/local/bin/yanglint'
     try:
-        VERSION = check_output(YANGLINT_CMD + " --version", shell=True).decode('utf-8').rstrip()
+        VERSION = check_output(YANGLINT_CMD + ' --version', shell=True).decode('utf-8').rstrip()
     except CalledProcessError:
         VERSION = 'undefined'
     LOG = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class YanglintParser:
         cmds = [self.YANGLINT_CMD, '-i', '-p', working_directory]
         for dep_dir in context_directories:
             cmds.extend(['-p', dep_dir])
-        self.__yanglint_cmd = cmds + ['-V', '{}/{}'.format(working_directory, file_name)]
+        self.__yanglint_cmd = cmds + ['{}/{}'.format(working_directory, file_name)]
 
     def parse_module(self):
         yanglint_res = {}
