@@ -1,6 +1,12 @@
-## Yang Validator Release Notes
+## YANG Validator Release Notes
 
 * ##### vm.m.p - 2021-MM-DD
+
+* ##### v4.2.0 - 2021-09-09
+
+  * Removed unneeded sync.sh from Docker image build [#66](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/66)
+  * Using cached rfc/draft documents if available [#29](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/29)
+  * Config loading simplified [deployment #96](https://github.com/YangCatalog/deployment/issues/96)
 
 * ##### v4.1.0 - 2021-08-10
 
