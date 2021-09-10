@@ -264,7 +264,6 @@ def upload_file(request, id):
         saved_files = []
         for file in request.FILES.getlist('data'):
             name, ext = os.path.splitext(file.name)
-            logger.error(str(file.name))
 
             if ext == '.yang':
                 with open(os.path.join(working_dir, file.name), 'wb+') as f:
