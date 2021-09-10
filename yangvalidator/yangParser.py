@@ -159,7 +159,7 @@ def create_context(path='.', *options, **kwargs):
 
     # apply deviations (taken from pyang bin)
     for file_name in opts.deviations:
-        with io.open(file_name, "r", encoding="utf-8") as fd:
+        with io.open(file_name, 'r', encoding='utf-8') as fd:
             module = ctx.add_module(file_name, fd.read())
             if module is not None:
                 ctx.deviation_modules.append(module)

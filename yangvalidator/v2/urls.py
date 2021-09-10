@@ -25,8 +25,8 @@ from . import views
 app_name = 'yangvalidator'
 urlpatterns = [
     path('validate', csrf_exempt(views.validate), name='validate'),
-    path('draft', csrf_exempt(views.validate_draft), name='validate_draft'),
-    path('rfc', csrf_exempt(views.validate_rfc), name='validate_rfc'),
+    path('draft', csrf_exempt(views.validate_doc), name='validate_draft'),
+    path('rfc', csrf_exempt(views.validate_doc), name='validate_rfc'),
     path('upload-files-setup', csrf_exempt(views.upload_setup), name='upload_setup'),
     path('validator/<id>', csrf_exempt(views.upload_file), name='upload_file'),
     path('draft-validator/<id>', csrf_exempt(views.upload_draft_id), name='upload_draft_id'),
