@@ -29,47 +29,47 @@ class ModelsChecker:
     """
 
     def __init__(self, all_modules_directory: str, working_directory: str, existing_modules: list):
-        self.__all_modules_directory = all_modules_directory
-        self.__working_directory = working_directory
-        self.__existing_modules = existing_modules
-        self.__dependencies = {}
-        self.__missing = {}
+        self._all_modules_directory = all_modules_directory
+        self._working_directory = working_directory
+        self._existing_modules = existing_modules
+        self._dependencies = {}
+        self._missing = {}
 
     def check(self):
-        for extracted_module in self.__existing_modules:
-            parser = PyangParser([self.__all_modules_directory, self.__working_directory], extracted_module,
-                                 self.__working_directory)
-            self.__dependencies.update(parser.get_dependencies())
+        for extracted_module in self._existing_modules:
+            parser = PyangParser([self._all_modules_directory, self._working_directory], extracted_module,
+                                 self._working_directory)
+            self._dependencies.update(parser.get_dependencies())
 
     def find_missing(self):
         """
         Find missing modules and save them as a key of a dictionary with list of possible revisions per module/key
         :return: dictionary of modules with its possible revisions
         """
-        self.__missing = {}
-        for key, val in self.__dependencies.items():
-            if any(key == x.split('@')[0] for x in self.__existing_modules):
+        self._missing = {}
+        for name, paths in self._dependencies.items():
+            if any(name == existing_module.split('@')[0] for existing_module in self._existing_modules):
                 continue
             else:
-                self.__missing[key] = []
-                for path in val:
+                self._missing[name] = []
+                for path in paths:
                     # Get revision only
-                    self.__missing[key].append(path.split('@')[-1].split('.')[0])
+                    self._missing[name].append(self.revision(path))
 
-        return self.__missing
+        return self._missing
 
     def get_existing_dependencies(self):
         ret = {}
         found_repo_modules = False
-        for key, val in self.__dependencies.items():
-            for x in self.__existing_modules:
-                if key == x.split('@')[0]:
-                    ret[key] = {}
-                    ret[key]['user-dependencies'] = x.split('@')[-1].split('.')[0]
-                    ret[key]['repo-dependencies'] = []
-                    for path in val:
+        for name, paths in self._dependencies.items():
+            for existing_module in self._existing_modules:
+                if name == existing_module.split('@')[0]:
+                    ret[name] = {}
+                    ret[name]['user-dependencies'] = self.revision(existing_module)
+                    ret[name]['repo-dependencies'] = []
+                    for path in paths:
                         # Get revision only
-                        ret[key]['repo-dependencies'].append(path.split('@')[-1].split('.')[0])
+                        ret[name]['repo-dependencies'].append(self.revision(path))
                         found_repo_modules = True
         return ret, found_repo_modules
 
@@ -81,7 +81,7 @@ class ModelsChecker:
         """
         ret = []
         # Basic date extraction can fail if there are alphanumeric characters in the revision filename part
-        for module_name, revisions in self.__missing.items():
+        for module_name, revisions in self._missing.items():
             revisions_to_sort = []
             for revision in revisions:
                 year = int(revision.split('-')[0])
@@ -89,12 +89,14 @@ class ModelsChecker:
                 day = int(revision.split('-')[2])
                 try:
                     revisions_to_sort.append(datetime(year, month, day))
-                except Exception as e:
+                except ValueError:
                     if month == 2 and day == 29:
                         revisions_to_sort.append(datetime(year, month, 28))
                     else:
-                        raise e
-            
-            ret.append('{}@{}.yang'.format(module_name, revisions[revisions_to_sort.index(max(revisions_to_sort))]))
+                        raise
 
+            ret.append('{}@{}.yang'.format(module_name, revisions[revisions_to_sort.index(max(revisions_to_sort))]))
         return ret
+
+    def revision(self, path: str) -> str:
+        return path.split('@')[-1].split('.')[0]
