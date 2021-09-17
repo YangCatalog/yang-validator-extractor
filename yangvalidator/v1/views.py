@@ -39,11 +39,8 @@ from pyang import error, plugin
 from pyang.plugins.depend import emit_depend
 from xym import __version__ as xym_version
 from xym import xym
-
 from yangvalidator.create_config import create_config
 from yangvalidator.yangParser import create_context, restore_statements
-
-from yangvalidator.settings import BASE_DIR
 
 __author__ = "Miroslav Kovac, Carl Moberg"
 __copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
@@ -55,11 +52,16 @@ logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
-yanglint_version = check_output(yanglint_cmd + " --version", shell=True).decode('utf-8').rstrip()
-confdc_cmd = '/home/bottle/confd-7.5/bin/confdc'
+confdc_cmd = '/home/bottle/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
 yangdump_cmd = '/usr/bin/yangdump-pro'
 
 debug = False
+
+try:
+    yanglint_version = check_output(yanglint_cmd + " --version", shell=True).decode('utf-8').rstrip()
+except CalledProcessError:
+    yanglint_version = 'undefined'
+
 try:
     confdc_version = check_output(confdc_cmd + " --version", shell=True).decode('utf-8').rstrip()
 except CalledProcessError:

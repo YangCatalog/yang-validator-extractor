@@ -2,11 +2,12 @@ FROM ubuntu:18.04
 ARG YANG_ID
 ARG YANG_GID
 ARG YANGCATALOG_CONFIG_PATH
+ARG CONFD_VERSION
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
-ENV confd_version 7.5
+ENV CONFD_VERSION "$CONFD_VERSION"
 
 RUN apt-get -y update \
   && apt-get install -y build-essential clang cmake git gnupg2 gunicorn libpcre2-dev \
@@ -30,10 +31,10 @@ RUN pip3 install -r requirements.txt
 RUN groupadd web
 RUN useradd -d /home/bottle -m bottle
 
-RUN mkdir /home/bottle/confd-${confd_version}
-COPY ./resources/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin
+RUN mkdir /home/bottle/confd-${CONFD_VERSION}
+COPY ./resources/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${CONFD_VERSION}.linux.x86_64.installer.bin
 COPY ./resources/yumapro-client-20.10-9.u1804.amd64.deb /home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
-RUN /home/bottle/bottle-yang-extractor-validator/confd-${confd_version}.linux.x86_64.installer.bin /home/bottle/confd-${confd_version}
+RUN /home/bottle/bottle-yang-extractor-validator/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/bottle/confd-${CONFD_VERSION}
 
 RUN dpkg -i /home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
 
