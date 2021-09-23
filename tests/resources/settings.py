@@ -1,4 +1,4 @@
-# Copyright The IETF Trust 2019, All Rights Reserved
+# Copyright The IETF Trust 2021, All Rights Reserved
 # Copyright 2015 Cisco and its affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,10 +25,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-__author__ = "Miroslav Kovac, Carl Moberg"
-__copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
+__author__ = "Richard Zilincik"
+__copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2021, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
+__email__ = "richard.zilincik@pantheon.tech"
 
 import logging.config
 import os
@@ -107,18 +107,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'yangvalidator.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
