@@ -93,7 +93,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         # Copy modules that you need to validate to working directory
         for group_to_validate, source in ((repo_to_validate, yang_models),
                                           (user_to_validate, os.path.join(tmp, 'yangvalidator', json_body['cache']))):
-            
+
             for module_to_validate in group_to_validate:
                 # skip modules that are in dependencies
                 for repo_dependency in repo_dependencies:
