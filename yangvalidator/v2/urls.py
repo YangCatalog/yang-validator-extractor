@@ -30,5 +30,6 @@ urlpatterns = [
     path('upload-files-setup', csrf_exempt(views.upload_setup), name='upload_setup'),
     path('validator/<id>', csrf_exempt(views.upload_file), name='upload_file'),
     path('draft-validator/<id>', csrf_exempt(views.upload_draft_id), name='upload_draft_id'),
-    path('draft-validator', csrf_exempt(views.upload_draft), name='upload_draft')
+    path('draft-validator', csrf_exempt(views.upload_draft), name='upload_draft'),
+    path('versions', csrf_exempt(views.versions), name='versions')
 ]

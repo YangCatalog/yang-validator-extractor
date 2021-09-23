@@ -27,6 +27,7 @@ from xym import xym
 
 
 class XymParser():
+    VERSION = xym_version
 
     def __init__(self, source, working_directory):
         if not os.path.exists(working_directory):
@@ -51,7 +52,7 @@ class XymParser():
         xym_res['stdout'] = self.__stdout.getvalue()
         xym_res['stderr'] = self.__result.getvalue()
         xym_res['name'] = 'xym'
-        xym_res['version'] = xym_version
+        xym_res['version'] = self.VERSION
         xym_res['command'] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False,' \
                              ' debug_level=0, force_revision_regexp=True)'.format(self.__source,
                                                                                   self.__working_directory)
