@@ -15,7 +15,7 @@ RUN mkdir /home/w3cgrep
 RUN cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
   && cd /home/libyang/build \
-  && cmake .. \
+  && cmake -D CMAKE_BUILD_TYPE:String="Release" .. \
   && make \
   && make install
 

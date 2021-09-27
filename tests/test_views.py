@@ -21,7 +21,7 @@ import json
 import os
 from unittest import mock
 
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.test import SimpleTestCase, RequestFactory
 
 import yangvalidator.v2.views as v
@@ -31,7 +31,7 @@ class TestViews(SimpleTestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.resource_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources')
-        parsers = ['Confd', 'Pyang', 'YangdumpPro', 'Yanglint']
+        parsers = ['Confd', 'YangdumpPro']
         for parser in parsers:
             patcher = mock.patch('yangvalidator.v2.views.{}Parser'.format(parser), mock.MagicMock)
             mock_parser = patcher.start()
@@ -46,8 +46,14 @@ class TestViews(SimpleTestCase):
 
         self.assertEqual(result.status_code, 200)
         parsers = ['confd', 'pyang', 'yangdump-pro', 'yanglint']
-        self.assertJSONEqual(result.content, {'output': {'yang-catalog@2018-04-03.yang': {parser: 'test' for parser in parsers},
-                                                         'xym': 'test'}})
+        data = json.loads(result.content)
+        self.assertIn('output', data)
+        self.assertIn('ietf-yang-types@2013-07-15.yang', data['output'])
+        self.assertEqual(data['output']['xym'], 'test')
+        self.assertEqual(data['output']['ietf-yang-types@2013-07-15.yang'].get('confd'), 'test')
+        self.assertEqual(data['output']['ietf-yang-types@2013-07-15.yang'].get('yangdump-pro'), 'test')
+        self.assertEqual(data['output']['ietf-yang-types@2013-07-15.yang'].get('pyang', {}).get('code'), 0)
+        self.assertEqual(data['output']['ietf-yang-types@2013-07-15.yang'].get('yanglint', {}).get('code'), 0)
 
     def test_validate_skip(self):
         validate_json = self.load_payload('validate_json')
@@ -55,7 +61,7 @@ class TestViews(SimpleTestCase):
             self.factory.post('/yangvalidator/v2/validate', validate_json, content_type='application/json'))
 
         self.assertEqual(result.status_code, 200)
-        warning = 'Following modules yang-catalog@2018-04-03.yang were skipped from validation because you chose' \
+        warning = 'Following modules ietf-yang-types@2013-07-15.yang were skipped from validation because you chose' \
                   ' different repo modules as a dependency with same name'
         self.assertJSONEqual(result.content, {'output': {'warning': warning}})
 
@@ -191,13 +197,13 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.load_pre_setup', mock.MagicMock(return_value={'latest': True}))
     def test_upload_draft_id(self, mock_extract_files: mock.MagicMock):
         mock_extract_files.return_value = JsonResponse({'test': 'test'})
-        with open('tests/resources/all_modules/yang-catalog@2018-04-03.yang') as f:
-            request = self.factory.post('/yangvalidator/v2/draft-validator/1', {'name': 'yang-catalog@2018-04-03.yang',
+        with open('tests/resources/all_modules/ietf-yang-types@2013-07-15.yang') as f:
+            request = self.factory.post('/yangvalidator/v2/draft-validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                                 'data': f})
             result = v.upload_draft_id(request, 1)
         
         self.assertEqual(result.status_code, 200)
-        self.assertJSONEqual(result.content, [{'test': 'test', 'document-name': 'yang-catalog@2018-04-03.yang'}])
+        self.assertJSONEqual(result.content, [{'test': 'test', 'document-name': 'ietf-yang-types@2013-07-15.yang'}])
         mock_extract_files.assert_called_with(request, mock.ANY, True, mock.ANY, remove_working_dir=False)
 
     
@@ -215,8 +221,8 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.load_pre_setup', mock.MagicMock(return_value={'latest': True}))
     @mock.patch('yangvalidator.v2.views.os.mkdir', mock.MagicMock(side_effect=Exception('test')))
     def test_upload_draft_id_exception(self):
-        with open('tests/resources/all_modules/yang-catalog@2018-04-03.yang') as f:
-            result = self.client.post('/yangvalidator/v2/draft-validator/1', {'name': 'yang-catalog@2018-04-03.yang',
+        with open('tests/resources/all_modules/ietf-yang-types@2013-07-15.yang') as f:
+            result = self.client.post('/yangvalidator/v2/draft-validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                               'data': f})
         
         self.assertEqual(result.status_code, 400)
@@ -229,14 +235,14 @@ class TestViews(SimpleTestCase):
     def test_upload_file(self, mock_open: mock.MagicMock, mock_create_output: mock.MagicMock):
         mock.mock_open(mock_open)
         mock_create_output.return_value = 'test'
-        with open('tests/resources/all_modules/yang-catalog@2018-04-03.yang') as f:
-            request = self.factory.post('/yangvalidator/v2/validator/1', {'name': 'yang-catalog@2018-04-03.yang',
+        with open('tests/resources/all_modules/ietf-yang-types@2013-07-15.yang') as f:
+            request = self.factory.post('/yangvalidator/v2/validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                           'data': f})
             result = v.upload_file(request, 1)
 
         self.assertEqual(result, 'test')
         mock_create_output.assert_called_with(request, 'tests/resources/all_modules', None, True,
-                                              'tests/resources/tmp/yangvalidator/1', ['yang-catalog@2018-04-03.yang'],
+                                              'tests/resources/tmp/yangvalidator/1', ['ietf-yang-types@2013-07-15.yang'],
                                               choose_options=True)
 
     @mock.patch('yangvalidator.v2.views.ZipFile')
@@ -250,16 +256,16 @@ class TestViews(SimpleTestCase):
         mock_create_output.return_value = 'test'
         mock_zip = mock.MagicMock
         mock_zip.extract_all = lambda self: None
-        mock_zip.namelist = lambda self: ['yang-catalog@2018-04-03.yang']
-        with mock_open('tests/resources/all_modules/yang-catalog@2018-04-03.zip') as f:
-            f.name = 'yang-catalog@2018-04-03.zip'
-            request = self.factory.post('/yangvalidator/v2/validator/1', {'name': 'yang-catalog@2018-04-03.zip',
+        mock_zip.namelist = lambda self: ['ietf-yang-types@2013-07-15.yang']
+        with mock_open('tests/resources/all_modules/ietf-yang-types@2013-07-15.zip') as f:
+            f.name = 'ietf-yang-types@2013-07-15.zip'
+            request = self.factory.post('/yangvalidator/v2/validator/1', {'name': 'ietf-yang-types@2013-07-15.zip',
                                                                           'data': f})
             result = v.upload_file(request, 1)
 
         self.assertEqual(result, 'test')
         mock_create_output.assert_called_with(request, 'tests/resources/all_modules', None, True,
-                                              'tests/resources/tmp/yangvalidator/1', ['yang-catalog@2018-04-03.yang'],
+                                              'tests/resources/tmp/yangvalidator/1', ['ietf-yang-types@2013-07-15.yang'],
                                               choose_options=True)
 
     def test_upload_file_not_set_up(self):
@@ -275,22 +281,21 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.load_pre_setup', mock.MagicMock(return_value={'latest': True}))
     @mock.patch('yangvalidator.v2.views.os.open', mock.MagicMock(side_effect=Exception()))
     def test_upload_file_exception(self):
-        with open('tests/resources/all_modules/yang-catalog@2018-04-03.yang') as f:
-            result = self.client.post('/yangvalidator/v2/validator/1', {'name': 'yang-catalog@2018-04-03.yang',
+        with open('tests/resources/all_modules/ietf-yang-types@2013-07-15.yang') as f:
+            result = self.client.post('/yangvalidator/v2/validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                         'data': f})
         
         self.assertEqual(result.status_code, 400)
         self.assertJSONEqual(result.content, {'Error': 'Failed to get yang files'})
 
     @mock.patch('yangvalidator.v2.views.create_output')
-    @mock.patch('yangvalidator.v2.views.XymParser')
-    def test_extract_files(self, mock_parser: mock.MagicMock, mock_create_output: mock.MagicMock):
-        mock_parser = mock.MagicMock
-        mock_parser.parse_and_extract = lambda self: ('extracted', 'xym response')
-        v.extract_files(None, 'url', True, 'working dir', True)
+    def test_extract_files(self, mock_create_output: mock.MagicMock):
+        v.extract_files(None, 'tests/resources/ietf/rfc/rfc6991.txt', True, 'tests/resources', True)
 
-        mock_create_output.assert_called_with(None, 'tests/resources/all_modules', 'url', True, 'working dir', 'extracted',
-                                              'xym response', remove_working_dir=True)
+        mock_create_output.assert_called_with(None, 'tests/resources/all_modules',
+                                              'tests/resources/ietf/rfc/rfc6991.txt', True, 'tests/resources',
+                                              ['ietf-yang-types@2013-07-15.yang', 'ietf-inet-types@2013-07-15.yang'],
+                                              mock.ANY, remove_working_dir=True)
 
     @mock.patch('yangvalidator.v2.views.ModelsChecker', mock.MagicMock())
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
