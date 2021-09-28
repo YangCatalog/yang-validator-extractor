@@ -39,7 +39,6 @@ from pyang import error, plugin
 from pyang.plugins.depend import emit_depend
 from xym import __version__ as xym_version
 from xym import xym
-
 from yangvalidator.create_config import create_config
 from yangvalidator.yangParser import create_context, restore_statements
 
@@ -53,7 +52,7 @@ logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
-confdc_cmd = '/home/bottle/confd-7.5/bin/confdc'
+confdc_cmd = '/home/bottle/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
 yangdump_cmd = '/usr/bin/yangdump-pro'
 
 debug = False

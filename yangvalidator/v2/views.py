@@ -345,6 +345,15 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
             shutil.rmtree(working_dir)
     return response
 
+def versions(request: WSGIRequest):
+    """Return version numbers of used validators and parsers"""
+    return JsonResponse({
+        'confd-version': ConfdParser.VERSION,
+        'pyang-version': PyangParser.VERSION,
+        'xym-version': XymParser.VERSION,
+        'yangdump-version': YangdumpProParser.VERSION,
+        'yanglint-version': YanglintParser.VERSION
+    })
 
 def try_validate_and_load_data(request: WSGIRequest):
     """

@@ -20,14 +20,14 @@ __email__ = "miroslav.kovac@pantheon.tech"
 import logging
 import os
 from datetime import datetime, timezone
-from subprocess import check_output, CalledProcessError, call
+from subprocess import CalledProcessError, call, check_output
 
 
 class ConfdParser:
     """
     Cover the parsing of the module with confd parser and validator
     """
-    CONFDC_CMD = '/home/bottle/confd-7.5/bin/confdc'
+    CONFDC_CMD = '/home/bottle/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
     try:
         VERSION = check_output('{} --version'.format(CONFDC_CMD), shell=True).decode('utf-8').rstrip()
     except CalledProcessError:
@@ -71,4 +71,3 @@ class ConfdParser:
         confdc_res['code'] = status
         confdc_res['command'] = ' '.join(self.__confdc_command)
         return confdc_res
-
