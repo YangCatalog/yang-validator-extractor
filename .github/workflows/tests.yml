@@ -36,5 +36,6 @@ jobs:
         env:
           YANGCATALOG_CONFIG_PATH: tests/resources/test.conf
           DJANGO_SETTINGS_MODULE: tests.resources.settings
+          CONFD_VERSION: 0
         run: python3 manage.py test tests
   
