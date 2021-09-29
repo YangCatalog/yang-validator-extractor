@@ -1,5 +1,4 @@
 # Copyright The IETF Trust 2021, All Rights Reserved
-# Copyright 2015 Cisco and its affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +25,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 __author__ = "Richard Zilincik"
-__copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2021, All Rights Reserved"
+__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"
 __email__ = "richard.zilincik@pantheon.tech"
 
@@ -146,29 +145,24 @@ USE_TZ = True
 
 STATIC_URL = '/yangvalidator/static/'
 
-#STATICFILES_DIRS = (
-#    os.path.join(BASE_DIR, 'static'),
-#)
-
-
 LOGGING_CONFIG = None
 
 logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'console': {
+        'yang_log': {
             # exact format is not important, this is the minimum information
-            'format': '%(asctime)-15s %(levelname)-8s %(name)5s => %(message)s - %(lineno)d',
+            'format': '%(asctime)-15s %(levelname)-8s %(filename)s %(name)5s => %(message)s - %(lineno)d',
             'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
+        }
     },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'console',
-        },
+            'formatter': 'yang_log'
+        }
     },
     'loggers': {
         'django': {
@@ -180,7 +174,6 @@ logging.config.dictConfig({
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
-        },
-    },
-
+        }
+    }
 })
