@@ -64,7 +64,7 @@ class PyangParser:
             self.__ctx.opts.bbf = True
             self.__pyang_command.extend(['-p', self.__working_directory, '--bbf', self.__infile])
         else:
-            self.__pyang_command.extend(self.__infile)
+            self.__pyang_command.extend([self.__infile])
         for p in plugin.plugins:
             p.setup_ctx(self.__ctx)
         pyang_res = {'time': datetime.now(timezone.utc).isoformat()}
@@ -83,7 +83,7 @@ class PyangParser:
         pyang_res['name'] = 'pyang'
         pyang_res['version'] = self.VERSION
         pyang_res['code'] = 0 if not pyang_stderr else 1
-        pyang_res['command'] = ' '.join(self.__pyang_command)
+        pyang_res['command'] = ''.join(self.__pyang_command)
         restore_statements()
         del self.__ctx
         return pyang_res

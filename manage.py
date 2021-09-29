@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright The IETF Trust 2019, All Rights Reserved
 # Copyright 2015 Cisco and its affiliates
 #

@@ -1,0 +1,17 @@
+{
+    "validate_json": {
+        "modules-to-validate": {
+            "repo-modules": ["ietf-yang-types@2013-07-15.yang"]
+        },
+        "dependencies": {
+            "repo-modules": ["ietf-yang-types@2013-07-15.yang"]
+        },
+        "cache": "test"
+    },
+    "create_output": {
+        "modules-to-validate": {
+            "user-modules": ["extracted"]
+        },
+        "cache": "working dir"
+    }
+}

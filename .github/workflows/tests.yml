@@ -1,0 +1,41 @@
+name: Python tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Set up yanglint
+        run: |
+          sudo apt update
+          sudo apt install libpcre2-dev libssl1.0.0 libssl-dev libxml2-dev
+          git clone https://github.com/CESNET/libyang.git
+          mkdir libyang/build
+          cd libyang/build
+          cmake ..
+          make
+          sudo make install
+          sudo ldconfig
+
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install xym requests
+          pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          YANGCATALOG_CONFIG_PATH: tests/resources/test.conf
+          DJANGO_SETTINGS_MODULE: tests.resources.settings
+          CONFD_VERSION: 0
+        run: python3 manage.py test tests
+  
