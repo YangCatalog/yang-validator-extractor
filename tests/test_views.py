@@ -19,12 +19,13 @@ __email__ = "richard.zilincik@pantheon.tech"
 
 import json
 import os
+import shutil
 from unittest import mock
 
-from django.http import JsonResponse
-from django.test import SimpleTestCase, RequestFactory
-
 import yangvalidator.v2.views as v
+from django.http import JsonResponse
+from django.test import RequestFactory, SimpleTestCase
+
 
 class TestViews(SimpleTestCase):
 
@@ -113,7 +114,7 @@ class TestViews(SimpleTestCase):
         mock_extract_files.return_value = 'test'
         request = self.factory.post('/yangvalidator/v2/draft', {'draft': 'test.txt'}, content_type='application/json')
         result = v.validate_doc(request)
-        
+
         self.assertEqual(result, 'test')
         mock_extract_files.assert_called_with(request, 'test/my-id-archive-mirror/test.txt', True, mock.ANY)
 
@@ -124,7 +125,7 @@ class TestViews(SimpleTestCase):
         mock_extract_files.return_value = 'test'
         request = self.factory.post('/yangvalidator/v2/draft', {'draft': 'test.txt'}, content_type='application/json')
         result = v.validate_doc(request)
-        
+
         self.assertEqual(result, 'test')
         mock_extract_files.assert_called_with(request, 'https://tools.ietf.org/id/test.txt', True, mock.ANY)
 
@@ -134,7 +135,7 @@ class TestViews(SimpleTestCase):
         mock_extract_files.return_value = 'test'
         request = self.factory.post('/yangvalidator/v2/rfc', {'rfc': '1'}, content_type='application/json')
         result = v.validate_doc(request)
-        
+
         self.assertEqual(result, 'test')
         mock_extract_files.assert_called_with(request, 'test/rfc/rfc1.txt', True, mock.ANY)
 
@@ -144,7 +145,7 @@ class TestViews(SimpleTestCase):
         mock_extract_files.return_value = 'test'
         request = self.factory.post('/yangvalidator/v2/rfc', {'rfc': '1'}, content_type='application/json')
         result = v.validate_doc(request)
-        
+
         self.assertEqual(result, 'test')
         mock_extract_files.assert_called_with(request, 'https://tools.ietf.org/rfc/rfc1.txt', True, mock.ANY)
 
@@ -201,12 +202,11 @@ class TestViews(SimpleTestCase):
             request = self.factory.post('/yangvalidator/v2/draft-validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                                 'data': f})
             result = v.upload_draft_id(request, 1)
-        
+
         self.assertEqual(result.status_code, 200)
         self.assertJSONEqual(result.content, [{'test': 'test', 'document-name': 'ietf-yang-types@2013-07-15.yang'}])
         mock_extract_files.assert_called_with(request, mock.ANY, True, mock.ANY, remove_working_dir=False)
 
-    
     def test_upload_draft_id_not_set_up(self):
         result = self.client.post('/yangvalidator/v2/draft-validator/1')
 
@@ -224,7 +224,7 @@ class TestViews(SimpleTestCase):
         with open('tests/resources/all_modules/ietf-yang-types@2013-07-15.yang') as f:
             result = self.client.post('/yangvalidator/v2/draft-validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                               'data': f})
-        
+
         self.assertEqual(result.status_code, 400)
         self.assertJSONEqual(result.content, {'Error': 'Failed to upload and validate documents - test'})
 
@@ -284,18 +284,19 @@ class TestViews(SimpleTestCase):
         with open('tests/resources/all_modules/ietf-yang-types@2013-07-15.yang') as f:
             result = self.client.post('/yangvalidator/v2/validator/1', {'name': 'ietf-yang-types@2013-07-15.yang',
                                                                         'data': f})
-        
+
         self.assertEqual(result.status_code, 400)
         self.assertJSONEqual(result.content, {'Error': 'Failed to get yang files'})
 
     @mock.patch('yangvalidator.v2.views.create_output')
     def test_extract_files(self, mock_create_output: mock.MagicMock):
-        v.extract_files(None, 'tests/resources/ietf/rfc/rfc6991.txt', True, 'tests/resources', True)
+        v.extract_files(None, 'tests/resources/ietf/rfc/rfc6991.txt', True, 'tests/resources/extracted', True)
 
         mock_create_output.assert_called_with(None, 'tests/resources/all_modules',
-                                              'tests/resources/ietf/rfc/rfc6991.txt', True, 'tests/resources',
+                                              'tests/resources/ietf/rfc/rfc6991.txt', True, 'tests/resources/extracted',
                                               ['ietf-yang-types@2013-07-15.yang', 'ietf-inet-types@2013-07-15.yang'],
                                               mock.ANY, remove_working_dir=True)
+        shutil.rmtree('tests/resources/extracted')
 
     @mock.patch('yangvalidator.v2.views.ModelsChecker', mock.MagicMock())
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
@@ -331,7 +332,7 @@ class TestViews(SimpleTestCase):
                                                            mock_checker: mock.MagicMock,):
         json_body = self.load_payload('create_output')
         json_body['dependencies'] = {'missing': [], 'existing': {}}
-        mock_validate.return_value='test'
+        mock_validate.return_value = 'test'
         mock_checker = mock.MagicMock
         mock_checker.find_missing = lambda self: []
         mock_checker.get_existing_dependencies = lambda self: ({}, False)
@@ -339,7 +340,7 @@ class TestViews(SimpleTestCase):
 
         self.assertEqual(result, 'test')
         mock_validate.assert_called_with(None, None, json_body)
-    
+
     @mock.patch('yangvalidator.v2.views.ModelsChecker')
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
     def test_create_output_choose_options_and_missing(self, mock_checker: mock.MagicMock):
@@ -393,7 +394,6 @@ class TestViews(SimpleTestCase):
 
         self.assertEqual(result.status_code, 202)
         self.assertJSONEqual(result.content, {'output': json_body})
-
 
     def test_check_missing_amount_one_only(self):
         self.assertTrue(v.check_missing_amount_one_only({'test': ['test']}))
