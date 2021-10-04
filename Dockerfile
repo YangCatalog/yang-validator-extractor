@@ -29,23 +29,23 @@ COPY ./bottle-yang-extractor-validator/requirements.txt .
 RUN pip3 install -r requirements.txt
 
 RUN groupadd web
-RUN useradd -d /home/bottle -m bottle
+RUN useradd -d /home/yangvalidator -m yangvalidator
 
-RUN mkdir /home/bottle/confd-${CONFD_VERSION}
-COPY ./resources/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/bottle/bottle-yang-extractor-validator/confd-${CONFD_VERSION}.linux.x86_64.installer.bin
-COPY ./resources/yumapro-client-20.10-9.u1804.amd64.deb /home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
-RUN /home/bottle/bottle-yang-extractor-validator/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/bottle/confd-${CONFD_VERSION}
+RUN mkdir /home/yangvalidator/confd-${CONFD_VERSION}
+COPY ./resources/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/yangvalidator/yang-extractor-validator/confd-${CONFD_VERSION}.linux.x86_64.installer.bin
+COPY ./resources/yumapro-client-20.10-9.u1804.amd64.deb /home/yangvalidator/yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
+RUN /home/yangvalidator/yang-extractor-validator/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/yangvalidator/confd-${CONFD_VERSION}
 
-RUN dpkg -i /home/bottle/bottle-yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
+RUN dpkg -i /home/yangvalidator/yang-extractor-validator/yumapro-client-20.10-9.u1804.amd64.deb
 
 RUN mkdir /var/run/yang
 RUN chown -R ${YANG_ID}:${YANG_GID} /var/run/yang
 
-COPY ./bottle-yang-extractor-validator/ /home/bottle/bottle-yang-extractor-validator/
+COPY ./bottle-yang-extractor-validator/ /home/yangvalidator/yang-extractor-validator/
 
-ENV VIRTUAL_ENV=/home/bottle/bottle-yang-extractor-validator
+ENV VIRTUAL_ENV=/home/yangvalidator/yang-extractor-validator
 
-WORKDIR /home/bottle/bottle-yang-extractor-validator
+WORKDIR /home/yangvalidator/yang-extractor-validator
 
 EXPOSE 8090
 # Support arbitrary UIDs as per OpenShift guidelines

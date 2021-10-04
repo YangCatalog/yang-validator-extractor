@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
-confdc_cmd = '/home/bottle/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
+confdc_cmd = '/home/yangvalidator/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
 yangdump_cmd = '/usr/bin/yangdump-pro'
 
 debug = False
