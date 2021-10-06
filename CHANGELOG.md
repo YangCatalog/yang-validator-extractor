@@ -2,6 +2,15 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.2.1 - 2021-10-06
+
+  * ConfD update to version 7.6 [deployment #99](https://github.com/YangCatalog/deployment/issues/99)
+  * Dockerfile reorganized - image build speed up [#77](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/77)
+  * "bottle" string removed from paths and user names [#75](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/75)
+  * v2/versions endpoint added [#72](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/72)
+  * Unit tests for v2 API endpoints added [#69](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/69)
+  * Unit tests for modelChecker.py added [#69](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/69)
+
 * ##### v4.2.0 - 2021-09-09
 
   * Removed unneeded sync.sh from Docker image build [#66](https://github.com/YangCatalog/bottle-yang-extractor-validator/issues/66)
