@@ -40,7 +40,8 @@ class ConfdParser:
         fxsfile = os.path.join(working_directory, file_name.replace('.yang', '.fxs'))
         self.__cmds = [self.CONFDC_CMD, '-o', fxsfile, '-W', 'all']
         for dep_dir in context_directories:
-            self.__cmds.extend(['--yangpath', dep_dir])
+            if dep_dir not in self.__cmds:
+                self.__cmds.extend(['--yangpath', dep_dir])
         self.__cmds.extend(['--yangpath', working_directory])
         self.__confdc_command = self.__cmds + ['-c', '{}/{}'.format(working_directory, file_name)]
 
@@ -50,7 +51,7 @@ class ConfdParser:
         cresfp = open(self.__confdc_resfile, 'w+')
 
         confdc_res['time'] = datetime.now(timezone.utc).isoformat()
-        self.LOG.info('Starting to confd parse use command'.format(self.__confdc_command))
+        self.LOG.info('Starting to confd parse use command {}'.format(' '.join(self.__confdc_command)))
         status = call(self.__confdc_command, stdout=outfp, stderr=cresfp)
 
         confdc_output = confdc_stderr = ''
@@ -70,4 +71,5 @@ class ConfdParser:
         confdc_res['version'] = self.VERSION
         confdc_res['code'] = status
         confdc_res['command'] = ' '.join(self.__confdc_command)
+
         return confdc_res

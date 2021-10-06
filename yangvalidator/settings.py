@@ -146,9 +146,9 @@ USE_TZ = True
 
 STATIC_URL = '/yangvalidator/static/'
 
-#STATICFILES_DIRS = (
+# STATICFILES_DIRS = (
 #    os.path.join(BASE_DIR, 'static'),
-#)
+# )
 
 
 LOGGING_CONFIG = None
@@ -157,27 +157,28 @@ logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'console': {
+        'yang_log': {
             # exact format is not important, this is the minimum information
-            'format': '%(asctime)-15s %(levelname)-8s %(name)5s => %(message)s - %(lineno)d',
+            'format': '%(asctime)-15s %(levelname)-8s %(filename)s %(name)5s => %(message)s - %(lineno)d',
             'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
+        }
     },
     'handlers': {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': '/var/yang/logs/yangvalidator_debug.log',
+            'formatter': 'yang_log'
         },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'console',
-        },
+            'formatter': 'yang_log'
+        }
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -185,7 +186,6 @@ logging.config.dictConfig({
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
-        },
-    },
-
+        }
+    }
 })

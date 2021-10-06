@@ -25,7 +25,7 @@ from subprocess import CalledProcessError, call, check_output
 
 class YanglintParser:
     """
-    Cover the parsing of the module with confd parser and validator
+    Cover the parsing of the module with yanglint parser and validator
     """
     YANGLINT_CMD = '/usr/local/bin/yanglint'
     try:
@@ -39,7 +39,8 @@ class YanglintParser:
         self.__yanglint_outfile = str(os.path.join(working_directory, file_name) + '.lout')
         cmds = [self.YANGLINT_CMD, '-i', '-p', working_directory]
         for dep_dir in context_directories:
-            cmds.extend(['-p', dep_dir])
+            if dep_dir not in cmds:
+                cmds.extend(['-p', dep_dir])
         self.__yanglint_cmd = cmds + ['{}/{}'.format(working_directory, file_name)]
 
     def parse_module(self):
@@ -48,7 +49,7 @@ class YanglintParser:
         yresfp = open(self.__yanglint_resfile, 'w+')
         outfp = open(self.__yanglint_outfile, 'w+')
         status = call(self.__yanglint_cmd, stdout=outfp, stderr=yresfp)
-        self.LOG.info('Starting to yanglint parse use command'.format(self.__yanglint_cmd))
+        self.LOG.info('Starting to yanglint parse use command {}'.format(' '.join(self.__yanglint_cmd)))
         yanglint_res['time'] = datetime.now(timezone.utc).isoformat()
         yanglint_output = yanglint_stderr = ''
         if os.path.isfile(self.__yanglint_outfile):
