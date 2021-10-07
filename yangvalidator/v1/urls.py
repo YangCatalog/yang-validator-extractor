@@ -54,6 +54,5 @@ urlpatterns = [
     path('validator', views.upload_file, name='upload_file'),
     path('draft-validator', views.upload_draft, name='upload_draft'),
     path('draft', views.validate_draft_param, name='validate_draft'),
-    path('rfc', views.validate_rfc_param, name='validate_rfc'),
-    path('ping', csrf_exempt(views.ping), name='ping')
+    path('rfc', views.validate_rfc_param, name='validate_rfc')
 ]

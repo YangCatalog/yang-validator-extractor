@@ -187,13 +187,14 @@ def upload_setup(request):
     os.mkdir(working_dir)
     with open('{}/pre-setup.json'.format(working_dir), 'w') as f:
         json.dump({'latest': latest,
-                      'get-from-options': get_from_options
-                      }, f)
+                   'get-from-options': get_from_options
+                   }, f)
     return JsonResponse({'output': {'cache': working_dir.split('/')[-1]}})
 
 
 def upload_draft(request):
     return upload_draft_id(request, None)
+
 
 def load_pre_setup(working_dir, id):
     presetup_path = '{}/pre-setup.json'.format(working_dir)
@@ -207,6 +208,7 @@ def load_pre_setup(working_dir, id):
                                       ' "latest" and "get-from-options" key with true or false'
                                       ' variable'.format(id)},
                             status=400)
+
 
 def upload_draft_id(request, id):
     config = create_config()
@@ -345,6 +347,7 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
             shutil.rmtree(working_dir)
     return response
 
+
 def versions(request: WSGIRequest):
     """Return version numbers of used validators and parsers"""
     return JsonResponse({
@@ -354,6 +357,12 @@ def versions(request: WSGIRequest):
         'yangdump-version': YangdumpProParser.VERSION,
         'yanglint-version': YanglintParser.VERSION
     })
+
+
+def ping(request: WSGIRequest):
+    """Respond to the healthcheck request"""
+    return JsonResponse({'info': 'Success'})
+
 
 def try_validate_and_load_data(request: WSGIRequest):
     """

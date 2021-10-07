@@ -102,7 +102,7 @@ def create_output(url, for_datatracker=False):
     sys.stdout = stdout
     try:
         extracted_models = xym.xym(source_id=url, dstdir=workdir, srcdir="", strict=True, strict_examples=False,
-                                debug_level=0)
+                                   debug_level=0)
         xym_res['time'] = datetime.now(timezone.utc).isoformat()
         sys.stderr = stderr_
         sys.stdout = stdout_
@@ -134,12 +134,12 @@ def create_output(url, for_datatracker=False):
 
             else:
                 results[em] = {"pyang_stderr": cgi.escape(pyang_res['stderr']),
-                            "pyang_output": cgi.escape(pyang_res['stdout']),
-                            "xym_stderr": cgi.escape(xym_res['stderr']),
-                            "confdc_stderr": cgi.escape(confdc_res['stderr']),
-                            "yanglint_stderr": cgi.escape(yanglint_res['stderr']),
-                            "yangdump_stderr": cgi.escape(yangdump_res['stderr']),
-                            "name_split": file_name}
+                               "pyang_output": cgi.escape(pyang_res['stdout']),
+                               "xym_stderr": cgi.escape(xym_res['stderr']),
+                               "confdc_stderr": cgi.escape(confdc_res['stderr']),
+                               "yanglint_stderr": cgi.escape(yanglint_res['stderr']),
+                               "yangdump_stderr": cgi.escape(yangdump_res['stderr']),
+                               "name_split": file_name}
         if for_datatracker:
             results['modules'] = modules
     except Exception as e:
@@ -162,7 +162,7 @@ def print_pyang_output(ctx):
             kind = "error"
 
         err += str(epos) + ': %s: ' % kind + \
-               error.err_to_str(etag, eargs) + '\n'
+            error.err_to_str(etag, eargs) + '\n'
     return err, out
 
 
@@ -348,7 +348,7 @@ def validate_yangfile(infilename, workdir):
         path, filename = os.path.split(
             os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
         rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
-                                                ).get_template(filename).render(context)
+                                                  ).get_template(filename).render(context)
         conf_yangdump_dir = '{}-conf'.format(dep_dir)
         os.mkdir(conf_yangdump_dir)
         yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'
@@ -559,15 +559,3 @@ def rest(request):
 
 def about(request):
     return render(request, 'about.html')
-
-
-def ping(request):
-    logger.info('Ping from healthcheck')
-    req_data = json.loads(request.body)
-
-    if req_data['input']['data'] == 'ping':
-        return HttpResponse(json.dumps({'info': 'Success'}, cls=DjangoJSONEncoder),
-                            content_type='application/json', status=200)
-    else:
-        return HttpResponse(json.dumps({'error': 'Bad request body'}, cls=DjangoJSONEncoder),
-                            content_type='application/json', status=400)
