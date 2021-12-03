@@ -2,6 +2,10 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.3.0 - 2021-12-03
+
+  * /ping endpoint moved from v1 to v2 API
+
 * ##### v4.2.1 - 2021-10-06
 
   * ConfD update to version 7.6 [deployment #99](https://github.com/YangCatalog/deployment/issues/99)
