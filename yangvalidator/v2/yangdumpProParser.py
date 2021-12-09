@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 import logging
 import os
 from datetime import datetime, timezone
-from subprocess import check_output, CalledProcessError, call
+from subprocess import CalledProcessError, call, check_output
 
 import jinja2
 
@@ -31,7 +31,7 @@ class YangdumpProParser:
     """
     YANGDUMP_PRO_CMD = '/usr/bin/yangdump-pro'
     try:
-        VERSION = check_output(YANGDUMP_PRO_CMD + " --version", shell=True).decode('utf-8').strip()
+        VERSION = check_output(YANGDUMP_PRO_CMD + ' --version', shell=True).decode('utf-8').strip()
     except CalledProcessError:
         VERSION = 'undefined'
     LOG = logging.getLogger(__name__)
@@ -43,14 +43,13 @@ class YangdumpProParser:
         path, filename = os.path.split(
             os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
         rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
-                                              ).get_template(filename).render(context)
+                                                  ).get_template(filename).render(context)
         yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'.format(working_directory)
         with open(yangdump_config_file.format(working_directory), 'w') as ff:
             ff.write(rendered_config_text)
-        
+
         cmds = [self.YANGDUMP_PRO_CMD, '--quiet-mode', '--config', yangdump_config_file]
         self.__yangdump_command = cmds + ['{}/{}'.format(working_directory, file_name)]
-
 
     def parse_module(self):
         yangdump_res = {}
@@ -67,7 +66,7 @@ class YangdumpProParser:
                 yangdump_output += os.path.basename(line)
         else:
             pass
-        yangdump_res['stdout'] = yangdump_output
+        yangdump_res['stdout'] = '' if yangdump_output == '\n' else yangdump_output
 
         ypresfp.seek(0)
 
