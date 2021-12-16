@@ -9,23 +9,25 @@ ENV YANG_GID "$YANG_GID"
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
 ENV CONFD_VERSION "$CONFD_VERSION"
 
-RUN apt-get -y update \
-  && apt-get install -y build-essential clang cmake git gnupg2 gunicorn libpcre2-dev \
-  libssl1.0.0 libssl-dev libxml2-dev openssh-client python3.6 python3-pip rsyslog systemd wget
+RUN apt-get -y update &&
+  apt-get install -y build-essential clang cmake git gnupg2 gunicorn libpcre2-dev \
+    libssl1.0.0 libssl-dev libxml2-dev openssh-client python3.6 python3-pip rsyslog systemd wget
 RUN mkdir /home/w3cgrep
-RUN cd /home; git clone https://github.com/CESNET/libyang.git \
-  && cd /home/libyang; mkdir build \
-  && cd /home/libyang/build \
-  && cmake -D CMAKE_BUILD_TYPE:String="Release" .. \
-  && make \
-  && make install
+RUN cd /home
+git clone https://github.com/CESNET/libyang.git &&
+  cd /home/libyang
+mkdir build &&
+  cd /home/libyang/build &&
+  cmake -D CMAKE_BUILD_TYPE:String="Release" .. &&
+  make &&
+  make install
 
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install requests
 RUN pip3 install xym
-COPY ./bottle-yang-extractor-validator/requirements.txt .
+COPY ./yang-validator-extractor/requirements.txt .
 RUN pip3 install -r requirements.txt
 
 RUN groupadd web
@@ -41,7 +43,7 @@ RUN dpkg -i /home/yangvalidator/yang-extractor-validator/yumapro-client-20.10-9.
 RUN mkdir /var/run/yang
 RUN chown -R ${YANG_ID}:${YANG_GID} /var/run/yang
 
-COPY ./bottle-yang-extractor-validator/ /home/yangvalidator/yang-extractor-validator/
+COPY ./yang-validator-extractor/ /home/yangvalidator/yang-extractor-validator/
 
 ENV VIRTUAL_ENV=/home/yangvalidator/yang-extractor-validator
 
