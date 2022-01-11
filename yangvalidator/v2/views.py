@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 import fnmatch
+import grp
 import json
 import logging
 import os
+import pwd
 import random
 import shutil
 import string
@@ -38,6 +40,25 @@ from yangvalidator.v2.yangdumpProParser import YangdumpProParser
 from yangvalidator.v2.yanglintParser import YanglintParser
 
 logger = logging.getLogger(__name__)
+
+
+def change_ownership_recursive(path: str, user: str = 'yang', group: str = 'yang'):
+    """ Ownership is set to the values passed as 'user' and 'group' arguments.
+
+    Arguments:
+        :param user     (str) name of the user who will have the ownership over 'path'
+        :param group    (str) name of the group which will have the ownership over 'path'    
+    """
+    uid = pwd.getpwnam(user).pw_uid
+    gid = grp.getgrnam(group).gr_gid
+    os.chown(path, uid, gid)
+
+    if os.path.isdir(path):
+        for root, dirs, files in os.walk(path, topdown=False):
+            for dir in [os.path.join(root, d) for d in dirs]:
+                os.chown(os.path.join(root, dir), uid, gid)
+            for file in [os.path.join(root, f) for f in files]:
+                os.chown(os.path.join(root, file), uid, gid)
 
 
 def validate(request: WSGIRequest, xym_result=None, json_body=None):
@@ -73,14 +94,14 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     yang_models = config.get('Directory-Section', 'save-file-dir')
     while True:
         suffix = create_random_suffix()
-        work_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(tmp, suffix)
-        if not os.path.exists(work_dir):
+        working_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(tmp, suffix)
+        if not os.path.exists(working_dir):
             break
     results = {}
     if xym_result is not None:
         results['xym'] = xym_result
     try:
-        os.mkdir(work_dir)
+        os.mkdir(working_dir)
         modules_to_validate = []
         skipped_modules = []
         dependencies = json_body.get('dependencies', {})
@@ -101,7 +122,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                         skipped_modules.append(module_to_validate)
                         break
                 else:
-                    shutil.copy(os.path.join(source, module_to_validate), work_dir)
+                    shutil.copy(os.path.join(source, module_to_validate), working_dir)
                     modules_to_validate.append(module_to_validate)
 
         if len(skipped_modules) > 0:
@@ -114,25 +135,26 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         # validate.
         #
         # for dependency in user_dependencies:
-        #     shutil.copy(os.path.join(tmp, json_body['cache'], dependency), work_dir)
+        #     shutil.copy(os.path.join(tmp, json_body['cache'], dependency), working_dir)
 
         # Copy rest of dependencies to working directory
         for dependency in repo_dependencies:
-            shutil.copy(os.path.join(yang_models, dependency), work_dir)
+            shutil.copy(os.path.join(yang_models, dependency), working_dir)
+        change_ownership_recursive(working_dir)
         # Validate each yang file with all parsers use only working directory for all dependencies
         for module_to_validate in modules_to_validate:
             results[module_to_validate] = {}
             for Parser, name in ((PyangParser, 'pyang'), (ConfdParser, 'confd'),
                                  (YanglintParser, 'yanglint'), (YangdumpProParser, 'yangdump-pro')):
-                parser_results = Parser([work_dir], module_to_validate, work_dir).parse_module()
+                parser_results = Parser([working_dir], module_to_validate, working_dir).parse_module()
                 results[module_to_validate][name] = parser_results
     except Exception as e:
         results['error'] = 'Failed to parse a document - {}'.format(e)
         logger.exception('Failed to parse module - {}'.format(e))
     finally:
         logger.info('Removing temporary directories')
-        if os.path.exists(work_dir):
-            shutil.rmtree(work_dir)
+        if os.path.exists(working_dir):
+            shutil.rmtree(working_dir)
 
         cache_tmp_path = os.path.join(tmp, 'yangvalidator', json_body.get('cache', ''))
         if os.path.exists(cache_tmp_path):
@@ -167,13 +189,16 @@ def validate_doc(request):
             url = 'https://tools.ietf.org/rfc/{}'.format(rfc_file)
     while True:
         suffix = create_random_suffix()
-        working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
-        if not os.path.exists(working_dir):
+        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+        if not os.path.exists(cache_dir):
             break
-    return extract_files(request, url, payload_body.get('latest', True), working_dir)
+    return extract_files(request, url, payload_body.get('latest', True), cache_dir)
 
 
 def upload_setup(request):
+    """ Dump parameters from request into pre-setup.json file.
+    This JSON file is stored in a temporary cache directory whose name is sent back in the response.
+    """
     payload_body = try_validate_and_load_data(request)
     latest = payload_body.get('latest', False)
     get_from_options = payload_body.get('get-from-options', False)
@@ -181,15 +206,18 @@ def upload_setup(request):
     tmp = config.get('Directory-Section', 'temp')
     while True:
         suffix = create_random_suffix()
-        working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
-        if not os.path.exists(working_dir):
+        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+        if not os.path.exists(cache_dir):
             break
-    os.mkdir(working_dir)
-    with open('{}/pre-setup.json'.format(working_dir), 'w') as f:
-        json.dump({'latest': latest,
-                   'get-from-options': get_from_options
-                   }, f)
-    return JsonResponse({'output': {'cache': working_dir.split('/')[-1]}})
+    os.mkdir(cache_dir)
+    with open('{}/pre-setup.json'.format(cache_dir), 'w') as f:
+        body = {
+            'latest': latest,
+            'get-from-options': get_from_options
+        }
+        json.dump(body, f)
+    change_ownership_recursive(cache_dir)
+    return JsonResponse({'output': {'cache': cache_dir.split('/')[-1]}})
 
 
 def upload_draft(request):
@@ -197,9 +225,9 @@ def upload_draft(request):
 
 
 def load_pre_setup(working_dir, id):
-    presetup_path = '{}/pre-setup.json'.format(working_dir)
-    if os.path.exists(presetup_path):
-        with open(presetup_path, 'r') as f:
+    pre_setup_path = '{}/pre-setup.json'.format(working_dir)
+    if os.path.exists(pre_setup_path):
+        with open(pre_setup_path, 'r') as f:
             return json.load(f)
     else:
         return JsonResponse({'Error': 'Cache file with id - {} does not exist.'
@@ -213,9 +241,9 @@ def load_pre_setup(working_dir, id):
 def upload_draft_id(request, id):
     config = create_config()
     tmp = config.get('Directory-Section', 'temp')
-    working_dir = '{}/yangvalidator/{}'.format(tmp, id)
+    pre_setup_dir = '{}/yangvalidator/{}'.format(tmp, id)
 
-    result = load_pre_setup(working_dir, id)
+    result = load_pre_setup(pre_setup_dir, id)
     if isinstance(result, HttpResponse):
         return result
     else:
@@ -228,16 +256,16 @@ def upload_draft_id(request, id):
         for file in request.FILES.getlist('data'):
             while True:
                 suffix = create_random_suffix()
-                working_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
-                if not os.path.exists(working_dir):
+                cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+                if not os.path.exists(cache_dir):
                     break
-            os.mkdir(working_dir)
-            working_dirs.append(working_dir)
-            filepath = os.path.join(working_dir, file.name)
+            os.mkdir(cache_dir)
+            working_dirs.append(cache_dir)
+            filepath = os.path.join(cache_dir, file.name)
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            output = json.loads(extract_files(request, filepath, latest, working_dir, remove_working_dir=False).content)
+            output = json.loads(extract_files(request, filepath, latest, cache_dir, remove_working_dir=False).content)
             output['document-name'] = file.name
             results.append(output)
     except Exception as e:
@@ -313,6 +341,7 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
         },
         'cache': working_dir.split('/')[-1]
     }
+    change_ownership_recursive(working_dir)
     if len(extracted_modules) == 0:
         if xym_response is None:
             response_args = {'data': {'Error': 'Failed to load any yang modules. Please provide at least one'

@@ -39,6 +39,11 @@ class TestViews(SimpleTestCase):
             self.addCleanup(patcher.stop)
             mock_parser.parse_module = lambda self: 'test'
 
+        self.ownership_patcher = mock.patch('yangvalidator.v2.views.change_ownership_recursive')
+        self.mock_ownership = self.ownership_patcher.start()
+        self.addCleanup(self.ownership_patcher.stop)
+        self.mock_ownership.return_value = None
+
     def test_validate(self):
         validate_json = self.load_payload('validate_json')
         del validate_json['dependencies']
