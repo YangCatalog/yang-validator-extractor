@@ -159,7 +159,7 @@ logging.config.dictConfig({
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'yang_log'
         }
@@ -168,12 +168,12 @@ logging.config.dictConfig({
         'django': {
             'handlers': ['console'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': True
         },
         'yangvalidator': {
             'handlers': ['console'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': True
         }
     }
 })
