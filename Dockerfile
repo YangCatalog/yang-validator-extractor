@@ -29,6 +29,9 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN pip3 install --upgrade pip
 COPY ./yang-validator-extractor/requirements.txt .
 RUN pip3 install -r requirements.txt
+# TODO: remove next step from build when depend.py will be fixed in next pyang release
+# https://github.com/mbj4668/pyang/pull/793
+COPY ./yang-validator-extractor/pyang_plugin/depend.py /usr/lib/python3.6/site-packages/pyang/plugins/.
 
 RUN mkdir -p /home/yangvalidator/confd-${CONFD_VERSION}
 COPY ./resources/confd-${CONFD_VERSION}.linux.x86_64.installer.bin $VIRTUAL_ENV/confd-${CONFD_VERSION}.linux.x86_64.installer.bin
