@@ -3,7 +3,7 @@ chardet==3.0.4
 Django>=2.1.9
 idna==2.8
 lxml==4.6.5
-pyang==2.5.0
+pyang==2.5.2
 pytz==2018.9
 requests==2.25.1
 urllib3==1.26.5
