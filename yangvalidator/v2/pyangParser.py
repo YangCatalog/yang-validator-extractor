@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 import glob
 import io
 import logging
 import os
-import sys
 from datetime import datetime, timezone
 
 import pyang
@@ -83,7 +82,7 @@ class PyangParser:
         pyang_res['name'] = 'pyang'
         pyang_res['version'] = self.VERSION
         pyang_res['code'] = 0 if not pyang_stderr else 1
-        pyang_res['command'] = ''.join(self.__pyang_command)
+        pyang_res['command'] = ' '.join(self.__pyang_command)
         restore_statements()
         del self.__ctx
         return pyang_res
@@ -93,7 +92,7 @@ class PyangParser:
         self.__ctx.opts.depend_ignore = []
         for p in plugin.plugins:
             p.setup_ctx(self.__ctx)
-        with open(self.__infile, 'r', encoding="utf-8") as yang_file:
+        with open(self.__infile, 'r', encoding='utf-8') as yang_file:
             module = yang_file.read()
             if module is None:
                 self.LOG.info('no module provided')
@@ -104,12 +103,15 @@ class PyangParser:
                 m = [m]
         self.__ctx.validate()
 
-        f = io.StringIO()
-        emit_depend(self.__ctx, m, f)
-
         config = create_config()
         yang_models = config.get('Directory-Section', 'save-file-dir')
-        out = f.getvalue()
+        try:
+            f = io.StringIO()
+            emit_depend(self.__ctx, m, f)
+            out = f.getvalue()
+        except Exception as e:
+            out = ''
+
         if len(out.split(':')) == 2 and out.split(':')[1].strip() != '':
             dependencies = out.split(':')[1].strip().split(' ')
         else:
