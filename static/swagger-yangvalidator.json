@@ -62,13 +62,13 @@
                         }
                     },
                     "400": {
-                        "description": "Error message stating that the **rfc** property is missing in payload.",
+                        "description": "Error message stating that the **rfc** property is missing or empty.",
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "Error": {
                                     "type": "string",
-                                    "example": "Required property \"rfc\" is missing in payload"
+                                    "example": "Required property \"rfc\" is missing or empty"
                                 }
                             }
                         }
@@ -121,13 +121,13 @@
                         }
                     },
                     "400": {
-                        "description": "Error message stating that the **draft** property is missing in payload.",
+                        "description": "Error message stating that the **draft** property is missing or empty.",
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "Error": {
                                     "type": "string",
-                                    "example": "Required property \"draft\" is missing in payload"
+                                    "example": "Required property \"draft\" is missing or empty"
                                 }
                             }
                         }
@@ -569,7 +569,7 @@
                 },
                 "stderr": {
                     "type": "string",
-                    "example": "/var/yang/tmp/yangvalidator/yangvalidator-v2-workdir-HjpvMUCb/ietf-interfaces@2014-05-08.yang:243: warning: RFC 8407: 4.11.3,4.14: statement \"enum\" should have a \"description\" substatement\n",
+                    "example": "yangvalidator-v2-workdir-HjpvMUCb/ietf-interfaces@2014-05-08.yang:243: warning: RFC 8407: 4.11.3,4.14: statement \"enum\" should have a \"description\" substatement\n",
                     "description": "Error output of xym pyang validation"
                 },
                 "name": {

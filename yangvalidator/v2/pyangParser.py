@@ -76,9 +76,10 @@ class PyangParser:
 
         self.__ctx.validate()
         pyang_stderr, pyang_output = self.__print_pyang_output()
+        dirname = os.path.dirname(self.__working_directory)
 
-        pyang_res['stdout'] = pyang_output
-        pyang_res['stderr'] = pyang_stderr
+        pyang_res['stdout'] = pyang_output.replace('{}/'.format(dirname), '')
+        pyang_res['stderr'] = pyang_stderr.replace('{}/'.format(dirname), '')
         pyang_res['name'] = 'pyang'
         pyang_res['version'] = self.VERSION
         pyang_res['code'] = 0 if not pyang_stderr else 1

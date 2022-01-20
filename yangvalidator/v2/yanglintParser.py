@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 import logging
 import os
@@ -35,22 +35,22 @@ class YanglintParser:
     LOG = logging.getLogger(__name__)
 
     def __init__(self, context_directories, file_name: str, working_directory: str):
+        self.__working_directory = working_directory
         self.__yanglint_resfile = str(os.path.join(working_directory, file_name) + '.lres')
         self.__yanglint_outfile = str(os.path.join(working_directory, file_name) + '.lout')
         cmds = [self.YANGLINT_CMD, '-i', '-p', working_directory]
         for dep_dir in context_directories:
             if dep_dir not in cmds:
                 cmds.extend(['-p', dep_dir])
-        self.__yanglint_cmd = cmds + ['{}/{}'.format(working_directory, file_name)]
+        self.__yanglint_cmd = cmds + [os.path.join(working_directory, file_name)]
 
     def parse_module(self):
-        yanglint_res = {}
+        yanglint_res = {'time': datetime.now(timezone.utc).isoformat()}
 
         yresfp = open(self.__yanglint_resfile, 'w+')
         outfp = open(self.__yanglint_outfile, 'w+')
         status = call(self.__yanglint_cmd, stdout=outfp, stderr=yresfp)
         self.LOG.info('Starting to yanglint parse use command {}'.format(' '.join(self.__yanglint_cmd)))
-        yanglint_res['time'] = datetime.now(timezone.utc).isoformat()
         yanglint_output = yanglint_stderr = ''
         if os.path.isfile(self.__yanglint_outfile):
             outfp.seek(0)
@@ -58,15 +58,16 @@ class YanglintParser:
                 yanglint_output += os.path.basename(line)
         else:
             pass
-        yanglint_res['stdout'] = yanglint_output
 
         yresfp.seek(0)
-
         for line in yresfp.readlines():
             yanglint_stderr += line
         outfp.close()
         yresfp.close()
-        yanglint_res['stderr'] = yanglint_stderr
+        dirname = os.path.dirname(self.__working_directory)
+
+        yanglint_res['stdout'] = yanglint_output.replace('{}/'.format(dirname), '')
+        yanglint_res['stderr'] = yanglint_stderr.replace('{}/'.format(dirname), '')
         yanglint_res['name'] = 'yanglint'
         yanglint_res['version'] = self.VERSION
         yanglint_res['code'] = status

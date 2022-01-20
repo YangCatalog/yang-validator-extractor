@@ -154,6 +154,28 @@ class TestViews(SimpleTestCase):
         self.assertEqual(result, 'test')
         mock_extract_files.assert_called_with(request, 'https://tools.ietf.org/rfc/rfc1.txt', True, mock.ANY)
 
+    @mock.patch('yangvalidator.v2.views.os.path.exists', mock.MagicMock(return_value=False))
+    def test_validate_doc_missing_rfc(self):
+        request = self.factory.post('/yangvalidator/v2/rfc', {}, content_type='application/json')
+        result = v.validate_doc(request)
+
+        response = json.loads(result.content)
+        self.assertEqual(result.headers['Content-Type'], 'application/json')
+        self.assertEqual(result.status_code, 400)
+        self.assertIn('Error', response)
+        self.assertEqual(response.get('Error'), 'Required property "rfc" is missing or empty')
+
+    @mock.patch('yangvalidator.v2.views.os.path.exists', mock.MagicMock(return_value=False))
+    def test_validate_doc_missing_draft(self):
+        request = self.factory.post('/yangvalidator/v2/draft', {}, content_type='application/json')
+        result = v.validate_doc(request)
+
+        response = json.loads(result.content)
+        self.assertEqual(result.headers['Content-Type'], 'application/json')
+        self.assertEqual(result.status_code, 400)
+        self.assertIn('Error', response)
+        self.assertEqual(response.get('Error'), 'Required property "draft" is missing or empty')
+
     @mock.patch('yangvalidator.v2.views.json.dump')
     def test_upload_setup(self, mock_dump: mock.MagicMock):
         result = self.client.post('/yangvalidator/v2/upload-files-setup',
