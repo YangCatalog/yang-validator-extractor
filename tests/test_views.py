@@ -183,21 +183,22 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.os.path.exists', mock.MagicMock(return_value=True))
     @mock.patch('yangvalidator.v2.views.open', mock.mock_open(read_data=json.dumps({'test': 'test'})))
     def test_load_pre_setup(self):
-        result = v.load_pre_setup('working dir', 1)
+        result = v.load_pre_setup('yangvalidator-v2-cache-suffix')
 
         self.assertEqual(result, {'test': 'test'})
 
     @mock.patch('yangvalidator.v2.views.os.path.exists', mock.MagicMock(return_value=False))
     @mock.patch('yangvalidator.v2.views.open', mock.mock_open(read_data=json.dumps({'test': 'test'})))
     def test_load_pre_setup_not_found(self):
-        result = v.load_pre_setup('working dir', 1)
+        cache_dir = 'yangvalidator-v2-cache-suffix'
+        result = v.load_pre_setup(cache_dir)
 
         self.assertEqual(result.status_code, 400)
         self.assertJSONEqual(result.content, {'Error': 'Cache file with id - {} does not exist.'
                                               ' Please use pre setup first. Post request on path'
                                               ' /yangvalidator/v2/upload-files-setup where you provide'
                                               ' "latest" and "get-from-options" key with true or false'
-                                              ' variable'.format(1)})
+                                              ' values'.format(cache_dir)})
 
     @mock.patch('yangvalidator.v2.views.extract_files')
     @mock.patch('yangvalidator.v2.views.load_pre_setup', mock.MagicMock(return_value={'latest': True}))
@@ -209,7 +210,7 @@ class TestViews(SimpleTestCase):
             result = v.upload_draft_id(request, 1)
 
         self.assertEqual(result.status_code, 200)
-        self.assertJSONEqual(result.content, [{'test': 'test', 'document-name': 'ietf-yang-types@2013-07-15.yang'}])
+        self.assertJSONEqual(result.content, {'test': 'test', 'document-name': 'ietf-yang-types@2013-07-15.yang'})
         mock_extract_files.assert_called_with(request, mock.ANY, True, mock.ANY, remove_working_dir=False)
 
     def test_upload_draft_id_not_set_up(self):
@@ -221,7 +222,7 @@ class TestViews(SimpleTestCase):
                                               ' Please use pre setup first. Post request on path'
                                               ' /yangvalidator/v2/upload-files-setup where you provide'
                                               ' "latest" and "get-from-options" key with true or false'
-                                              ' variable'.format(1)})
+                                              ' values'.format(1)})
 
     @mock.patch('yangvalidator.v2.views.load_pre_setup', mock.MagicMock(return_value={'latest': True}))
     @mock.patch('yangvalidator.v2.views.os.mkdir', mock.MagicMock(side_effect=Exception('test')))
@@ -281,7 +282,7 @@ class TestViews(SimpleTestCase):
                                               ' Please use pre setup first. Post request on path'
                                               ' /yangvalidator/v2/upload-files-setup where you provide'
                                               ' "latest" and "get-from-options" key with true or false'
-                                              ' variable'.format(1)})
+                                              ' values'.format(1)})
 
     @mock.patch('yangvalidator.v2.views.load_pre_setup', mock.MagicMock(return_value={'latest': True}))
     @mock.patch('yangvalidator.v2.views.os.open', mock.MagicMock(side_effect=Exception()))
@@ -317,8 +318,8 @@ class TestViews(SimpleTestCase):
     def test_create_output_failed_to_parse(self):
         result = v.create_output(None, 'yang models', 'url', False, 'working dir', [], {'stderr': 'error'})
 
-        self.assertEqual(result.status_code, 200)
-        self.assertJSONEqual(result.content, {'Error': 'Failed to xym parse url url',
+        self.assertEqual(result.status_code, 404)
+        self.assertJSONEqual(result.content, {'Error': 'Failed to fetch content of url',
                                               'xym': {'stderr': 'error'}})
 
     @mock.patch('yangvalidator.v2.views.ModelsChecker', mock.MagicMock())
@@ -327,7 +328,7 @@ class TestViews(SimpleTestCase):
         result = v.create_output(None, 'yang models', 'url', False, 'working dir', [], {'test': 'test'})
 
         self.assertEqual(result.status_code, 200)
-        self.assertJSONEqual(result.content, {'Error': 'No modules found using xym in url url',
+        self.assertJSONEqual(result.content, {'Error': 'No modules were extracted using xym from url',
                                               'xym': {'test': 'test'}})
 
     @mock.patch('yangvalidator.v2.views.ModelsChecker')

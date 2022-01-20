@@ -30,6 +30,7 @@ from zipfile import ZipFile
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from yangvalidator.create_config import create_config
 from yangvalidator.v2.confdParser import ConfdParser
 from yangvalidator.v2.illegalMethodError import IllegalMethodError
@@ -162,10 +163,16 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     return JsonResponse({'output': results})
 
 
-def validate_doc(request):
+def validate_doc(request: WSGIRequest):
+    """ Request contains either the RFC number or the name of the Draft to be validated.
+    URL (or path to cached document) is composed according to whether it is a validation of RFC or Draft.
+    Cache directory name is generated and both path and URL are passed to the extract_files() method.
+    """
     doc_type = request.path.split('/')[-1]
     payload_body = try_validate_and_load_data(request)
     doc_name = payload_body.get(doc_type)
+    if doc_name is None:
+        return JsonResponse({'Error': 'Required property "{}" is missing in payload'.format(doc_type)}, status=400)
     if doc_name.endswith('.txt'):
         doc_name = doc_name[:-4]
     logger.info('validating {} {}'.format(doc_type, doc_name))
@@ -195,7 +202,7 @@ def validate_doc(request):
     return extract_files(request, url, payload_body.get('latest', True), cache_dir)
 
 
-def upload_setup(request):
+def upload_setup(request: WSGIRequest):
     """ Dump parameters from request into pre-setup.json file.
     This JSON file is stored in a temporary cache directory whose name is sent back in the response.
     """
@@ -224,31 +231,37 @@ def upload_draft(request):
     return upload_draft_id(request, None)
 
 
-def load_pre_setup(working_dir, id):
+def load_pre_setup(working_dir: str):
+    """ Load pre-setup from the JSON file stored in directory defined by the 'working_dir' argument
+    """
     pre_setup_path = '{}/pre-setup.json'.format(working_dir)
     if os.path.exists(pre_setup_path):
         with open(pre_setup_path, 'r') as f:
             return json.load(f)
     else:
+        id = os.path.basename(working_dir)
         return JsonResponse({'Error': 'Cache file with id - {} does not exist.'
                                       ' Please use pre setup first. Post request on path'
                                       ' /yangvalidator/v2/upload-files-setup where you provide'
                                       ' "latest" and "get-from-options" key with true or false'
-                                      ' variable'.format(id)},
+                                      ' values'.format(id)},
                             status=400)
 
 
-def upload_draft_id(request, id):
+def upload_draft_id(request: WSGIRequest, id: str):
+    """ Validate each of the uploaded documents individually in separate temporary cache directory.
+    """
     config = create_config()
     tmp = config.get('Directory-Section', 'temp')
     pre_setup_dir = '{}/yangvalidator/{}'.format(tmp, id)
 
-    result = load_pre_setup(pre_setup_dir, id)
+    result = load_pre_setup(pre_setup_dir)
     if isinstance(result, HttpResponse):
         return result
     else:
         setup = result
 
+    status = 200
     latest = setup.get('latest')
     results = []
     working_dirs = []
@@ -265,7 +278,9 @@ def upload_draft_id(request, id):
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            output = json.loads(extract_files(request, filepath, latest, cache_dir, remove_working_dir=False).content)
+            extract_files_response = extract_files(request, filepath, latest, cache_dir, remove_working_dir=False)
+            status = extract_files_response.status_code
+            output = json.loads(extract_files_response.content)
             output['document-name'] = file.name
             results.append(output)
     except Exception as e:
@@ -273,16 +288,17 @@ def upload_draft_id(request, id):
             if os.path.exists(wd):
                 shutil.rmtree(wd)
         return JsonResponse({'Error': 'Failed to upload and validate documents - {}'.format(e)}, status=400)
-    return JsonResponse(results, safe=False)
+    results = results[0] if len(results) == 1 else results
+    return JsonResponse(results, status=status, safe=False)
 
 
-def upload_file(request, id):
+def upload_file(request: WSGIRequest, id: str):
     config = create_config()
     yang_models = config.get('Directory-Section', 'save-file-dir')
     tmp = config.get('Directory-Section', 'temp')
     working_dir = '{}/yangvalidator/{}'.format(tmp, id)
 
-    result = load_pre_setup(working_dir, id)
+    result = load_pre_setup(working_dir)
     if isinstance(result, HttpResponse):
         return result
     else:
@@ -327,7 +343,7 @@ def extract_files(request,  url: str, latest: bool, working_dir: str, remove_wor
                          remove_working_dir=remove_working_dir)
 
 
-def create_output(request, yang_models: str, url, latest: bool, working_dir: str, extracted_modules: list = None,
+def create_output(request, yang_models: str, url: str, latest: bool, working_dir: str, extracted_modules: list = None,
                   xym_response: dict = None, choose_options=False, remove_working_dir=True):
     checker = ModelsChecker(yang_models, working_dir, extracted_modules)
     checker.check()
@@ -348,11 +364,12 @@ def create_output(request, yang_models: str, url, latest: bool, working_dir: str
                                                ' yang module. File must have .yang extension'},
                              'status': 400}
         elif xym_response.get('stderr'):
-            response_args = {'data': {'Error': 'Failed to xym parse url {}'.format(url),
-                                               'xym': xym_response}}
+            response_args = {'data': {'Error': 'Failed to fetch content of {}'.format(url),
+                                      'xym': xym_response},
+                             'status': 404}
         else:
-            response_args = {'data': {'Error': 'No modules found using xym in url {}'.format(url),
-                                               'xym': xym_response}}
+            response_args = {'data': {'Error': 'No modules were extracted using xym from {}'.format(url),
+                                      'xym': xym_response}}
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
@@ -391,6 +408,10 @@ def versions(request: WSGIRequest):
 def ping(request: WSGIRequest):
     """Respond to the healthcheck request"""
     return JsonResponse({'info': 'Success'})
+
+
+def swagger(request: WSGIRequest):
+    return render(request, 'swagger.html')
 
 
 def try_validate_and_load_data(request: WSGIRequest):
