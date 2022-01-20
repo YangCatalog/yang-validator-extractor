@@ -1,0 +1,715 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "YANG Validator is web application that allows you to fetch, extract and validate YANG modules by RFC number, by IETF draft name, or by uploading YANG files. It is built on top of the [Django](https://www.djangoproject.com/) Python web framework using a combination of [xym](https://github.com/xym-tool/xym) to fetch and extract YANG modules from IETF specifications, and [pyang](https://github.com/mbj4668/pyang), confdc and [yanglint](https://github.com/CESNET/libyang) YANG compilers to validate the extracted modules.",
+        "version": "4.3.0",
+        "title": "YANG Validator",
+        "contact": {
+            "email": "slavomir.mazur@pantheon.tech"
+        }
+    },
+    "host": "yangcatalog.org",
+    "basePath": "/yangvalidator/v2",
+    "schemes": [
+        "https",
+        "http"
+    ],
+    "tags": [
+        {
+            "name": "Validation requests"
+        },
+        {
+            "name": "Secondary requests"
+        }
+    ],
+    "paths": {
+        "/rfc": {
+            "post": {
+                "tags": [
+                    "Validation requests"
+                ],
+                "summary": "validates RFC by its number",
+                "description": "By passing in the RFC number, YANG modules are extracted from RFC document and validation of the individual extracted modules is returned.",
+                "operationId": "validateRfc",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request body should contain number of the RFC document and whether to use the **latest** module revisions for all dependencies or not.\n\n If the **latest** is set to True, all modules will be validated immediately, and the latest module revisions will be used for all dependencies.\n\n On the other hand, if **latest** is set to False, list of available revisions of all dependencies is returned in payload.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RequestValidateRFC"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON response with the results of validation of all extracted modules - if the **latest** property is set to True.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentLatestTrue"
+                        }
+                    },
+                    "202": {
+                        "description": "JSON response with the results of the xym extraction and list of available revisions of all dependencies - if the **latest** property is set to False.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentLatestFalse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message stating that the **rfc** property is missing in payload.",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "Error": {
+                                    "type": "string",
+                                    "example": "Required property \"rfc\" is missing in payload"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "JSON response with the results of xym extraction and error message.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentError"
+                        }
+                    }
+                }
+            }
+        },
+        "/draft": {
+            "post": {
+                "tags": [
+                    "Validation requests"
+                ],
+                "summary": "validates Draft by its name",
+                "description": "By passing in the Draft name, YANG modules are extracted from Draft document and validation of the individual modules is returned.",
+                "operationId": "validateDraft",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request body should contain name of the Draft document and whether to use the **latest** module revisions for all dependencies or not.\n\n If the **latest** is set to True, all modules will be validated immediately, and the latest module revisions will be used for all dependencies.\n\n On the other hand, if **latest** is set to False, list of available revisions of all dependencies is returned in payload.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RequestValidateDraft"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON response with the results of validation of all extracted modules - if the **latest** property is set to True.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentLatestTrue"
+                        }
+                    },
+                    "202": {
+                        "description": "JSON response with the results of the xym extraction and list of available revisions of all dependencies - if the **latest** property is set to False.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentLatestFalse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message stating that the **draft** property is missing in payload.",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "Error": {
+                                    "type": "string",
+                                    "example": "Required property \"draft\" is missing in payload"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "JSON response with the results of xym extraction and error message.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentError"
+                        }
+                    }
+                }
+            }
+        },
+        "/draft-validator/{cache}": {
+            "post": {
+                "tags": [
+                    "Validation requests"
+                ],
+                "summary": "validates uploaded document(s)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "cache",
+                        "in": "path",
+                        "description": "Name of the cache directory with pre-setup. Name of this directory is obtained by sending a POST request to **/upload-files-setup**",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "data",
+                        "in": "formData",
+                        "description": "File with .txt extension that contains an RFC or Draft .",
+                        "type": "file",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON response with the results of validation of all extracted modules - if the **latest** property is set to True.",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ResponseValidateDocumentLatestTrue"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "draft-name": {
+                                            "type": "string",
+                                            "example": "draft-00.txt"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "202": {
+                        "description": "JSON response with the results of the xym extraction and list of available revisions of all dependencies - if the **latest** property is set to False.",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ResponseValidateDocumentLatestFalse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "draft-name": {
+                                            "type": "string",
+                                            "example": "draft-00.txt"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/validator/{cache}": {
+            "post": {
+                "tags": [
+                    "Validation requests"
+                ],
+                "summary": "validates uploaded module(s)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "cache",
+                        "in": "path",
+                        "description": "Name of the cache directory with pre-setup. Name of this directory is obtained by sending a POST request to **/upload-files-setup**",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "data",
+                        "in": "formData",
+                        "description": "One or multiple file with .yang extension or even a .zip archive containing multiple .yang files",
+                        "type": "file",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON response with the results of validation of all extracted modules - if the **latest** property is set to True.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentLatestTrue"
+                        }
+                    },
+                    "202": {
+                        "description": "JSON response with the results of the xym extraction and list of available revisions of all dependencies - if the **latest** property is set to False.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseValidateDocumentLatestFalse"
+                        }
+                    }
+                }
+            }
+        },
+        "/upload-files-setup": {
+            "post": {
+                "tags": [
+                    "Secondary requests"
+                ],
+                "summary": "pre-setup temporary cache directory where uploaded files will be stored",
+                "description": "Temporary directory is created and data from request body are dumped into JSON file. Name of the directory is sent back in the response.",
+                "operationId": "uploadPresetup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RequestUploadFilesSetup"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON response with name of the created temporary cache directory. Name of this directory is then used in /validator/{cache} or /draft-validator/{cache} requests.",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseUploadFilesSetup"
+                        }
+                    }
+                }
+            }
+        },
+        "/versions": {
+            "get": {
+                "tags": [
+                    "Secondary requests"
+                ],
+                "summary": "get a list of the versions of the validators used",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON response with the names of the validators and their respective versions",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseVersions"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "RequestValidateRFC": {
+            "type": "object",
+            "required": [
+                "rfc"
+            ],
+            "properties": {
+                "latest": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Whether to use the latest module revisions or not"
+                },
+                "rfc": {
+                    "type": "string",
+                    "example": 7223,
+                    "description": "Number of the RFC document"
+                }
+            }
+        },
+        "RequestValidateDraft": {
+            "type": "object",
+            "required": [
+                "draft"
+            ],
+            "properties": {
+                "latest": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Whether to use the latest module revisions or not"
+                },
+                "draft": {
+                    "type": "string",
+                    "example": 7223,
+                    "description": "Name of the Draft document"
+                }
+            }
+        },
+        "RequestUploadFilesSetup": {
+            "type": "object",
+            "properties": {
+                "latest": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Whether to use the latest module revisions or not"
+                },
+                "get-from-options": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "When uploading yang modules for validation - use these uploaded modules as dependencies or not"
+                }
+            }
+        },
+        "ResponseValidateDocumentLatestFalse": {
+            "type": "object",
+            "properties": {
+                "output": {
+                    "properties": {
+                        "modules-to-validate": {
+                            "properties": {
+                                "user-modules": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "ietf-interfaces@2014-05-08.yang",
+                                        "description": "List of extracted modules"
+                                    }
+                                }
+                            }
+                        },
+                        "cache": {
+                            "type": "string",
+                            "example": "yangvalidator-v2-cache-IKVSMvkh",
+                            "description": "Name of the temporary dictionary"
+                        },
+                        "dependencies": {
+                            "properties": {
+                                "missing": {
+                                    "properties": {
+                                        "ietf-yang-types": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": [
+                                                    "2021-11-07",
+                                                    "2021-07-09"
+                                                ],
+                                                "description": "List of the module revisions"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "xym": {
+                            "$ref": "#/definitions/XymOutput"
+                        }
+                    }
+                }
+            }
+        },
+        "ResponseValidateDocumentLatestTrue": {
+            "type": "object",
+            "properties": {
+                "output": {
+                    "properties": {
+                        "xym": {
+                            "$ref": "#/definitions/XymOutput"
+                        },
+                        "ietf-interfaces@2014-05-08.yang": {
+                            "properties": {
+                                "pyang": {
+                                    "$ref": "#/definitions/PyangOutput"
+                                },
+                                "confd": {
+                                    "$ref": "#/definitions/ConfdOutput"
+                                },
+                                "yanglint": {
+                                    "$ref": "#/definitions/YanglintOutput"
+                                },
+                                "yangdump-pro": {
+                                    "$ref": "#/definitions/YangDumpProOutput"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ResponseValidateDocumentError": {
+            "type": "object",
+            "properties": {
+                "Error": {
+                    "type": "string",
+                    "example": "Failed to fetch content of https://tools.ietf.org/rfc/rfc7000.txt"
+                },
+                "output": {
+                    "properties": {
+                        "xym": {
+                            "properties": {
+                                "time": {
+                                    "type": "string",
+                                    "example": "2022-01-12T12:00:00.000000+00:00"
+                                },
+                                "stdout": {
+                                    "type": "string",
+                                    "example": "",
+                                    "description": "Standard output of xym extraction command"
+                                },
+                                "stderr": {
+                                    "type": "string",
+                                    "example": "Failed to fetch file from URL 'https://tools.ietf.org/rfc/rfc7000.txt', error '404'\n",
+                                    "description": "Error output of xym extraction command"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "xym",
+                                    "description": "Name of the validator/extractor"
+                                },
+                                "version": {
+                                    "type": "string",
+                                    "example": 0.5,
+                                    "description": "Version of the xym tool"
+                                },
+                                "command": {
+                                    "type": "string",
+                                    "example": "xym.xym(source_id=\"https://tools.ietf.org/rfc/rfc7000.txt\", dstdir=\"yangvalidator-v2-cache-XOPpzwQE\", srcdir=\"\", strict=True, strict_examples=False, debug_level=0, force_revision_regexp=True)",
+                                    "description": "Executed command with argument values"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ResponseUploadFilesSetup": {
+            "type": "object",
+            "properties": {
+                "output": {
+                    "properties": {
+                        "cache": {
+                            "type": "string",
+                            "example": "yangvalidator-v2-workdir-HjpvMUCb"
+                        }
+                    }
+                }
+            }
+        },
+        "ResponseVersions": {
+            "type": "object",
+            "properties": {
+                "confd-version": {
+                    "type": "string",
+                    "example": "confd-7.6"
+                },
+                "pyang-version": {
+                    "type": "string",
+                    "example": "2.5.2"
+                },
+                "xym-version": {
+                    "type": "string",
+                    "example": "0.5"
+                },
+                "yangdump-version": {
+                    "type": "string",
+                    "example": "yangdump-pro 20.10-9"
+                },
+                "yanglint-version": {
+                    "type": "string",
+                    "example": "yanglint 2.0.112"
+                }
+            }
+        },
+        "XymOutput": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "example": "2022-01-12T12:00:00.000000+00:00"
+                },
+                "stdout": {
+                    "type": "string",
+                    "example": "\nExtracting 'ietf-interfaces@2018-01-09.yang'\n\nExtracting 'example-ethernet'\n\nExtracting 'example-ethernet-bonding'\n\nExtracting 'example-vlan'\n",
+                    "description": "Standard output of xym extraction command"
+                },
+                "stderr": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Error output of xym extraction command"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "xym",
+                    "description": "Name of the validator/extractor"
+                },
+                "version": {
+                    "type": "string",
+                    "example": 0.5,
+                    "description": "Version of the xym tool"
+                },
+                "command": {
+                    "type": "string",
+                    "example": "xym.xym(source_id=\"document-name.txt\", dstdir=\"yangvalidator-v2-workdir-HjpvMUCb\", srcdir=\"\", strict=True, strict_examples=False, debug_level=0, force_revision_regexp=True)",
+                    "description": "Executed command with argument values"
+                }
+            }
+        },
+        "PyangOutput": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "example": "2022-01-12T12:00:00.000000+00:00"
+                },
+                "stdout": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Standard output of pyang validation"
+                },
+                "stderr": {
+                    "type": "string",
+                    "example": "/var/yang/tmp/yangvalidator/yangvalidator-v2-workdir-HjpvMUCb/ietf-interfaces@2014-05-08.yang:243: warning: RFC 8407: 4.11.3,4.14: statement \"enum\" should have a \"description\" substatement\n",
+                    "description": "Error output of xym pyang validation"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "pyang",
+                    "description": "Name of the validator"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "2.5.0",
+                    "description": "Version of the validator"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "0 if no validation error occurred, otherwise 1"
+                },
+                "command": {
+                    "type": "string",
+                    "example": "pyang -p yangvalidator-v2-workdir-HjpvMUCb --ietf ietf-interfaces@2014-05-08.yang",
+                    "description": "Executed command with argument values"
+                }
+            }
+        },
+        "ConfdOutput": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "example": "2022-01-12T12:00:00.000000+00:00"
+                },
+                "stdout": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Standard output of confdc validation"
+                },
+                "stderr": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Error output of confdc validation"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "confdc",
+                    "description": "Name of the validator"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "confd-7.6",
+                    "description": "Version of the validator"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 0,
+                    "description": "0 if no validation error occurred, otherwise 1"
+                },
+                "command": {
+                    "type": "string",
+                    "example": "confdc -o ietf-interfaces@2014-05-08.fxs -W all --yangpath yangvalidator-v2-workdir-HjpvMUCb -c ietf-interfaces@2014-05-08.yang",
+                    "description": "Executed command with argument values"
+                }
+            }
+        },
+        "YanglintOutput": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "example": "2022-01-12T12:00:00.000000+00:00"
+                },
+                "stdout": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Standard output of yanglint validation"
+                },
+                "stderr": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Error output of yanglint validation"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "yanglint",
+                    "description": "Name of the validator"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "yanglint 2.0.112",
+                    "description": "Version of the validator"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 0,
+                    "description": "0 if no validation error occurred, otherwise 1"
+                },
+                "command": {
+                    "type": "string",
+                    "example": "yanglint -i -p yangvalidator-v2-workdir-HjpvMUCb ietf-interfaces@2014-05-08.yang",
+                    "description": "Executed command with argument values"
+                }
+            }
+        },
+        "YangDumpProOutput": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "example": "2022-01-12T12:00:00.000000+00:00"
+                },
+                "stdout": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Standard output of yangdump-pro validation"
+                },
+                "stderr": {
+                    "type": "string",
+                    "example": "",
+                    "description": "Error output of yangdump-pro validation"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "yangdump-pro",
+                    "description": "Name of the validator"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "yangdump-pro 20.10-9",
+                    "description": "Version of the validator"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 0,
+                    "description": "0 if no validation error occurred, otherwise 1"
+                },
+                "command": {
+                    "type": "string",
+                    "example": "yangdump-pro --quiet-mode --config yangdump-pro-yangvalidator.conf ietf-interfaces@2014-05-08.yang",
+                    "description": "Executed command with argument values"
+                }
+            }
+        }
+    }
+}

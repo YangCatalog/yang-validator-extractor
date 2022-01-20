@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
@@ -24,6 +24,7 @@ from . import views
 
 app_name = 'yangvalidator'
 urlpatterns = [
+    path('', views.swagger, name='swagger'),
     path('validate', csrf_exempt(views.validate), name='validate'),
     path('draft', csrf_exempt(views.validate_doc), name='validate_draft'),
     path('rfc', csrf_exempt(views.validate_doc), name='validate_rfc'),
