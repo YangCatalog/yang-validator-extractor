@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 import logging
 import os
@@ -35,22 +35,22 @@ class ConfdParser:
     LOG = logging.getLogger(__name__)
 
     def __init__(self, context_directories, file_name: str, working_directory: str):
+        self.__working_directory = working_directory
         self.__confdc_resfile = os.path.join(working_directory, file_name.replace('.yang', '.cres'))
         self.__confdc_outfile = os.path.join(working_directory, file_name.replace('.yang', '.cout'))
         fxsfile = os.path.join(working_directory, file_name.replace('.yang', '.fxs'))
         self.__cmds = [self.CONFDC_CMD, '-o', fxsfile, '-W', 'all']
+        self.__cmds.extend(['--yangpath', working_directory])
         for dep_dir in context_directories:
             if dep_dir not in self.__cmds:
                 self.__cmds.extend(['--yangpath', dep_dir])
-        self.__cmds.extend(['--yangpath', working_directory])
-        self.__confdc_command = self.__cmds + ['-c', '{}/{}'.format(working_directory, file_name)]
+        self.__confdc_command = self.__cmds + ['-c', os.path.join(working_directory, file_name)]
 
     def parse_module(self):
-        confdc_res = {}
+        confdc_res = {'time': datetime.now(timezone.utc).isoformat()}
         outfp = open(self.__confdc_outfile, 'w+')
         cresfp = open(self.__confdc_resfile, 'w+')
 
-        confdc_res['time'] = datetime.now(timezone.utc).isoformat()
         self.LOG.info('Starting to confd parse use command {}'.format(' '.join(self.__confdc_command)))
         status = call(self.__confdc_command, stdout=outfp, stderr=cresfp)
 
@@ -61,12 +61,15 @@ class ConfdParser:
                 confdc_output += os.path.basename(line)
         else:
             pass
-        confdc_res['stdout'] = confdc_output
-        outfp.close()
+
         cresfp.seek(0)
         for line in cresfp.readlines():
             confdc_stderr += os.path.basename(line)
-        confdc_res['stderr'] = confdc_stderr
+        outfp.close()
+        dirname = os.path.dirname(self.__working_directory)
+
+        confdc_res['stdout'] = confdc_output.replace('{}/'.format(dirname), '')
+        confdc_res['stderr'] = confdc_stderr.replace('{}/'.format(dirname), '')
         confdc_res['name'] = 'confdc'
         confdc_res['version'] = self.VERSION
         confdc_res['code'] = status

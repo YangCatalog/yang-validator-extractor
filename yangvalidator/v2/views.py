@@ -171,8 +171,8 @@ def validate_doc(request: WSGIRequest):
     doc_type = request.path.split('/')[-1]
     payload_body = try_validate_and_load_data(request)
     doc_name = payload_body.get(doc_type)
-    if doc_name is None:
-        return JsonResponse({'Error': 'Required property "{}" is missing in payload'.format(doc_type)}, status=400)
+    if not doc_name:
+        return JsonResponse({'Error': 'Required property "{}" is missing or empty'.format(doc_type)}, status=400)
     if doc_name.endswith('.txt'):
         doc_name = doc_name[:-4]
     logger.info('validating {} {}'.format(doc_type, doc_name))

@@ -37,6 +37,7 @@ class YangdumpProParser:
     LOG = logging.getLogger(__name__)
 
     def __init__(self, context_directories, file_name: str, working_directory: str):
+        self.__working_directory = working_directory
         self.__yangdump_resfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cres')))
         self.__yangdump_outfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cout')))
         context = {'path': working_directory}
@@ -44,20 +45,19 @@ class YangdumpProParser:
             os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
         rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
                                                   ).get_template(filename).render(context)
-        yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'.format(working_directory)
+        yangdump_config_file = os.path.join(working_directory, 'yangdump-pro-yangvalidator.conf')
         with open(yangdump_config_file.format(working_directory), 'w') as ff:
             ff.write(rendered_config_text)
 
         cmds = [self.YANGDUMP_PRO_CMD, '--quiet-mode', '--config', yangdump_config_file]
-        self.__yangdump_command = cmds + ['{}/{}'.format(working_directory, file_name)]
+        self.__yangdump_command = cmds + [os.path.join(working_directory, file_name)]
 
     def parse_module(self):
-        yangdump_res = {}
+        yangdump_res = {'time': datetime.now(timezone.utc).isoformat()}
         ypoutfp = open(self.__yangdump_outfile, 'w+')
         ypresfp = open(self.__yangdump_resfile, 'w+')
 
         status = call(self.__yangdump_command, stdout=ypoutfp, stderr=ypresfp)
-        yangdump_res['time'] = datetime.now(timezone.utc).isoformat()
 
         yangdump_output = yangdump_stderr = ''
         if os.path.isfile(self.__yangdump_outfile):
@@ -66,15 +66,17 @@ class YangdumpProParser:
                 yangdump_output += os.path.basename(line)
         else:
             pass
-        yangdump_res['stdout'] = '' if yangdump_output == '\n' else yangdump_output
+        yangdump_output = '' if yangdump_output == '\n' else yangdump_output
 
         ypresfp.seek(0)
-
         for line in ypresfp.readlines():
             yangdump_stderr += line
         ypoutfp.close()
         ypresfp.close()
-        yangdump_res['stderr'] = yangdump_stderr
+        dirname = os.path.dirname(self.__working_directory)
+
+        yangdump_res['stdout'] = yangdump_output.replace('{}/'.format(dirname), '')
+        yangdump_res['stderr'] = yangdump_stderr.replace('{}/'.format(dirname), '')
         yangdump_res['name'] = 'yangdump-pro'
         yangdump_res['version'] = self.VERSION
         yangdump_res['code'] = status
