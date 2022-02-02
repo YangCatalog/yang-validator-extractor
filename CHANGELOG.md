@@ -1,6 +1,17 @@
 ## YANG Validator Release Notes
 
-* ##### vm.m.p - 2021-MM-DD
+* ##### vm.m.p - 2022-MM-DD
+
+* ##### v5.0.0 - 2022-02-02
+  
+  * Remove absolute paths from validators outputs [#89](https://github.com/YangCatalog/yang-validator-extractor/issues/89)
+  * Bugfix: Problem with emitting dependencies [#84](https://github.com/YangCatalog/yang-validator-extractor/issues/84)
+  * Swagger documentation created [#81](https://github.com/YangCatalog/yang-validator-extractor/issues/81)
+  * Run application under 'yang' user/group [#80](https://github.com/YangCatalog/yang-validator-extractor/issues/80)
+  * Pyang update to version 2.5.2 [deployment #113](https://github.com/YangCatalog/deployment/issues/113)
+  * Repository renamed to yang-validator-extractor [#75](https://github.com/YangCatalog/yang-validator-extractor/issues/75)
+  * lxml package version bumped
+  * Send empty string instead of newline if empty validation output
 
 * ##### v4.3.0 - 2021-12-03
 

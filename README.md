@@ -17,6 +17,11 @@ The following tools will need to be manually preinstalled:
 - The [confdc](https://developer.cisco.com/site/confD/downloads/) compiler needs to be preinstalled, use the `--confd-install-path` option to point to the ConfD install directory (i.e. `$CONFD_DIR`)
 - The default port is 8080 to avoid requiring root privileges. Use the `--port=80` option with root privileges to listen to the default HTTP port.
 
+## Documentation
+Information about the YANG Validator API can be found here:
+- https://yangcatalog.org/yangvalidator/v2/
+- https://yangcatalog.org/yangvalidator/api
+
 ## Building and Deploying Docker Image
 
 The NSO configuration is setup to listen to port 8080 to avoid requiring root to run it, so remember to use portmapping when you start the container:
