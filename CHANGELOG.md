@@ -2,6 +2,10 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.1.0 - 2022-03-28
+
+  * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
+
 * ##### v5.0.0 - 2022-02-02
   
   * Remove absolute paths from validators outputs [#89](https://github.com/YangCatalog/yang-validator-extractor/issues/89)
