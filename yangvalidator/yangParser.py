@@ -66,6 +66,9 @@ _COPY_OPTIONS = [
 class objectify(object):  # pylint: disable=invalid-name
     """Utility for providing object access syntax (.attr) to dicts"""
 
+    features: list
+    deviations: list
+
     def __init__(self, *args, **kwargs):
         for entry in args:
             self.__dict__.update(entry)
@@ -78,6 +81,8 @@ class objectify(object):  # pylint: disable=invalid-name
     def __setattr__(self, attr, value):
         self.__dict__[attr] = value
 
+class OptsContext(Context):
+    opts: objectify
 
 def _parse_features_string(feature_str):
     if feature_str.find(':') == -1:
@@ -91,7 +96,7 @@ def _parse_features_string(feature_str):
     return (module_name, features)
 
 
-def create_context(path='.', *options, **kwargs):
+def create_context(path='.', *options, **kwargs) -> OptsContext:
     """Generates a pyang context.
 
     The dict options and keyword arguments are similar to the command
@@ -146,7 +151,7 @@ def create_context(path='.', *options, **kwargs):
     opts = objectify(DEFAULT_OPTIONS, *options, **kwargs)
     repo = FileRepository(path, no_path_recurse=opts.no_path_recurse)
 
-    ctx = Context(repo)
+    ctx = OptsContext(repo)
     ctx.opts = opts
 
     for attr in _COPY_OPTIONS:

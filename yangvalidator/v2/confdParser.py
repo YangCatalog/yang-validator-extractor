@@ -19,6 +19,7 @@ __email__ = 'miroslav.kovac@pantheon.tech'
 
 import logging
 import os
+import typing as t
 from datetime import datetime, timezone
 from subprocess import CalledProcessError, call, check_output
 
@@ -47,7 +48,7 @@ class ConfdParser:
         self.__confdc_command = self.__cmds + ['-c', os.path.join(working_directory, file_name)]
 
     def parse_module(self):
-        confdc_res = {'time': datetime.now(timezone.utc).isoformat()}
+        confdc_res: t.Dict[str, t.Union[str, int]] = {'time': datetime.now(timezone.utc).isoformat()}
         outfp = open(self.__confdc_outfile, 'w+')
         cresfp = open(self.__confdc_resfile, 'w+')
 

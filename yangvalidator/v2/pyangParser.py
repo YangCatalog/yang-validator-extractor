@@ -21,6 +21,7 @@ import glob
 import io
 import logging
 import os
+import typing as t
 from datetime import datetime, timezone
 
 import pyang
@@ -66,7 +67,7 @@ class PyangParser:
             self.__pyang_command.extend([self.__infile])
         for p in plugin.plugins:
             p.setup_ctx(self.__ctx)
-        pyang_res = {'time': datetime.now(timezone.utc).isoformat()}
+        pyang_res: t.Dict[str, t.Union[str, int]] = {'time': datetime.now(timezone.utc).isoformat()}
         self.LOG.info(' '.join(self.__pyang_command))
         with open(self.__infile, 'r', encoding='utf-8') as yang_file:
             module = yang_file.read()

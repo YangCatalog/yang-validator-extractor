@@ -19,6 +19,7 @@ __email__ = 'miroslav.kovac@pantheon.tech'
 
 import logging
 import os
+import typing as t
 from datetime import datetime, timezone
 from subprocess import CalledProcessError, call, check_output
 
@@ -45,7 +46,7 @@ class YanglintParser:
         self.__yanglint_cmd = cmds + [os.path.join(working_directory, file_name)]
 
     def parse_module(self):
-        yanglint_res = {'time': datetime.now(timezone.utc).isoformat()}
+        yanglint_res: t.Dict[str, t.Union[str, int]] = {'time': datetime.now(timezone.utc).isoformat()}
 
         yresfp = open(self.__yanglint_resfile, 'w+')
         outfp = open(self.__yanglint_outfile, 'w+')

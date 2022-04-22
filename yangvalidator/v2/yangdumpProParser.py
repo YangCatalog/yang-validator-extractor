@@ -19,6 +19,7 @@ __email__ = 'miroslav.kovac@pantheon.tech'
 
 import logging
 import os
+import typing as t
 from datetime import datetime, timezone
 from subprocess import CalledProcessError, call, check_output
 
@@ -53,7 +54,7 @@ class YangdumpProParser:
         self.__yangdump_command = cmds + [os.path.join(working_directory, file_name)]
 
     def parse_module(self):
-        yangdump_res = {'time': datetime.now(timezone.utc).isoformat()}
+        yangdump_res: t.Dict[str, t.Union[str, int]] = {'time': datetime.now(timezone.utc).isoformat()}
         ypoutfp = open(self.__yangdump_outfile, 'w+')
         ypresfp = open(self.__yangdump_resfile, 'w+')
 

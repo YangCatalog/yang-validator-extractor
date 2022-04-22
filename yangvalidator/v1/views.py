@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import cgi
 import glob
 import io
 import json
@@ -23,7 +22,9 @@ import random
 import shutil
 import string
 import sys
+import typing as t
 from datetime import datetime, timezone
+from html import escape
 from io import StringIO
 from subprocess import CalledProcessError, call, check_output
 from tempfile import *
@@ -120,9 +121,9 @@ def create_output(url, for_datatracker=False):
             'command'] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False, debug_level=0)'.format(
             url, workdir_to_json)
 
+        modules = []
         if for_datatracker:
-            results = {'extraction': xym_res}
-            modules = []
+            results: dict[str, t.Any] = {'extraction': xym_res}
 
         for em in extracted_models:
             file_name = em.split("@")[0].replace(".", "_")
@@ -133,12 +134,12 @@ def create_output(url, for_datatracker=False):
                                 })
 
             else:
-                results[em] = {"pyang_stderr": cgi.escape(pyang_res['stderr']),
-                               "pyang_output": cgi.escape(pyang_res['stdout']),
-                               "xym_stderr": cgi.escape(xym_res['stderr']),
-                               "confdc_stderr": cgi.escape(confdc_res['stderr']),
-                               "yanglint_stderr": cgi.escape(yanglint_res['stderr']),
-                               "yangdump_stderr": cgi.escape(yangdump_res['stderr']),
+                results[em] = {"pyang_stderr": escape(pyang_res['stderr']),
+                               "pyang_output": escape(pyang_res['stdout']),
+                               "xym_stderr": escape(xym_res['stderr']),
+                               "confdc_stderr": escape(confdc_res['stderr']),
+                               "yanglint_stderr": escape(yanglint_res['stderr']),
+                               "yangdump_stderr": escape(yangdump_res['stderr']),
                                "name_split": file_name}
         if for_datatracker:
             results['modules'] = modules
@@ -207,6 +208,8 @@ def validate_yangfile(infilename, workdir):
     confdc_command_to_json = []
 
     pyang_context_directories = [workdir]
+    conf_yangdump_dir = ''
+    dep_dir = ''
     libs = ''
     try:
         if os.path.exists(yang_import_dir):
