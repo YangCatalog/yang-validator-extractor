@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# According to django-stubs, assertJSONEqual cannot take bytes as the first arg.
+# This should probably be fixed in upstream django-stubs
+# pyright: reportGeneralTypeIssues=false
+
 __author__ = "Richard Zilincik"
 __copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
 __license__ = "Apache License, Version 2.0"

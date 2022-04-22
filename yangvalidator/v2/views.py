@@ -26,6 +26,7 @@ import pwd
 import random
 import shutil
 import string
+import typing as t
 from zipfile import ZipFile
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -179,6 +180,7 @@ def validate_doc(request: WSGIRequest):
     config = create_config()
     tmp = config.get('Directory-Section', 'temp')
     ietf_dir = config.get('Directory-Section', 'ietf-directory')
+    url = ''
     if doc_type == 'draft':
         draft_dir = os.path.join(ietf_dir, 'my-id-archive-mirror')
         matching_drafts = fnmatch.filter(os.listdir(draft_dir), '{}*.txt'.format(doc_name))
@@ -248,7 +250,7 @@ def load_pre_setup(working_dir: str):
                             status=400)
 
 
-def upload_draft_id(request: WSGIRequest, id: str):
+def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
     """ Validate each of the uploaded documents individually in separate temporary cache directory.
     """
     config = create_config()
@@ -274,6 +276,7 @@ def upload_draft_id(request: WSGIRequest, id: str):
                     break
             os.mkdir(cache_dir)
             working_dirs.append(cache_dir)
+            assert file.name is not None
             filepath = os.path.join(cache_dir, file.name)
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
@@ -309,6 +312,7 @@ def upload_file(request: WSGIRequest, id: str):
     try:
         saved_files = []
         for file in request.FILES.getlist('data'):
+            assert file.name is not None
             name, ext = os.path.splitext(file.name)
 
             if ext == '.yang':
@@ -343,8 +347,9 @@ def extract_files(request,  url: str, latest: bool, working_dir: str, remove_wor
                          remove_working_dir=remove_working_dir)
 
 
-def create_output(request, yang_models: str, url: str, latest: bool, working_dir: str, extracted_modules: list = None,
-                  xym_response: dict = None, choose_options=False, remove_working_dir=True):
+def create_output(request, yang_models: str, url: t.Optional[str], latest: bool, working_dir: str,
+                  extracted_modules: list = [], xym_response: t.Optional[dict] = None,
+                  choose_options=False, remove_working_dir=True):
     checker = ModelsChecker(yang_models, working_dir, extracted_modules)
     checker.check()
     missing = checker.find_missing()
@@ -421,7 +426,7 @@ def try_validate_and_load_data(request: WSGIRequest):
     :return: Parsed json string
     """
     if request.method != 'POST':
-        raise IllegalMethodError(request.method)
+        raise IllegalMethodError(str(request.method))
     return json.loads(request.body)
 
 
