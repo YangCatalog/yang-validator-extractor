@@ -1,0 +1,6 @@
+{
+    "editor.rulers": [120],
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.defaultInterpreterPath": "python3"
+}
