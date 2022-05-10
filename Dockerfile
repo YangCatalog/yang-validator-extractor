@@ -3,11 +3,13 @@ ARG YANG_ID
 ARG YANG_GID
 ARG YANGCATALOG_CONFIG_PATH
 ARG CONFD_VERSION
+ARG YANGLINT_VERSION
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
 ENV CONFD_VERSION "$CONFD_VERSION"
+ENV YANGLINT_VERSION "$YANGLINT_VERSION"
 
 ENV VIRTUAL_ENV=/home/yangvalidator/yang-extractor-validator
 
@@ -19,7 +21,7 @@ RUN apt-get install -y build-essential clang cmake git gnupg2 gunicorn libpcre2-
 RUN groupadd -g ${YANG_GID} -r yang && useradd --no-log-init -r -g yang -u ${YANG_ID} -d /home yang
 
 WORKDIR /home
-RUN git clone https://github.com/CESNET/libyang.git
+RUN git clone -b ${YANGLINT_VERSION} --single-branch --depth 1 https://github.com/CESNET/libyang.git
 RUN mkdir -p /home/libyang/build
 WORKDIR /home/libyang/build
 RUN cmake -D CMAKE_BUILD_TYPE:String="Release" .. && make && make install
