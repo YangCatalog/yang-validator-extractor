@@ -24,6 +24,7 @@ RUN mkdir -p /home/libyang/build
 WORKDIR /home/libyang/build
 RUN cmake -D CMAKE_BUILD_TYPE:String="Release" .. && make && make install
 
+RUN sed -i "/imklog/s/^/#/" /etc/rsyslog.conf
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
