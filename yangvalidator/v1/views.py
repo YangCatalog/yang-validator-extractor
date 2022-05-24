@@ -170,12 +170,12 @@ def print_pyang_output(ctx):
 def copy_dependencies(f):
     config = create_config()
     yang_models = config.get('Directory-Section', 'save-file-dir')
-    tmp = config.get('Directory-Section', 'temp')
+    temp_dir = config.get('Directory-Section', 'temp')
     out = f.getvalue()
     logger.info('dependencies received in following format: {}'.format(out))
     letters = string.ascii_letters
     suffix = ''.join(random.choice(letters) for i in range(8))
-    dep_dir = '{}/yangvalidator-dependencies-{}'.format(tmp, suffix)
+    dep_dir = '{}/yangvalidator-dependencies-{}'.format(temp_dir, suffix)
     os.mkdir(dep_dir)
     if len(out.split(':')) == 2:
         dependencies = out.split(':')[1].strip().split(' ')
