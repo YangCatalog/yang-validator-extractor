@@ -92,11 +92,11 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         return JsonResponse({'Error': 'No module received for validation'}, status=400)
 
     config = create_config()
-    tmp = config.get('Directory-Section', 'temp')
+    temp_dir = config.get('Directory-Section', 'temp')
     yang_models = config.get('Directory-Section', 'save-file-dir')
     while True:
         suffix = create_random_suffix()
-        working_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(tmp, suffix)
+        working_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(temp_dir, suffix)
         if not os.path.exists(working_dir):
             break
     results = {}
@@ -115,7 +115,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
 
         # Copy modules that you need to validate to working directory
         for group_to_validate, source in ((repo_to_validate, yang_models),
-                                          (user_to_validate, os.path.join(tmp, 'yangvalidator', json_body['cache']))):
+                                          (user_to_validate, os.path.join(temp_dir, 'yangvalidator', json_body['cache']))):
 
             for module_to_validate in group_to_validate:
                 # skip modules that are in dependencies
@@ -158,7 +158,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
 
-        cache_tmp_path = os.path.join(tmp, 'yangvalidator', json_body.get('cache', ''))
+        cache_tmp_path = os.path.join(temp_dir, 'yangvalidator', json_body.get('cache', ''))
         if os.path.exists(cache_tmp_path):
             shutil.rmtree(cache_tmp_path)
     return JsonResponse({'output': results})
@@ -178,7 +178,7 @@ def validate_doc(request: WSGIRequest):
         doc_name = doc_name[:-4]
     logger.info('validating {} {}'.format(doc_type, doc_name))
     config = create_config()
-    tmp = config.get('Directory-Section', 'temp')
+    temp_dir = config.get('Directory-Section', 'temp')
     ietf_dir = config.get('Directory-Section', 'ietf-directory')
     url = ''
     if doc_type == 'draft':
@@ -198,7 +198,7 @@ def validate_doc(request: WSGIRequest):
             url = 'https://tools.ietf.org/rfc/{}'.format(rfc_file)
     while True:
         suffix = create_random_suffix()
-        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(temp_dir, suffix)
         if not os.path.exists(cache_dir):
             break
     return extract_files(request, url, payload_body.get('latest', True), cache_dir)
@@ -212,10 +212,10 @@ def upload_setup(request: WSGIRequest):
     latest = payload_body.get('latest', False)
     get_from_options = payload_body.get('get-from-options', False)
     config = create_config()
-    tmp = config.get('Directory-Section', 'temp')
+    temp_dir = config.get('Directory-Section', 'temp')
     while True:
         suffix = create_random_suffix()
-        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(temp_dir, suffix)
         if not os.path.exists(cache_dir):
             break
     os.mkdir(cache_dir)
@@ -254,8 +254,8 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
     """ Validate each of the uploaded documents individually in separate temporary cache directory.
     """
     config = create_config()
-    tmp = config.get('Directory-Section', 'temp')
-    pre_setup_dir = '{}/yangvalidator/{}'.format(tmp, id)
+    temp_dir = config.get('Directory-Section', 'temp')
+    pre_setup_dir = '{}/yangvalidator/{}'.format(temp_dir, id)
 
     result = load_pre_setup(pre_setup_dir)
     if isinstance(result, HttpResponse):
@@ -271,7 +271,7 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
         for file in request.FILES.getlist('data'):
             while True:
                 suffix = create_random_suffix()
-                cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(tmp, suffix)
+                cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(temp_dir, suffix)
                 if not os.path.exists(cache_dir):
                     break
             os.mkdir(cache_dir)
@@ -298,8 +298,8 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
 def upload_file(request: WSGIRequest, id: str):
     config = create_config()
     yang_models = config.get('Directory-Section', 'save-file-dir')
-    tmp = config.get('Directory-Section', 'temp')
-    working_dir = '{}/yangvalidator/{}'.format(tmp, id)
+    temp_dir = config.get('Directory-Section', 'temp')
+    working_dir = '{}/yangvalidator/{}'.format(temp_dir, id)
 
     result = load_pre_setup(working_dir)
     if isinstance(result, HttpResponse):
