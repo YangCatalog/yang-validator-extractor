@@ -2,6 +2,12 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.3.0 - 2022-06-06
+
+  * Yanglint version passed as argument into Docker image build [deployment #137](https://github.com/YangCatalog/deployment/issues/137)
+  * Various code adjustments after config file update [deployment #135](https://github.com/YangCatalog/deployment/issues/135)
+  * yanglint update to version v2.0.194 [deployment #127](https://github.com/YangCatalog/deployment/issues/127)
+
 * ##### v5.2.0 - 2022-05-03
 
   * Pyang update to version 2.5.3 [deployment #124](https://github.com/YangCatalog/deployment/issues/124)
