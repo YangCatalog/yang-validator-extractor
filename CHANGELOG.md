@@ -2,6 +2,10 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.4.0 - 2022-07-08
+
+  * lxml package version bumped
+
 * ##### v5.3.0 - 2022-06-06
 
   * Yanglint version passed as argument into Docker image build [deployment #137](https://github.com/YangCatalog/deployment/issues/137)
