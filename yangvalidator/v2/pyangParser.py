@@ -65,8 +65,8 @@ class PyangParser:
             self.__pyang_command.extend(['-p', self.__working_directory, '--bbf', self.__infile])
         else:
             self.__pyang_command.extend([self.__infile])
-        for p in plugin.plugins:
-            p.setup_ctx(self.__ctx)
+        for plug in plugin.plugins:
+            plug.setup_ctx(self.__ctx)
         pyang_res: t.Dict[str, t.Union[str, int]] = {'time': datetime.now(timezone.utc).isoformat()}
         self.LOG.info(' '.join(self.__pyang_command))
         with open(self.__infile, 'r', encoding='utf-8') as yang_file:
@@ -92,8 +92,8 @@ class PyangParser:
     def get_dependencies(self):
         self.__ctx.opts.depend_recurse = True
         self.__ctx.opts.depend_ignore = []
-        for p in plugin.plugins:
-            p.setup_ctx(self.__ctx)
+        for plug in plugin.plugins:
+            plug.setup_ctx(self.__ctx)
         with open(self.__infile, 'r', encoding='utf-8') as yang_file:
             module = yang_file.read()
             if module is None:
@@ -111,7 +111,7 @@ class PyangParser:
             f = io.StringIO()
             emit_depend(self.__ctx, m, f)
             out = f.getvalue()
-        except Exception as e:
+        except Exception:
             out = ''
 
         if len(out.split(':')) == 2 and out.split(':')[1].strip() != '':
