@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM python:3.9-bullseye
 ARG YANG_ID
 ARG YANG_GID
 ARG YANGCATALOG_CONFIG_PATH
@@ -14,8 +14,7 @@ ENV YANGLINT_VERSION "$YANGLINT_VERSION"
 ENV VIRTUAL_ENV=/home/yangvalidator/yang-extractor-validator
 
 RUN apt-get -y update
-RUN apt-get install -y build-essential clang cmake git gnupg2 gunicorn libpcre2-dev \
-  libssl1.0.0 libssl-dev libxml2-dev openssh-client python3.6 python3-pip rsyslog systemd wget curl
+RUN apt-get install -y clang cmake git gnupg2 gunicorn openssh-client rsyslog
 
 # Create 'yang' user and group
 RUN groupadd -g ${YANG_GID} -r yang && useradd --no-log-init -r -g yang -u ${YANG_ID} -d /home yang
