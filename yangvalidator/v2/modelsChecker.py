@@ -28,14 +28,14 @@ class ModelsChecker:
     different revision of the same module
     """
 
-    def __init__(self, all_modules_directory: str, working_directory: str, existing_modules: list):
+    def __init__(self, all_modules_directory: str, working_directory: str, existing_modules: list) -> None:
         self._all_modules_directory = all_modules_directory
         self._working_directory = working_directory
         self._existing_modules = existing_modules
         self._dependencies = {}
         self._missing = {}
 
-    def check(self):
+    def check(self) -> None:
         for extracted_module in self._existing_modules:
             parser = PyangParser([self._all_modules_directory, self._working_directory], extracted_module,
                                  self._working_directory)
@@ -84,9 +84,7 @@ class ModelsChecker:
         for module_name, revisions in self._missing.items():
             revisions_to_sort = []
             for revision in revisions:
-                year = int(revision.split('-')[0])
-                month = int(revision.split('-')[1])
-                day = int(revision.split('-')[2])
+                year, month, day = [int(n) for n in revision.split('-')]
                 try:
                     revisions_to_sort.append(datetime(year, month, day))
                 except ValueError:

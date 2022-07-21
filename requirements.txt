@@ -11,3 +11,5 @@ xym==0.5
 Jinja2==3.0.3
 gunicorn==20.0.4
 gevent==20.9.0
+piwikapi==0.3
+django-ipware==4.0.2

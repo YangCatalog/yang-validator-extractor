@@ -44,23 +44,24 @@ from yangvalidator.v2.yanglintParser import YanglintParser
 logger = logging.getLogger(__name__)
 
 
-def change_ownership_recursive(path: str, user: str = 'yang', group: str = 'yang'):
+def change_ownership_recursive(path: str, user: str = 'yang', group: str = 'yang') -> None:
     """ Ownership is set to the values passed as 'user' and 'group' arguments.
 
     Arguments:
         :param user     (str) name of the user who will have the ownership over 'path'
-        :param group    (str) name of the group which will have the ownership over 'path'    
+        :param group    (str) name of the group which will have the ownership over 'path'
     """
     uid = pwd.getpwnam(user).pw_uid
     gid = grp.getgrnam(group).gr_gid
     os.chown(path, uid, gid)
 
-    if os.path.isdir(path):
-        for root, dirs, files in os.walk(path, topdown=False):
-            for dir in [os.path.join(root, d) for d in dirs]:
-                os.chown(os.path.join(root, dir), uid, gid)
-            for file in [os.path.join(root, f) for f in files]:
-                os.chown(os.path.join(root, file), uid, gid)
+    if not os.path.isdir(path):
+        return
+    for root, dirs, files in os.walk(path, topdown=False):
+        for direc in [os.path.join(root, d) for d in dirs]:
+            os.chown(os.path.join(root, direc), uid, gid)
+        for file in [os.path.join(root, f) for f in files]:
+            os.chown(os.path.join(root, file), uid, gid)
 
 
 def validate(request: WSGIRequest, xym_result=None, json_body=None):
@@ -430,7 +431,7 @@ def try_validate_and_load_data(request: WSGIRequest):
     return json.loads(request.body)
 
 
-def create_random_suffix():
+def create_random_suffix() -> str:
     """
     Create random suffix to create new temp directory
     :return: suffix of random 8 letters
@@ -439,7 +440,7 @@ def create_random_suffix():
     return ''.join(random.choice(letters) for i in range(8))
 
 
-def check_missing_amount_one_only(missing: dict):
+def check_missing_amount_one_only(missing: dict) -> bool:
     for val in missing.values():
         if len(val) > 1:
             return False
