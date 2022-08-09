@@ -93,7 +93,15 @@ class ModelsChecker:
                     else:
                         raise
 
-            ret.append('{}@{}.yang'.format(module_name, revisions[revisions_to_sort.index(max(revisions_to_sort))]))
+            try:
+                ret.append(
+                    '{}@{}.yang'.format(
+                        module_name,
+                        revisions[revisions_to_sort.index(max(revisions_to_sort, default=0))]
+                    )
+                )
+            except ValueError:
+                pass
         return ret
 
     def revision(self, path: str) -> str:
