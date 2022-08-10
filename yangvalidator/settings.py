@@ -49,7 +49,6 @@ SECRET_KEY = config.get('Secrets-Section', 'yangvalidator-secret-key').strip('"'
 MATOMO_SITE_ID = config.get('Matomo-Section', 'matomo-site-id')
 MATOMO_API_URL = config.get('Matomo-Section', 'matomo-api-url')
 MATOMO_TOKEN_AUTH = config.get('Matomo-Section', 'matomo-token-auth', fallback='')
-MATOMO_TRACK_USER_ID = config.get('Matomo-Section', 'matomo-track-user-id') == 'True'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

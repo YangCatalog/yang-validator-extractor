@@ -44,8 +44,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 config = create_config()
-django_secret_key = config.get('Secrets-Section', 'yangvalidator-secret-key').strip('"')
-SECRET_KEY = django_secret_key
+SECRET_KEY = config.get('Secrets-Section', 'yangvalidator-secret-key').strip('"')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -56,7 +55,6 @@ ALLOWED_HOSTS = [
     'new.yangcatalog.org',
     'localhost',
     '127.0.0.1',
-    'yang2.amsl.com',
     'www.yangvalidator.com',
     'www.yangvalidator.org',
     'yangvalidator.com',
