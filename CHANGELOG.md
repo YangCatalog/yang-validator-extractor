@@ -2,6 +2,12 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.5.0 - 2022-08-16
+
+  * Docker base image changed to python:3.9
+  * Django package version bumped [#102](https://github.com/YangCatalog/yang-validator-extractor/issues/102)
+  * Tracking API access using Matomo [deployment #151](https://github.com/YangCatalog/deployment/issues/151)
+
 * ##### v5.4.0 - 2022-07-08
 
   * lxml package version bumped
