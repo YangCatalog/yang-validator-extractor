@@ -2,6 +2,10 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.6.0 - 2022-09-30
+
+  * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
+
 * ##### v5.5.0 - 2022-08-16
 
   * Docker base image changed to python:3.9
