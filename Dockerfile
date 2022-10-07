@@ -4,12 +4,14 @@ ARG YANG_GID
 ARG YANGCATALOG_CONFIG_PATH
 ARG CONFD_VERSION
 ARG YANGLINT_VERSION
+ARG XYM_VERSION
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
 ENV CONFD_VERSION "$CONFD_VERSION"
 ENV YANGLINT_VERSION "$YANGLINT_VERSION"
+ENV XYM_VERSION "$XYM_VERSION"
 
 ENV VIRTUAL_ENV=/home/yangvalidator/yang-extractor-validator
 
@@ -31,6 +33,7 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN pip3 install --upgrade pip
 COPY ./yang-validator-extractor/requirements.txt .
 RUN pip3 install -r requirements.txt
+RUN pip3 install xym==${XYM_VERSION} -U
 # TODO: remove next step from build when depend.py will be fixed in next pyang release
 # https://github.com/mbj4668/pyang/pull/793
 COPY ./yang-validator-extractor/pyang_plugin/depend.py /usr/lib/python3.6/site-packages/pyang/plugins/.
