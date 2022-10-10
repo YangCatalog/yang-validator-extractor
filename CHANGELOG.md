@@ -2,6 +2,11 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.6.1 - 2022-10-10
+
+  * Loading xym tool version from .env file [deployment #161](https://github.com/YangCatalog/deployment/issues/161)
+  * Autocomplete functionality for IETF draft names [#107](https://github.com/YangCatalog/yang-validator-extractor/issues/107)
+
 * ##### v5.6.0 - 2022-09-30
 
   * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
