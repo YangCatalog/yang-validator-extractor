@@ -30,9 +30,7 @@ class MatomoMiddleware:
             'PATH_INFO',
             'QUERY_STRING',
         ]
-        data = {
-            'HTTPS': request.is_secure()
-        }
+        data = {'HTTPS': request.is_secure()}
         for key in keys_to_serialize:
             if key in request.META:
                 data[key] = request.META[key]
@@ -46,7 +44,7 @@ class MatomoMiddleware:
 
 
 def record_analytic(headers: dict, client_ip: str) -> None:
-    """ Send analytics data to Piwik/Matomo """
+    """Send analytics data to Piwik/Matomo"""
     # Use "FakeRequest" because we had to serialize the real request
     fake_request = FakeRequest(headers)
 
@@ -60,5 +58,5 @@ def record_analytic(headers: dict, client_ip: str) -> None:
 
 
 def should_skip(request: WSGIRequest) -> bool:
-    """ Check whether the request is not just a ping. """
+    """Check whether the request is not just a ping."""
     return 'yangvalidator/v2/' not in request.path or 'v2/ping' in request.path or 'v2/versions' in request.path

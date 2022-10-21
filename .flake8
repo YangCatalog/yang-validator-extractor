@@ -1,0 +1,9 @@
+[flake8]
+exclude=.git,__pycache__,docs/source/conf.py,old,build,dist,venv,__init__.py,./lib/*,./bin/*
+inline-quotes='
+max-line-length=120
+select=E,F,W,C4,Q0,N80,ABS,W504
+ignore=W503,Q003,C417
+extend-ignore=E203
+per-file-ignores=
+    yangvalidator/default_statements.py:F405,F403
