@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from html import escape
 from io import StringIO
 from subprocess import CalledProcessError, call, check_output
-from tempfile import *
+from tempfile import mkdtemp
 from zipfile import ZipFile
 
 import jinja2
