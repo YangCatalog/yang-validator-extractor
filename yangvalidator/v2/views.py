@@ -79,10 +79,10 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
             json_body = try_validate_and_load_data(request)
     except ValueError as e:
         # Missing json content or bad json content
-        return JsonResponse({'Error': 'Not a json content - {}'.format(e)}, status=400)
+        return JsonResponse({'Error': f'Not a json content - {e}'}, status=400)
     except IllegalMethodError as e:
         # Method other then POST
-        return JsonResponse({'Error': '{}'.format(e)}, status=405)
+        return JsonResponse({'Error': f'{e}'}, status=405)
     to_validate = json_body.get('modules-to-validate')
     if to_validate is None:
         # Missing modules to validate
@@ -98,7 +98,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
     yang_models = config.get('Directory-Section', 'save-file-dir')
     while True:
         suffix = create_random_suffix()
-        working_dir = '{}/yangvalidator/yangvalidator-v2-workdir-{}'.format(temp_dir, suffix)
+        working_dir = f'{temp_dir}/yangvalidator/yangvalidator-v2-workdir-{suffix}'
         if not os.path.exists(working_dir):
             break
     results = {}
@@ -128,14 +128,13 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                         skipped_modules.append(module_to_validate)
                         break
                 else:
-                    shutil.copy(os.path.join(source, module_to_validate), working_dir)
+                    shutil.copy(os.path.join(
+                        source, module_to_validate), working_dir)
                     modules_to_validate.append(module_to_validate)
 
         if len(skipped_modules) > 0:
-            results['warning'] = (
-                'Following modules {} were skipped from validation because you chose different repo'
-                ' modules as a dependency with same name'.format(', '.join(skipped_modules))
-            )
+            results['warning'] = f'Following modules {", ".join(skipped_modules)} were skipped from validation' \
+                                 ' because you chose different repo modules as a dependency with same name'
 
         # UI sends the users dependencies anyway for better code readability but it s not used anymore in here.
         # please keep following code for understanding why we are receiving user_dependencies.
@@ -158,17 +157,19 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                 (YanglintParser, 'yanglint'),
                 (YangdumpProParser, 'yangdump-pro'),
             ):
-                parser_results = parser([working_dir], module_to_validate, working_dir).parse_module()
+                parser_results = parser(
+                    [working_dir], module_to_validate, working_dir).parse_module()
                 results[module_to_validate][name] = parser_results
     except Exception as e:
-        results['error'] = 'Failed to parse a document - {}'.format(e)
-        logger.exception('Failed to parse module - {}'.format(e))
+        results['error'] = f'Failed to parse a document - {e}'
+        logger.exception(f'Failed to parse module - {e}')
     finally:
         logger.info('Removing temporary directories')
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
 
-        cache_tmp_path = os.path.join(temp_dir, 'yangvalidator', json_body.get('cache', ''))
+        cache_tmp_path = os.path.join(
+            temp_dir, 'yangvalidator', json_body.get('cache', ''))
         if os.path.exists(cache_tmp_path):
             shutil.rmtree(cache_tmp_path)
     return JsonResponse({'output': results})
@@ -183,32 +184,33 @@ def validate_doc(request: WSGIRequest):
     payload_body = try_validate_and_load_data(request)
     doc_name = payload_body.get(doc_type)
     if not doc_name:
-        return JsonResponse({'Error': 'Required property "{}" is missing or empty'.format(doc_type)}, status=400)
+        return JsonResponse({'Error': f'Required property "{doc_type}" is missing or empty'}, status=400)
     if doc_name.endswith('.txt'):
         doc_name = doc_name[:-4]
-    logger.info('validating {} {}'.format(doc_type, doc_name))
+    logger.info(f'validating {doc_type} {doc_name}')
     config = create_config()
     temp_dir = config.get('Directory-Section', 'temp')
     ietf_dir = config.get('Directory-Section', 'ietf-directory')
     url = ''
     if doc_type == 'draft':
         draft_dir = os.path.join(ietf_dir, 'my-id-archive-mirror')
-        matching_drafts = fnmatch.filter(os.listdir(draft_dir), '{}*.txt'.format(doc_name))
+        matching_drafts = fnmatch.filter(
+            os.listdir(draft_dir), f'{doc_name}*.txt')
         if matching_drafts:
             draft_file = sorted(matching_drafts)[-1]
             url = os.path.join(draft_dir, draft_file)
         else:
-            url = 'https://tools.ietf.org/id/{!s}.txt'.format(doc_name)
+            url = f'https://tools.ietf.org/id/{doc_name}.txt'
     elif doc_type == 'rfc':
-        rfc_file = 'rfc{}.txt'.format(doc_name)
+        rfc_file = f'rfc{doc_name}.txt'
         path = os.path.join(ietf_dir, 'rfc', rfc_file)
         if os.path.exists(path):
             url = path
         else:
-            url = 'https://tools.ietf.org/rfc/{}'.format(rfc_file)
+            url = f'https://tools.ietf.org/rfc/{rfc_file}'
     while True:
         suffix = create_random_suffix()
-        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(temp_dir, suffix)
+        cache_dir = f'{temp_dir}/yangvalidator/yangvalidator-v2-cache-{suffix}'
         if not os.path.exists(cache_dir):
             break
     return extract_files(request, url, payload_body.get('latest', True), cache_dir)
@@ -225,11 +227,11 @@ def upload_setup(request: WSGIRequest):
     temp_dir = config.get('Directory-Section', 'temp')
     while True:
         suffix = create_random_suffix()
-        cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(temp_dir, suffix)
+        cache_dir = f'{temp_dir}/yangvalidator/yangvalidator-v2-cache-{suffix}'
         if not os.path.exists(cache_dir):
             break
     os.mkdir(cache_dir)
-    with open('{}/pre-setup.json'.format(cache_dir), 'w') as f:
+    with open(f'{cache_dir}/pre-setup.json', 'w') as f:
         body = {'latest': latest, 'get-from-options': get_from_options}
         json.dump(body, f)
     change_ownership_recursive(cache_dir)
@@ -242,29 +244,24 @@ def upload_draft(request):
 
 def load_pre_setup(working_dir: str):
     """Load pre-setup from the JSON file stored in directory defined by the 'working_dir' argument"""
-    pre_setup_path = '{}/pre-setup.json'.format(working_dir)
+    pre_setup_path = f'{working_dir}/pre-setup.json'
     if os.path.exists(pre_setup_path):
         with open(pre_setup_path, 'r') as f:
             return json.load(f)
     else:
         id = os.path.basename(working_dir)
-        return JsonResponse(
-            {
-                'Error': 'Cache file with id - {} does not exist.'
-                ' Please use pre setup first. Post request on path'
-                ' /yangvalidator/v2/upload-files-setup where you provide'
-                ' "latest" and "get-from-options" key with true or false'
-                ' values'.format(id),
-            },
-            status=400,
-        )
+        return JsonResponse({'Error': f'Cache file with id - {id} does not exist.'
+                                      ' Please use pre setup first. Post request on path'
+                                      ' /yangvalidator/v2/upload-files-setup where you provide'
+                                      ' "latest" and "get-from-options" key with true or false values'},
+                            status=400)
 
 
 def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
     """Validate each of the uploaded documents individually in separate temporary cache directory."""
     config = create_config()
     temp_dir = config.get('Directory-Section', 'temp')
-    pre_setup_dir = '{}/yangvalidator/{}'.format(temp_dir, id)
+    pre_setup_dir = f'{temp_dir}/yangvalidator/{id}'
 
     result = load_pre_setup(pre_setup_dir)
     if isinstance(result, HttpResponse):
@@ -280,7 +277,7 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
         for file in request.FILES.getlist('data'):
             while True:
                 suffix = create_random_suffix()
-                cache_dir = '{}/yangvalidator/yangvalidator-v2-cache-{}'.format(temp_dir, suffix)
+                cache_dir = f'{temp_dir}/yangvalidator/yangvalidator-v2-cache-{suffix}'
                 if not os.path.exists(cache_dir):
                     break
             os.mkdir(cache_dir)
@@ -290,7 +287,8 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            extract_files_response = extract_files(request, filepath, latest, cache_dir, remove_working_dir=False)
+            extract_files_response = extract_files(
+                request, filepath, latest, cache_dir, remove_working_dir=False)
             status = extract_files_response.status_code
             output = json.loads(extract_files_response.content)
             output['document-name'] = file.name
@@ -299,7 +297,7 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
         for wd in working_dirs:
             if os.path.exists(wd):
                 shutil.rmtree(wd)
-        return JsonResponse({'Error': 'Failed to upload and validate documents - {}'.format(e)}, status=400)
+        return JsonResponse({'Error': f'Failed to upload and validate documents - {e}'}, status=400)
     results = results[0] if len(results) == 1 else results
     return JsonResponse(results, status=status, safe=False)
 
@@ -308,7 +306,7 @@ def upload_file(request: WSGIRequest, id: str):
     config = create_config()
     yang_models = config.get('Directory-Section', 'save-file-dir')
     temp_dir = config.get('Directory-Section', 'temp')
-    working_dir = '{}/yangvalidator/{}'.format(temp_dir, id)
+    working_dir = f'{temp_dir}/yangvalidator/{id}'
 
     result = load_pre_setup(working_dir)
     if isinstance(result, HttpResponse):
@@ -337,9 +335,10 @@ def upload_file(request: WSGIRequest, id: str):
                         f.write(chunk)
                 zf = ZipFile(zipfilename, 'r')
                 zf.extractall(working_dir)
-                saved_files.extend([filename for filename in zf.namelist() if filename.endswith('.yang')])
+                saved_files.extend(
+                    [filename for filename in zf.namelist() if filename.endswith('.yang')])
     except Exception as e:
-        logger.exception('Error: {} : {}'.format(working_dir, e))
+        logger.exception(f'Error: {working_dir} : {e}')
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
         return JsonResponse({'Error': 'Failed to get yang files'}, status=400)
@@ -393,23 +392,26 @@ def create_output(
             }
         elif xym_response.get('stderr'):
             response_args = {
-                'data': {'Error': 'Failed to fetch content of {}'.format(url), 'xym': xym_response},
+                'data': {'Error': f'Failed to fetch content of {url}', 'xym': xym_response},
                 'status': 404,
             }
         else:
+            short_url = os.path.basename(str(url)).removesuffix('.txt')
             response_args = {
-                'data': {'Error': 'No modules were extracted using xym from {}'.format(url), 'xym': xym_response},
+                'data': {'Error': f'No modules were extracted using xym from {short_url}', 'xym': xym_response},
             }
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
-        json_body['dependencies'] = {'missing': missing, 'existing': existing_dependencies}
+        json_body['dependencies'] = {
+            'missing': missing, 'existing': existing_dependencies}
         if len(missing) == 0 and not found_repo_modules:
             response = validate(request, xym_response, json_body)
         else:
             response = JsonResponse({'output': json_body}, status=202)
     elif latest:
-        json_body['dependencies'] = {'repo-modules': checker.get_latest_revision()}
+        json_body['dependencies'] = {
+            'repo-modules': checker.get_latest_revision()}
         response = validate(request, xym_response, json_body)
     elif len(missing) == 0:
         response = validate(request, xym_response, json_body)
@@ -473,5 +475,5 @@ def check_missing_amount_one_only(missing: dict) -> bool:
     return True
 
 
-if not os.path.exists('{}/yangvalidator'.format(create_config().get('Directory-Section', 'temp'))):
-    os.mkdir('{}/yangvalidator'.format(create_config().get('Directory-Section', 'temp')))
+if not os.path.exists(f'{create_config().get("Directory-Section", "temp")}/yangvalidator'):
+    os.mkdir(f'{create_config().get("Directory-Section", "temp")}/yangvalidator')
