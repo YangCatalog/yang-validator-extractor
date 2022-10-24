@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from html import escape
 from io import StringIO
 from subprocess import CalledProcessError, call, check_output
-from tempfile import *
+from tempfile import mkdtemp
 from zipfile import ZipFile
 
 import jinja2
@@ -40,14 +40,15 @@ from pyang import error, plugin
 from pyang.plugins.depend import emit_depend
 from xym import __version__ as xym_version
 from xym import xym
+
 from yangvalidator.create_config import create_config
 from yangvalidator.yangParser import create_context, restore_statements
 
-__author__ = "Miroslav Kovac, Carl Moberg"
-__copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
-__version__ = "1.1.0"
+__author__ = 'Miroslav Kovac, Carl Moberg'
+__copyright__ = 'Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech, camoberg@cisco.com'
+__version__ = '1.1.0'
 
 logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
@@ -59,23 +60,28 @@ yangdump_cmd = '/usr/bin/yangdump-pro'
 debug = False
 
 try:
-    yanglint_version = check_output(yanglint_cmd + " --version", shell=True).decode('utf-8').rstrip()
+    yanglint_version = check_output(yanglint_cmd + ' --version', shell=True).decode('utf-8').rstrip()
 except CalledProcessError:
     yanglint_version = 'undefined'
 
 try:
-    confdc_version = check_output(confdc_cmd + " --version", shell=True).decode('utf-8').rstrip()
+    confdc_version = check_output(confdc_cmd + ' --version', shell=True).decode('utf-8').rstrip()
 except CalledProcessError:
     confdc_version = 'undefined'
 
 try:
-    yangdump_version = check_output(yangdump_cmd + " --version", shell=True).decode('utf-8').strip()
+    yangdump_version = check_output(yangdump_cmd + ' --version', shell=True).decode('utf-8').strip()
 except CalledProcessError:
     yangdump_version = 'undefined'
 
-versions = {"validator_version": __version__, "pyang_version": pyang.__version__, "xym_version": xym_version,
-            "confdc_version": confdc_version, "yanglint_version": yanglint_version,
-            "yangdump_version": yangdump_version}
+versions = {
+    'validator_version': __version__,
+    'pyang_version': pyang.__version__,
+    'xym_version': xym_version,
+    'confdc_version': confdc_version,
+    'yanglint_version': yanglint_version,
+    'yangdump_version': yangdump_version,
+}
 
 
 class UploadFileForm(forms.Form):
@@ -102,8 +108,14 @@ def create_output(url, for_datatracker=False):
     sys.stderr = result
     sys.stdout = stdout
     try:
-        extracted_models = xym.xym(source_id=url, dstdir=workdir, srcdir="", strict=True, strict_examples=False,
-                                   debug_level=0)
+        extracted_models = xym.xym(
+            source_id=url,
+            dstdir=workdir,
+            srcdir='',
+            strict=True,
+            strict_examples=False,
+            debug_level=0,
+        )
         xym_res['time'] = datetime.now(timezone.utc).isoformat()
         sys.stderr = stderr_
         sys.stdout = stdout_
@@ -118,29 +130,32 @@ def create_output(url, for_datatracker=False):
         workdir_split[-1] = 'workdir-{}'.format(workdir_split[-1])
         workdir_to_json = '/'.join(workdir_split)
         xym_res[
-            'command'] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False, debug_level=0)'.format(
-            url, workdir_to_json)
+            'command'
+        ] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False, debug_level=0)'.format(
+            url,
+            workdir_to_json,
+        )
 
         modules = []
         if for_datatracker:
             results: dict[str, t.Any] = {'extraction': xym_res}
 
         for em in extracted_models:
-            file_name = em.split("@")[0].replace(".", "_")
+            file_name = em.split('@')[0].replace('.', '_')
             pyang_res, confdc_res, yanglint_res, yangdump_res = validate_yangfile(em, workdir)
             if for_datatracker:
-                modules.append({'name': em,
-                                'checks': [pyang_res, confdc_res, yanglint_res, yangdump_res]
-                                })
+                modules.append({'name': em, 'checks': [pyang_res, confdc_res, yanglint_res, yangdump_res]})
 
             else:
-                results[em] = {"pyang_stderr": escape(pyang_res['stderr']),
-                               "pyang_output": escape(pyang_res['stdout']),
-                               "xym_stderr": escape(xym_res['stderr']),
-                               "confdc_stderr": escape(confdc_res['stderr']),
-                               "yanglint_stderr": escape(yanglint_res['stderr']),
-                               "yangdump_stderr": escape(yangdump_res['stderr']),
-                               "name_split": file_name}
+                results[em] = {
+                    'pyang_stderr': escape(pyang_res['stderr']),
+                    'pyang_output': escape(pyang_res['stdout']),
+                    'xym_stderr': escape(xym_res['stderr']),
+                    'confdc_stderr': escape(confdc_res['stderr']),
+                    'yanglint_stderr': escape(yanglint_res['stderr']),
+                    'yangdump_stderr': escape(yangdump_res['stderr']),
+                    'name_split': file_name,
+                }
         if for_datatracker:
             results['modules'] = modules
     except Exception as e:
@@ -158,12 +173,11 @@ def print_pyang_output(ctx):
     for (epos, etag, eargs) in ctx.errors:
         elevel = error.err_level(etag)
         if error.is_warning(elevel):
-            kind = "warning"
+            kind = 'warning'
         else:
-            kind = "error"
+            kind = 'error'
 
-        err += str(epos) + ': %s: ' % kind + \
-            error.err_to_str(etag, eargs) + '\n'
+        err += str(epos) + ': %s: ' % kind + error.err_to_str(etag, eargs) + '\n'
     return err, out
 
 
@@ -193,7 +207,7 @@ def validate_yangfile(infilename, workdir):
     yanglint_res = {}
     confdc_res = {}
     yangdump_res = {}
-    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr = ""
+    confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr = ''
     infile = os.path.join(workdir, infilename)
     confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
     confdc_outfile = str(os.path.join(workdir, infilename) + '.cout')
@@ -230,19 +244,19 @@ def validate_yangfile(infilename, workdir):
 
         ctx.opts.lint_namespace_prefixes = []
         ctx.opts.lint_modulename_prefixes = []
-        if infilename.startswith("ietf", 0):
+        if infilename.startswith('ietf', 0):
             ctx.opts.ietf = True
             pyang_command = cmds + ['-p', workdir, '--ietf', infile]
             pyang_command_to_json.extend(['-p', workdir, '--ietf', infile])
-        elif infilename.startswith("mef", 0):
+        elif infilename.startswith('mef', 0):
             ctx.opts.mef = True
             pyang_command = cmds + ['-p', workdir, '--mef', infile]
             pyang_command_to_json.extend(['-p', workdir, '--mef', infile])
-        elif infilename.startswith("ieee", 0):
+        elif infilename.startswith('ieee', 0):
             ctx.opts.ieee = True
             pyang_command = cmds + ['-p', workdir, '--ieee', infile]
             pyang_command_to_json.extend(['-p', workdir, '--ieee', infile])
-        elif infilename.startswith("bbf", 0):
+        elif infilename.startswith('bbf', 0):
             ctx.opts.bbf = True
             pyang_command = cmds + ['-p', workdir, '--bbf', infile]
             pyang_command_to_json.extend(['-p', workdir, '--bbf', infile])
@@ -252,16 +266,12 @@ def validate_yangfile(infilename, workdir):
         ctx.opts.depend_ignore = []
         for p in plugin.plugins:
             p.setup_ctx(ctx)
-        m = []
-        with open(infile, 'r', encoding="utf-8") as yang_file:
+        with open(infile, 'r', encoding='utf-8') as yang_file:
             module = yang_file.read()
-            if module is None:
-                logger.info('no module provided')
-            m = ctx.add_module(infile, module)
-            if m is None:
-                m = []
-            else:
-                m = [m]
+        if module is None:
+            logger.info('no module provided')
+        m = ctx.add_module(infile, module)
+        m = [] if m is None else [m]
         ctx.validate()
 
         f = io.StringIO()
@@ -270,7 +280,7 @@ def validate_yangfile(infilename, workdir):
 
         pyang_stderr, pyang_output = print_pyang_output(ctx)
 
-        # Data cleanup due to a recursion problem
+        # Data cleanup due to a recursion problem
         restore_statements()
         del ctx
 
@@ -348,10 +358,10 @@ def validate_yangfile(infilename, workdir):
 
         context = {'path': dep_dir}
 
-        path, filename = os.path.split(
-            os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
-        rendered_config_text = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')
-                                                  ).get_template(filename).render(context)
+        path, filename = os.path.split(os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
+        rendered_config_text = (
+            jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')).get_template(filename).render(context)
+        )
         conf_yangdump_dir = '{}-conf'.format(dep_dir)
         os.mkdir(conf_yangdump_dir)
         yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'
@@ -432,28 +442,32 @@ def upload_file(request):
         for file in request.FILES.getlist('data'):
             name, ext = os.path.splitext(file.name)
 
-            if ext == ".yang":
+            if ext == '.yang':
                 with open(os.path.join(savedir, file.name), 'wb+') as f:
                     for chunk in file.chunks():
                         f.write(chunk)
                 savedfiles.append(file.name)
 
-            if ext == ".zip":
+            if ext == '.zip':
                 zipfilename = os.path.join(savedir, file.name)
                 with open(zipfilename, 'wb+') as f:
                     for chunk in file.chunks():
                         f.write(chunk)
-                zf = ZipFile(zipfilename, "r")
+                zf = ZipFile(zipfilename, 'r')
                 zf.extractall(savedir)
                 savedfiles = [filename for filename in zf.namelist() if filename.endswith('.yang')]
 
         for file in savedfiles:
-            file_name = file.split("@")[0].replace(".", "_")
+            file_name = file.split('@')[0].replace('.', '_')
             pyang_res, confdc_res, yanglint_res, yangdump_res = validate_yangfile(file, savedir)
-            context['results'][file] = {"pyang_stderr": pyang_res['stderr'], "pyang_output": pyang_res['stdout'],
-                                        "confdc_stderr": confdc_res['stderr'],
-                                        "yanglint_stderr": yanglint_res['stderr'],
-                                        "yangdump_stderr": yangdump_res['stderr'], "name_split": file_name}
+            context['results'][file] = {
+                'pyang_stderr': pyang_res['stderr'],
+                'pyang_output': pyang_res['stdout'],
+                'confdc_stderr': confdc_res['stderr'],
+                'yanglint_stderr': yanglint_res['stderr'],
+                'yangdump_stderr': yangdump_res['stderr'],
+                'name_split': file_name,
+            }
     except Exception as e:
         logger.error('Error: %s : %s' % (savedir, e))
     finally:
@@ -488,10 +502,9 @@ def datatracker_rfc(request):
         logger.info('validating rfc {}'.format(doc))
         url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(doc)
         results = create_output(url, for_datatracker=True)
-        results["name"] = doc
+        results['name'] = doc
         documents.append(results)
-    result = {"yangvalidator-version": versions['validator_version'],
-              "documents": documents}
+    result = {'yangvalidator-version': versions['validator_version'], 'documents': documents}
     results = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(results, content_type='application/json')
 
@@ -505,10 +518,9 @@ def datatracker_draft(request):
         logger.info('validating draft {}'.format(doc))
         url = 'http://tools.ietf.org/id/{!s}.txt'.format(doc)
         results = create_output(url, for_datatracker=True)
-        results["name"] = doc
+        results['name'] = doc
         documents.append(results)
-    result = {"yangvalidator-version": versions['validator_version'],
-              "documents": documents}
+    result = {'yangvalidator-version': versions['validator_version'], 'documents': documents}
     results = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(results, content_type='application/json')
 
@@ -522,8 +534,7 @@ def validate_rfc_param(request):
     rfc = request.GET['number']
     logger.info('validating rfc {}'.format(rfc))
     url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
-    results = {}
-    results['results'] = create_output(url)
+    results = {'results': create_output(url)}
     return render(request, 'result.html', results)
 
 
@@ -533,16 +544,14 @@ def validate_draft_param(request):
         draft = draft[:-4]
     logger.info('validating draft {}'.format(draft))
     url = 'http://tools.ietf.org/id/{!s}.txt'.format(draft)
-    results = {}
-    results['results'] = create_output(url)
+    results = {'results': create_output(url)}
     return render(request, 'result.html', results)
 
 
 def validate_rfc(request, rfc):
     logger.info('validating rfc {}'.format(rfc))
     url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
-    results = {}
-    results['results'] = create_output(url)
+    results = {'results': create_output(url)}
     return render(request, 'main.html', results)
 
 
@@ -551,8 +560,7 @@ def validate_draft(request, draft):
         draft = draft[:-4]
     logger.info('validating draft {}'.format(draft))
     url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
-    results = {}
-    results['results'] = create_output(url)
+    results = {'results': create_output(url)}
     return render(request, 'main.html', results)
 
 

@@ -24,10 +24,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-__author__ = "Richard Zilincik"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "richard.zilincik@pantheon.tech"
+__author__ = 'Richard Zilincik'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'richard.zilincik@pantheon.tech'
 
 import logging.config
 import os
@@ -37,7 +37,7 @@ from yangvalidator.create_config import create_config
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -59,7 +59,7 @@ ALLOWED_HOSTS = [
     'www.yangvalidator.org',
     'yangvalidator.com',
     'yangvalidator.org',
-    '18.224.127.129'
+    '18.224.127.129',
 ]
 
 
@@ -145,33 +145,21 @@ STATIC_URL = '/yangvalidator/static/'
 
 LOGGING_CONFIG = None
 
-logging.config.dictConfig({
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'yang_log': {
-            # exact format is not important, this is the minimum information
-            'format': '%(asctime)-15s %(levelname)-8s %(filename)s %(name)5s => %(message)s - %(lineno)d',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-            'formatter': 'yang_log'
-        }
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True
+logging.config.dictConfig(
+    {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'yang_log': {
+                # exact format is not important, this is the minimum information
+                'format': '%(asctime)-15s %(levelname)-8s %(filename)s %(name)5s => %(message)s - %(lineno)d',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
+            },
         },
-        'yangvalidator': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True
-        }
-    }
-})
+        'handlers': {'console': {'level': 'ERROR', 'class': 'logging.StreamHandler', 'formatter': 'yang_log'}},
+        'loggers': {
+            'django': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': True},
+            'yangvalidator': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': True},
+        },
+    },
+)

@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v2.3.0
+    hooks:
+      - id: add-trailing-comma
+  - repo: https://github.com/psf/black
+    rev: 22.10.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+  - repo: https://github.com/pycqa/flake8
+    rev: '5.0.4'
+    hooks:
+      - id: flake8
+        args:
+          - '--config=.flake8'
+        additional_dependencies: [
+          flake8-docstrings, flake8-quotes, flake8-print, pep8-naming, flake8-absolute-import, flake8-comprehensions,
+          flake8-commas, flake8-multiline-containers,
+        ]

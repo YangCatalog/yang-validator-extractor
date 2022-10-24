@@ -28,6 +28,7 @@ class YanglintParser:
     """
     Cover the parsing of the module with yanglint parser and validator
     """
+
     YANGLINT_CMD = '/usr/local/bin/yanglint'
     try:
         VERSION = check_output(YANGLINT_CMD + ' --version', shell=True).decode('utf-8').rstrip()

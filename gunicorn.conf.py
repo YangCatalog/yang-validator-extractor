@@ -1,4 +1,4 @@
-bind = "unix:/var/run/yang/yangvalidator.sock"
+bind = 'unix:/var/run/yang/yangvalidator.sock'
 # umask = os.umask('007')
 
 workers = 2
