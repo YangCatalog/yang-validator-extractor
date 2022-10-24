@@ -193,7 +193,10 @@ def validate_doc(request: WSGIRequest):
     url = ''
     if doc_type == 'draft':
         draft_dir = os.path.join(ietf_dir, 'my-id-archive-mirror')
-        matching_drafts = fnmatch.filter(os.listdir(draft_dir), f'{doc_name}*.txt')
+        try:
+            matching_drafts = fnmatch.filter(os.listdir(draft_dir), f'{doc_name}*.txt')
+        except FileNotFoundError:
+            matching_drafts = []
         if matching_drafts:
             draft_file = sorted(matching_drafts)[-1]
             url = os.path.join(draft_dir, draft_file)
