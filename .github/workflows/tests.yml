@@ -30,6 +30,16 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r lint_requirements.txt
+
+      - name: Check isort
+        uses: jamescurtin/isort-action@master
+
+      - name: Check flake8
+        run: flake8 .
+
+      - name: Check black
+        uses: psf/black@stable
 
       - name: Run tests
         env:

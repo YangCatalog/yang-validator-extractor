@@ -28,6 +28,7 @@ class ConfdParser:
     """
     Cover the parsing of the module with confd parser and validator
     """
+
     CONFDC_CMD = '/home/yangvalidator/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
     try:
         VERSION = check_output('{} --version'.format(CONFDC_CMD), shell=True).decode('utf-8').rstrip()

@@ -29,15 +29,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-__author__ = "Miroslav Kovac, Carl Moberg"
-__copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
+__author__ = 'Miroslav Kovac, Carl Moberg'
+__copyright__ = 'Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech, camoberg@cisco.com'
 
 from django.urls import path
-from django.views.decorators.csrf import csrf_exempt
 
-from . import views
+from yangvalidator.v1 import views
 
 app_name = 'yangvalidator'
 urlpatterns = [
@@ -54,5 +53,5 @@ urlpatterns = [
     path('validator', views.upload_file, name='upload_file'),
     path('draft-validator', views.upload_draft, name='upload_draft'),
     path('draft', views.validate_draft_param, name='validate_draft'),
-    path('rfc', views.validate_rfc_param, name='validate_rfc')
+    path('rfc', views.validate_rfc_param, name='validate_rfc'),
 ]

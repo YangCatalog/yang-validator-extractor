@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+
+[tool.isort]
+skip = [".git", "__pycache__", "docs/source/conf.py", "old", "build", "dist", "venv"]
+skip_glob = ["./lib/*", "./bin/*"]
+line_length = 120
+use_parentheses = true
