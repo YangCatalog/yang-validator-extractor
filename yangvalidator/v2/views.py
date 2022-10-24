@@ -128,13 +128,14 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                         skipped_modules.append(module_to_validate)
                         break
                 else:
-                    shutil.copy(os.path.join(
-                        source, module_to_validate), working_dir)
+                    shutil.copy(os.path.join(source, module_to_validate), working_dir)
                     modules_to_validate.append(module_to_validate)
 
         if len(skipped_modules) > 0:
-            results['warning'] = f'Following modules {", ".join(skipped_modules)} were skipped from validation' \
-                                 ' because you chose different repo modules as a dependency with same name'
+            results['warning'] = (
+                f'Following modules {", ".join(skipped_modules)} were skipped from validation'
+                ' because you chose different repo modules as a dependency with same name'
+            )
 
         # UI sends the users dependencies anyway for better code readability but it s not used anymore in here.
         # please keep following code for understanding why we are receiving user_dependencies.
@@ -157,8 +158,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                 (YanglintParser, 'yanglint'),
                 (YangdumpProParser, 'yangdump-pro'),
             ):
-                parser_results = parser(
-                    [working_dir], module_to_validate, working_dir).parse_module()
+                parser_results = parser([working_dir], module_to_validate, working_dir).parse_module()
                 results[module_to_validate][name] = parser_results
     except Exception as e:
         results['error'] = f'Failed to parse a document - {e}'
@@ -168,8 +168,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
 
-        cache_tmp_path = os.path.join(
-            temp_dir, 'yangvalidator', json_body.get('cache', ''))
+        cache_tmp_path = os.path.join(temp_dir, 'yangvalidator', json_body.get('cache', ''))
         if os.path.exists(cache_tmp_path):
             shutil.rmtree(cache_tmp_path)
     return JsonResponse({'output': results})
@@ -194,8 +193,7 @@ def validate_doc(request: WSGIRequest):
     url = ''
     if doc_type == 'draft':
         draft_dir = os.path.join(ietf_dir, 'my-id-archive-mirror')
-        matching_drafts = fnmatch.filter(
-            os.listdir(draft_dir), f'{doc_name}*.txt')
+        matching_drafts = fnmatch.filter(os.listdir(draft_dir), f'{doc_name}*.txt')
         if matching_drafts:
             draft_file = sorted(matching_drafts)[-1]
             url = os.path.join(draft_dir, draft_file)
@@ -250,11 +248,15 @@ def load_pre_setup(working_dir: str):
             return json.load(f)
     else:
         id = os.path.basename(working_dir)
-        return JsonResponse({'Error': f'Cache file with id - {id} does not exist.'
-                                      ' Please use pre setup first. Post request on path'
-                                      ' /yangvalidator/v2/upload-files-setup where you provide'
-                                      ' "latest" and "get-from-options" key with true or false values'},
-                            status=400)
+        return JsonResponse(
+            {
+                'Error': f'Cache file with id - {id} does not exist.'
+                ' Please use pre setup first. Post request on path'
+                ' /yangvalidator/v2/upload-files-setup where you provide'
+                ' "latest" and "get-from-options" key with true or false values',
+            },
+            status=400,
+        )
 
 
 def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
@@ -287,8 +289,7 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            extract_files_response = extract_files(
-                request, filepath, latest, cache_dir, remove_working_dir=False)
+            extract_files_response = extract_files(request, filepath, latest, cache_dir, remove_working_dir=False)
             status = extract_files_response.status_code
             output = json.loads(extract_files_response.content)
             output['document-name'] = file.name
@@ -335,8 +336,7 @@ def upload_file(request: WSGIRequest, id: str):
                         f.write(chunk)
                 zf = ZipFile(zipfilename, 'r')
                 zf.extractall(working_dir)
-                saved_files.extend(
-                    [filename for filename in zf.namelist() if filename.endswith('.yang')])
+                saved_files.extend([filename for filename in zf.namelist() if filename.endswith('.yang')])
     except Exception as e:
         logger.exception(f'Error: {working_dir} : {e}')
         if os.path.exists(working_dir):
@@ -403,15 +403,13 @@ def create_output(
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
-        json_body['dependencies'] = {
-            'missing': missing, 'existing': existing_dependencies}
+        json_body['dependencies'] = {'missing': missing, 'existing': existing_dependencies}
         if len(missing) == 0 and not found_repo_modules:
             response = validate(request, xym_response, json_body)
         else:
             response = JsonResponse({'output': json_body}, status=202)
     elif latest:
-        json_body['dependencies'] = {
-            'repo-modules': checker.get_latest_revision()}
+        json_body['dependencies'] = {'repo-modules': checker.get_latest_revision()}
         response = validate(request, xym_response, json_body)
     elif len(missing) == 0:
         response = validate(request, xym_response, json_body)
