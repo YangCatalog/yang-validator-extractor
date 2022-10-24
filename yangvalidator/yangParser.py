@@ -15,21 +15,22 @@
 
 """Utility belt for working with ``pyang`` and ``pyangext``."""
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright 2018 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright 2018 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 import codecs
 import io
 from os.path import isfile
 
+from pyang import statements
 from pyang.context import Context
 from pyang.error import error_codes
 from pyang.repository import FileRepository
 from pyang.yang_parser import YangParser
-from pyang import statements
-from .default_statements import StatementsDefault
+
+from yangvalidator.default_statements import StatementsDefault
 
 DEFAULT_OPTIONS = {
     'path': [],
@@ -63,7 +64,7 @@ _COPY_OPTIONS = [
 """copy options to pyang context options"""
 
 
-class objectify(object):  # pylint: disable=invalid-name
+class Objectify(object):  # pylint: disable=invalid-name
     """Utility for providing object access syntax (.attr) to dicts"""
 
     features: list
@@ -81,8 +82,10 @@ class objectify(object):  # pylint: disable=invalid-name
     def __setattr__(self, attr, value):
         self.__dict__[attr] = value
 
+
 class OptsContext(Context):
-    opts: objectify
+    opts: Objectify
+
 
 def _parse_features_string(feature_str):
     if feature_str.find(':') == -1:
@@ -148,7 +151,7 @@ def create_context(path='.', *options, **kwargs) -> OptsContext:
     """
     # deviations (list): Deviation module (NOT CURRENTLY WORKING).
 
-    opts = objectify(DEFAULT_OPTIONS, *options, **kwargs)
+    opts = Objectify(DEFAULT_OPTIONS, *options, **kwargs)
     repo = FileRepository(path, no_path_recurse=opts.no_path_recurse)
 
     ctx = OptsContext(repo)
@@ -172,7 +175,7 @@ def create_context(path='.', *options, **kwargs) -> OptsContext:
     return ctx
 
 
-def parse(text, ctx = None):
+def parse(text, ctx=None):
     """Parse a YANG statement into an Abstract Syntax subtree.
 
     Arguments:
@@ -191,7 +194,7 @@ def parse(text, ctx = None):
         It is also well known that ``parse`` function cannot solve
         YANG deviations yet.
     """
-    parser = YangParser() # Similar names, but, this one is from PYANG library
+    parser = YangParser()  # Similar names, but, this one is from PYANG library
 
     filename = 'parser-input'
 
@@ -199,7 +202,7 @@ def parse(text, ctx = None):
 
     if isfile(text):
         filename = text
-        text = codecs.open(filename, encoding="utf-8").read()
+        text = codecs.open(filename, encoding='utf-8').read()
 
     # ensure reported errors are just from parsing
     # old_errors = ctx_.errors

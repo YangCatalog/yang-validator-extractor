@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Miroslav Kovac"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech"
+__author__ = 'Miroslav Kovac'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech'
 
 from datetime import datetime
 
@@ -37,8 +37,11 @@ class ModelsChecker:
 
     def check(self) -> None:
         for extracted_module in self._existing_modules:
-            parser = PyangParser([self._all_modules_directory, self._working_directory], extracted_module,
-                                 self._working_directory)
+            parser = PyangParser(
+                [self._all_modules_directory, self._working_directory],
+                extracted_module,
+                self._working_directory,
+            )
             self._dependencies.update(parser.get_dependencies())
 
     def find_missing(self):
@@ -97,8 +100,8 @@ class ModelsChecker:
                 ret.append(
                     '{}@{}.yang'.format(
                         module_name,
-                        revisions[revisions_to_sort.index(max(revisions_to_sort, default=0))]
-                    )
+                        revisions[revisions_to_sort.index(max(revisions_to_sort, default=0))],
+                    ),
                 )
             except ValueError:
                 pass
