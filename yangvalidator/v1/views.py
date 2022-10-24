@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from html import escape
 from io import StringIO
 from subprocess import CalledProcessError, call, check_output
-from tempfile import *  # noqa: F403
+from tempfile import mkdtemp
 from zipfile import ZipFile
 
 import jinja2
@@ -96,7 +96,7 @@ def index(request):
 
 
 def create_output(url, for_datatracker=False):
-    workdir = mkdtemp()  # noqa: F405
+    workdir = mkdtemp()
     results = {}
     xym_res = {}
     result = StringIO()
@@ -414,7 +414,7 @@ def validate_yangfile(infilename, workdir):
 def upload_draft(request):
     context = versions
     context['results'] = {}
-    savedir = mkdtemp()  # noqa: F405
+    savedir = mkdtemp()
 
     try:
         for file in request.FILES.getlist('data'):
@@ -436,7 +436,7 @@ def upload_file(request):
     context = versions
     context['results'] = {}
     savedfiles = []
-    savedir = mkdtemp()  # noqa: F405
+    savedir = mkdtemp()
 
     try:
         for file in request.FILES.getlist('data'):
