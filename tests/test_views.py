@@ -465,14 +465,22 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.ModelsChecker', mock.MagicMock())
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
     def test_create_output_not_found(self):
-        result = v.create_output(None, 'yang models', 'url', False, 'working dir', [], {'test': 'test'})
+        result = v.create_output(
+            None,
+            'yang models',
+            'path/to/somewhere/module_name.txt',
+            False,
+            'working dir',
+            [],
+            {'test': 'test'},
+        )
 
         self.assertEqual(result.status_code, 200)
         self.assertJSONEqual(
             result.content,
             {
-                'Message': 'No modules were extracted using xym from url',
-                'Type': 'error',
+                'Message': 'No modules were extracted using xym from module_name',
+                'Type': 'info',
                 'xym': {'test': 'test'},
             },
         )
