@@ -2,8 +2,8 @@ from django.test import SimpleTestCase
 
 from yangvalidator.v2.modelsChecker import ModelsChecker
 
-class TestModelsChecker(SimpleTestCase):
 
+class TestModelsChecker(SimpleTestCase):
     def test_find_missing(self):
         mc = ModelsChecker('', '', [])
         mc._dependencies = {'test': ['test@2000-01-01.yang', 'test@2020-01-01']}
@@ -23,8 +23,10 @@ class TestModelsChecker(SimpleTestCase):
         mc._dependencies = {'test': ['test@2000-01-01.yang', 'test@2020-01-01']}
         result, found_repo_modules = mc.get_existing_dependencies()
 
-        self.assertEqual(result, {'test': {'user-dependencies': '2010-01-01',
-                                           'repo-dependencies': ['2000-01-01', '2020-01-01']}})
+        self.assertEqual(
+            result,
+            {'test': {'user-dependencies': '2010-01-01', 'repo-dependencies': ['2000-01-01', '2020-01-01']}},
+        )
         self.assertEqual(found_repo_modules, True)
 
     def test_get_existing_dependencies_repo_modules_not_found(self):

@@ -22,10 +22,10 @@ For more information on this file, see
 https://docs.djangoproject.com/en/2.1/howto/deployment/wsgi/
 """
 
-__author__ = "Miroslav Kovac, Carl Moberg"
-__copyright__ = "Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "miroslav.kovac@pantheon.tech, camoberg@cisco.com"
+__author__ = 'Miroslav Kovac, Carl Moberg'
+__copyright__ = 'Copyright 2015 Cisco and its affiliates, Copyright The IETF Trust 2019, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'miroslav.kovac@pantheon.tech, camoberg@cisco.com'
 
 import os
 

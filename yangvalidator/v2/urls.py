@@ -20,7 +20,7 @@ __email__ = 'miroslav.kovac@pantheon.tech'
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
-from . import views
+from yangvalidator.v2 import views
 
 app_name = 'yangvalidator'
 urlpatterns = [
@@ -33,5 +33,5 @@ urlpatterns = [
     path('draft-validator/<id>', csrf_exempt(views.upload_draft_id), name='upload_draft_id'),
     path('draft-validator', csrf_exempt(views.upload_draft), name='upload_draft'),
     path('versions', csrf_exempt(views.versions), name='versions'),
-    path('ping', csrf_exempt(views.ping), name='ping')
+    path('ping', csrf_exempt(views.ping), name='ping'),
 ]

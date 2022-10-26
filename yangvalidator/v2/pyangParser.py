@@ -27,6 +27,7 @@ from datetime import datetime, timezone
 import pyang
 from pyang import error, plugin
 from pyang.plugins.depend import emit_depend
+
 from yangvalidator.create_config import create_config
 from yangvalidator.yangParser import create_context, restore_statements
 
@@ -35,6 +36,7 @@ class PyangParser:
     """
     Cover the parsing of the module with pyang parser and validator
     """
+
     VERSION = pyang.__version__
     LOG = logging.getLogger(__name__)
 
