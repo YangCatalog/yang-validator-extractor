@@ -481,7 +481,7 @@ def create_output(
                 'status': 404,
             }
         else:
-            short_url = os.path.basename(str(url)).removesuffix('.txt')
+            short_url = os.path.basename(str(url))[:-4]  # name of draft without .txt
             response_args = {
                 'data': {
                     'Message': f'No modules were extracted using xym from {short_url}',
