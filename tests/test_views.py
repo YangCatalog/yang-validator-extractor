@@ -83,7 +83,13 @@ class TestViews(SimpleTestCase):
         result = v.validate(self.factory.get('/yangvalidator/v2/validate'))
 
         self.assertEqual(result.status_code, 405)
-        self.assertJSONEqual(result.content, {'Error': 'Only POST request allowed but GET found'})
+        self.assertJSONEqual(
+            result.content,
+            {
+                'Message': 'Only POST request allowed but GET found',
+                'Type': 'error',
+            },
+        )
 
     def test_validate_not_json(self):
         result = v.validate(self.factory.post('/yangvalidator/v2/validate'))
@@ -92,7 +98,13 @@ class TestViews(SimpleTestCase):
         try:
             json.loads('not json')
         except ValueError as e:
-            self.assertJSONEqual(result.content, {'Error': f'Not a json content - {e}'})
+            self.assertJSONEqual(
+                result.content,
+                {
+                    'Message': f'Not a json content - {e}',
+                    'Type': 'error',
+                },
+            )
 
     def test_validate_no_module(self):
         result = v.validate(
@@ -100,7 +112,13 @@ class TestViews(SimpleTestCase):
         )
 
         self.assertEqual(result.status_code, 400)
-        self.assertJSONEqual(result.content, {'Error': 'No module received for validation'})
+        self.assertJSONEqual(
+            result.content,
+            {
+                'Message': 'No module received for validation',
+                'Type': 'error',
+            },
+        )
 
     def test_validate_no_user_or_repo_modules(self):
         result = v.validate(mock.MagicMock(method='POST', body=json.dumps({'modules-to-validate': {'test': 'test'}})))
@@ -113,7 +131,13 @@ class TestViews(SimpleTestCase):
         )
 
         self.assertEqual(result.status_code, 400)
-        self.assertJSONEqual(result.content, {'Error': 'No module received for validation'})
+        self.assertJSONEqual(
+            result.content,
+            {
+                'Message': 'No module received for validation',
+                'Type': 'error',
+            },
+        )
 
     @mock.patch('yangvalidator.v2.views.os.mkdir', mock.MagicMock(side_effect=Exception('test')))
     def test_validate_error(self):
@@ -175,8 +199,10 @@ class TestViews(SimpleTestCase):
         response = json.loads(result.content)
         self.assertEqual(result.headers['Content-Type'], 'application/json')
         self.assertEqual(result.status_code, 400)
-        self.assertIn('Error', response)
-        self.assertEqual(response.get('Error'), 'Required property "rfc" is missing or empty')
+        self.assertIn('Message', response)
+        self.assertIn('Type', response)
+        self.assertEqual(response.get('Message'), 'Required property "rfc" is missing or empty')
+        self.assertEqual(response.get('Type'), 'error')
 
     @mock.patch('yangvalidator.v2.views.os.path.exists', mock.MagicMock(return_value=False))
     def test_validate_doc_missing_draft(self):
@@ -186,8 +212,10 @@ class TestViews(SimpleTestCase):
         response = json.loads(result.content)
         self.assertEqual(result.headers['Content-Type'], 'application/json')
         self.assertEqual(result.status_code, 400)
-        self.assertIn('Error', response)
-        self.assertEqual(response.get('Error'), 'Required property "draft" is missing or empty')
+        self.assertIn('Message', response)
+        self.assertIn('Type', response)
+        self.assertEqual(response.get('Message'), 'Required property "draft" is missing or empty')
+        self.assertEqual(response.get('Type'), 'error')
 
     @mock.patch('yangvalidator.v2.views.json.dump')
     def test_upload_setup(self, mock_dump: mock.MagicMock):
@@ -233,11 +261,11 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': f'Cache file with id - {cache_dir} does not exist.'
+                'Message': f'Cache file with id - {cache_dir} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
-                ' "latest" and "get-from-options" key with true or false'
-                ' values',
+                ' "latest" and "get-from-options" key with true or false values',
+                'Type': 'error',
             },
         )
 
@@ -264,11 +292,12 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': f'Cache file with id - {1} does not exist.'
+                'Message': f'Cache file with id - {1} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
                 ' "latest" and "get-from-options" key with true or false'
                 ' values',
+                'Type': 'error',
             },
         )
 
@@ -282,7 +311,13 @@ class TestViews(SimpleTestCase):
             )
 
         self.assertEqual(result.status_code, 400)
-        self.assertJSONEqual(result.content, {'Error': 'Failed to upload and validate documents - test'})
+        self.assertJSONEqual(
+            result.content,
+            {
+                'Message': 'Failed to upload and validate documents - test',
+                'Type': 'error',
+            },
+        )
 
     @mock.patch('yangvalidator.v2.views.create_output')
     @mock.patch('yangvalidator.v2.views.open')
@@ -355,11 +390,11 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': f'Cache file with id - {1} does not exist.'
+                'Message': f'Cache file with id - {1} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
-                ' "latest" and "get-from-options" key with true or false'
-                ' values',
+                ' "latest" and "get-from-options" key with true or false values',
+                'Type': 'error',
             },
         )
 
@@ -373,7 +408,13 @@ class TestViews(SimpleTestCase):
             )
 
         self.assertEqual(result.status_code, 400)
-        self.assertJSONEqual(result.content, {'Error': 'Failed to get yang files'})
+        self.assertJSONEqual(
+            result.content,
+            {
+                'Message': 'Failed to get yang files',
+                'Type': 'error',
+            },
+        )
 
     @mock.patch('yangvalidator.v2.views.create_output')
     def test_extract_files(self, mock_create_output: mock.MagicMock):
@@ -400,8 +441,9 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': 'Failed to load any yang modules. Please provide at least one'
+                'Message': 'Failed to load any yang modules. Please provide at least one'
                 ' yang module. File must have .yang extension',
+                'Type': 'error',
             },
         )
 
@@ -411,17 +453,36 @@ class TestViews(SimpleTestCase):
         result = v.create_output(None, 'yang models', 'url', False, 'working dir', [], {'stderr': 'error'})
 
         self.assertEqual(result.status_code, 404)
-        self.assertJSONEqual(result.content, {'Error': 'Failed to fetch content of url', 'xym': {'stderr': 'error'}})
+        self.assertJSONEqual(
+            result.content,
+            {
+                'Message': 'Failed to fetch content of url',
+                'Type': 'error',
+                'xym': {'stderr': 'error'},
+            },
+        )
 
     @mock.patch('yangvalidator.v2.views.ModelsChecker', mock.MagicMock())
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
     def test_create_output_not_found(self):
-        result = v.create_output(None, 'yang models', 'url', False, 'working dir', [], {'test': 'test'})
+        result = v.create_output(
+            None,
+            'yang models',
+            'path/to/somewhere/module_name.txt',
+            False,
+            'working dir',
+            [],
+            {'test': 'test'},
+        )
 
         self.assertEqual(result.status_code, 200)
         self.assertJSONEqual(
             result.content,
-            {'Error': 'No modules were extracted using xym from url', 'xym': {'test': 'test'}},
+            {
+                'Message': 'No modules were extracted using xym from module_name',
+                'Type': 'info',
+                'xym': {'test': 'test'},
+            },
         )
 
     @mock.patch('yangvalidator.v2.views.ModelsChecker')

@@ -79,19 +79,43 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
             json_body = try_validate_and_load_data(request)
     except ValueError as e:
         # Missing json content or bad json content
-        return JsonResponse({'Error': f'Not a json content - {e}'}, status=400)
+        return JsonResponse(
+            {
+                'Message': f'Not a json content - {e}',
+                'Type': 'error',
+            },
+            status=400,
+        )
     except IllegalMethodError as e:
         # Method other then POST
-        return JsonResponse({'Error': f'{e}'}, status=405)
+        return JsonResponse(
+            {
+                'Message': f'{e}',
+                'Type': 'error',
+            },
+            status=405,
+        )
     to_validate = json_body.get('modules-to-validate')
     if to_validate is None:
         # Missing modules to validate
-        return JsonResponse({'Error': 'No module received for validation'}, status=400)
+        return JsonResponse(
+            {
+                'Message': 'No module received for validation',
+                'Type': 'error',
+            },
+            status=400,
+        )
     user_to_validate = to_validate.get('user-modules', [])
     repo_to_validate = to_validate.get('repo-modules', [])
     if len(user_to_validate) == 0 and len(repo_to_validate) == 0:
         # Missing modules to validate
-        return JsonResponse({'Error': 'No module received for validation'}, status=400)
+        return JsonResponse(
+            {
+                'Message': 'No module received for validation',
+                'Type': 'error',
+            },
+            status=400,
+        )
 
     config = create_config()
     temp_dir = config.get('Directory-Section', 'temp')
@@ -128,7 +152,13 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                         skipped_modules.append(module_to_validate)
                         break
                 else:
-                    shutil.copy(os.path.join(source, module_to_validate), working_dir)
+                    shutil.copy(
+                        os.path.join(
+                            source,
+                            module_to_validate,
+                        ),
+                        working_dir,
+                    )
                     modules_to_validate.append(module_to_validate)
 
         if len(skipped_modules) > 0:
@@ -158,7 +188,11 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
                 (YanglintParser, 'yanglint'),
                 (YangdumpProParser, 'yangdump-pro'),
             ):
-                parser_results = parser([working_dir], module_to_validate, working_dir).parse_module()
+                parser_results = parser(
+                    [working_dir],
+                    module_to_validate,
+                    working_dir,
+                ).parse_module()
                 results[module_to_validate][name] = parser_results
     except Exception as e:
         results['error'] = f'Failed to parse a document - {e}'
@@ -168,7 +202,11 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
 
-        cache_tmp_path = os.path.join(temp_dir, 'yangvalidator', json_body.get('cache', ''))
+        cache_tmp_path = os.path.join(
+            temp_dir,
+            'yangvalidator',
+            json_body.get('cache', ''),
+        )
         if os.path.exists(cache_tmp_path):
             shutil.rmtree(cache_tmp_path)
     return JsonResponse({'output': results})
@@ -183,7 +221,13 @@ def validate_doc(request: WSGIRequest):
     payload_body = try_validate_and_load_data(request)
     doc_name = payload_body.get(doc_type)
     if not doc_name:
-        return JsonResponse({'Error': f'Required property "{doc_type}" is missing or empty'}, status=400)
+        return JsonResponse(
+            {
+                'Message': f'Required property "{doc_type}" is missing or empty',
+                'Type': 'error',
+            },
+            status=400,
+        )
     if doc_name.endswith('.txt'):
         doc_name = doc_name[:-4]
     logger.info(f'validating {doc_type} {doc_name}')
@@ -233,7 +277,10 @@ def upload_setup(request: WSGIRequest):
             break
     os.mkdir(cache_dir)
     with open(f'{cache_dir}/pre-setup.json', 'w') as f:
-        body = {'latest': latest, 'get-from-options': get_from_options}
+        body = {
+            'latest': latest,
+            'get-from-options': get_from_options,
+        }
         json.dump(body, f)
     change_ownership_recursive(cache_dir)
     return JsonResponse({'output': {'cache': cache_dir.split('/')[-1]}})
@@ -253,10 +300,12 @@ def load_pre_setup(working_dir: str):
         id = os.path.basename(working_dir)
         return JsonResponse(
             {
-                'Error': f'Cache file with id - {id} does not exist.'
+                'Message': f'Cache file with id - {id} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
-                ' "latest" and "get-from-options" key with true or false values',
+                ' "latest" and "get-from-options" key with true or false'
+                ' values',
+                'Type': 'error',
             },
             status=400,
         )
@@ -292,7 +341,13 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
             with open(filepath, 'wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            extract_files_response = extract_files(request, filepath, latest, cache_dir, remove_working_dir=False)
+            extract_files_response = extract_files(
+                request,
+                filepath,
+                latest,
+                cache_dir,
+                remove_working_dir=False,
+            )
             status = extract_files_response.status_code
             output = json.loads(extract_files_response.content)
             output['document-name'] = file.name
@@ -301,7 +356,13 @@ def upload_draft_id(request: WSGIRequest, id: t.Optional[str]):
         for wd in working_dirs:
             if os.path.exists(wd):
                 shutil.rmtree(wd)
-        return JsonResponse({'Error': f'Failed to upload and validate documents - {e}'}, status=400)
+        return JsonResponse(
+            {
+                'Message': f'Failed to upload and validate documents - {e}',
+                'Type': 'error',
+            },
+            status=400,
+        )
     results = results[0] if len(results) == 1 else results
     return JsonResponse(results, status=status, safe=False)
 
@@ -339,13 +400,29 @@ def upload_file(request: WSGIRequest, id: str):
                         f.write(chunk)
                 zf = ZipFile(zipfilename, 'r')
                 zf.extractall(working_dir)
-                saved_files.extend([filename for filename in zf.namelist() if filename.endswith('.yang')])
+                saved_files.extend(
+                    [filename for filename in zf.namelist() if filename.endswith('.yang')],
+                )
     except Exception as e:
-        logger.exception(f'Error: {working_dir} : {e}')
+        logger.exception(f'Message: {working_dir} : {e}')
         if os.path.exists(working_dir):
             shutil.rmtree(working_dir)
-        return JsonResponse({'Error': 'Failed to get yang files'}, status=400)
-    return create_output(request, yang_models, None, latest, working_dir, saved_files, choose_options=get_from_options)
+        return JsonResponse(
+            {
+                'Message': 'Failed to get yang files',
+                'Type': 'error',
+            },
+            status=400,
+        )
+    return create_output(
+        request,
+        yang_models,
+        None,
+        latest,
+        working_dir,
+        saved_files,
+        choose_options=get_from_options,
+    )
 
 
 def extract_files(request, url: str, latest: bool, working_dir: str, remove_working_dir=True):
@@ -388,31 +465,45 @@ def create_output(
         if xym_response is None:
             response_args = {
                 'data': {
-                    'Error': 'Failed to load any yang modules. Please provide at least one'
+                    'Message': 'Failed to load any yang modules. Please provide at least one'
                     ' yang module. File must have .yang extension',
+                    'Type': 'error',
                 },
                 'status': 400,
             }
         elif xym_response.get('stderr'):
             response_args = {
-                'data': {'Error': f'Failed to fetch content of {url}', 'xym': xym_response},
+                'data': {
+                    'Message': f'Failed to fetch content of {url}',
+                    'xym': xym_response,
+                    'Type': 'error',
+                },
                 'status': 404,
             }
         else:
-            short_url = os.path.basename(str(url)).removesuffix('.txt')
+            short_url = os.path.basename(str(url))[:-4]  # name of draft without .txt
             response_args = {
-                'data': {'Error': f'No modules were extracted using xym from {short_url}', 'xym': xym_response},
+                'data': {
+                    'Message': f'No modules were extracted using xym from {short_url}',
+                    'xym': xym_response,
+                    'Type': 'info',
+                },
             }
         response = JsonResponse(**response_args)
     elif choose_options:
         existing_dependencies, found_repo_modules = checker.get_existing_dependencies()
-        json_body['dependencies'] = {'missing': missing, 'existing': existing_dependencies}
+        json_body['dependencies'] = {
+            'missing': missing,
+            'existing': existing_dependencies,
+        }
         if len(missing) == 0 and not found_repo_modules:
             response = validate(request, xym_response, json_body)
         else:
             response = JsonResponse({'output': json_body}, status=202)
     elif latest:
-        json_body['dependencies'] = {'repo-modules': checker.get_latest_revision()}
+        json_body['dependencies'] = {
+            'repo-modules': checker.get_latest_revision(),
+        }
         response = validate(request, xym_response, json_body)
     elif len(missing) == 0:
         response = validate(request, xym_response, json_body)
