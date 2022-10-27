@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 yang_import_dir = '/var/yang/all_modules'
 pyang_cmd = '/usr/local/bin/pyang'
 yanglint_cmd = '/usr/local/bin/yanglint'
-confdc_cmd = '/home/yangvalidator/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
+confdc_cmd = f'/home/yangvalidator/confd-{os.environ["CONFD_VERSION"]}/bin/confdc'
 yangdump_cmd = '/usr/bin/yangdump-pro'
 
 debug = False
@@ -127,13 +127,11 @@ def create_output(url, for_datatracker=False):
         xym_res['version'] = versions['xym_version']
         xym_res['code'] = None
         workdir_split = workdir.split('/')
-        workdir_split[-1] = 'workdir-{}'.format(workdir_split[-1])
+        workdir_split[-1] = f'workdir-{workdir_split[-1]}'
         workdir_to_json = '/'.join(workdir_split)
-        xym_res[
-            'command'
-        ] = 'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False, debug_level=0)'.format(
-            url,
-            workdir_to_json,
+        xym_res['command'] = (
+            f'xym.xym(source_id="{url}", dstdir="{workdir_to_json}", '
+            'srcdir="", strict=True, strict_examples=False, debug_level=0)'
         )
 
         modules = []

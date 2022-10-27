@@ -38,7 +38,7 @@ class TestViews(SimpleTestCase):
         self.resource_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources')
         parsers = ['Confd', 'YangdumpPro']
         for parser in parsers:
-            patcher = mock.patch('yangvalidator.v2.views.{}Parser'.format(parser), mock.MagicMock)
+            patcher = mock.patch(f'yangvalidator.v2.views.{parser}Parser', mock.MagicMock)
             mock_parser = patcher.start()
             self.addCleanup(patcher.stop)
             mock_parser.parse_module = lambda self: 'test'
@@ -92,7 +92,7 @@ class TestViews(SimpleTestCase):
         try:
             json.loads('not json')
         except ValueError as e:
-            self.assertJSONEqual(result.content, {'Error': 'Not a json content - {}'.format(e)})
+            self.assertJSONEqual(result.content, {'Error': f'Not a json content - {e}'})
 
     def test_validate_no_module(self):
         result = v.validate(
@@ -233,11 +233,11 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': 'Cache file with id - {} does not exist.'
+                'Error': f'Cache file with id - {cache_dir} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
                 ' "latest" and "get-from-options" key with true or false'
-                ' values'.format(cache_dir),
+                ' values',
             },
         )
 
@@ -264,11 +264,11 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': 'Cache file with id - {} does not exist.'
+                'Error': f'Cache file with id - {1} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
                 ' "latest" and "get-from-options" key with true or false'
-                ' values'.format(1),
+                ' values',
             },
         )
 
@@ -355,11 +355,11 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Error': 'Cache file with id - {} does not exist.'
+                'Error': f'Cache file with id - {1} does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
                 ' "latest" and "get-from-options" key with true or false'
-                ' values'.format(1),
+                ' values',
             },
         )
 
