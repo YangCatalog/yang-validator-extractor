@@ -77,8 +77,8 @@ class YangdumpProParser:
         ypresfp.close()
         dirname = os.path.dirname(self.__working_directory)
 
-        yangdump_res['stdout'] = yangdump_output.replace('{}/'.format(dirname), '')
-        yangdump_res['stderr'] = yangdump_stderr.replace('{}/'.format(dirname), '')
+        yangdump_res['stdout'] = yangdump_output.replace(f'{dirname}/', '')
+        yangdump_res['stderr'] = yangdump_stderr.replace(f'{dirname}/', '')
         yangdump_res['name'] = 'yangdump-pro'
         yangdump_res['version'] = self.VERSION
         yangdump_res['code'] = status

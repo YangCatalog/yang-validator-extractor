@@ -52,7 +52,7 @@ class YanglintParser:
         yresfp = open(self.__yanglint_resfile, 'w+')
         outfp = open(self.__yanglint_outfile, 'w+')
         status = call(self.__yanglint_cmd, stdout=outfp, stderr=yresfp)
-        self.LOG.info('Starting to yanglint parse use command {}'.format(' '.join(self.__yanglint_cmd)))
+        self.LOG.info(f'Starting to yanglint parse use command {" ".join(self.__yanglint_cmd)}')
         yanglint_output = yanglint_stderr = ''
         if os.path.isfile(self.__yanglint_outfile):
             outfp.seek(0)
@@ -68,8 +68,8 @@ class YanglintParser:
         yresfp.close()
         dirname = os.path.dirname(self.__working_directory)
 
-        yanglint_res['stdout'] = yanglint_output.replace('{}/'.format(dirname), '')
-        yanglint_res['stderr'] = yanglint_stderr.replace('{}/'.format(dirname), '')
+        yanglint_res['stdout'] = yanglint_output.replace(f'{dirname}/', '')
+        yanglint_res['stderr'] = yanglint_stderr.replace(f'{dirname}/', '')
         yanglint_res['name'] = 'yanglint'
         yanglint_res['version'] = self.VERSION
         yanglint_res['code'] = status

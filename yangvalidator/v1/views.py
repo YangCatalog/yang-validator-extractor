@@ -157,7 +157,7 @@ def create_output(url, for_datatracker=False):
         if for_datatracker:
             results['modules'] = modules
     except Exception as e:
-        logger.error('Error: {}'.format(e))
+        logger.error(f'Error: {e}')
     finally:
         if os.path.exists(workdir):
             shutil.rmtree(workdir)
@@ -175,7 +175,7 @@ def print_pyang_output(ctx):
         else:
             kind = 'error'
 
-        err += str(epos) + ': %s: ' % kind + error.err_to_str(etag, eargs) + '\n'
+        err += f'{epos}: {kind}: {error.err_to_str(etag, eargs)}\n'
     return err, out
 
 
@@ -184,23 +184,23 @@ def copy_dependencies(f):
     yang_models = config.get('Directory-Section', 'save-file-dir')
     temp_dir = config.get('Directory-Section', 'temp')
     out = f.getvalue()
-    logger.info('dependencies received in following format: {}'.format(out))
+    logger.info(f'dependencies received in following format: {out}')
     letters = string.ascii_letters
     suffix = ''.join(random.choice(letters) for i in range(8))
-    dep_dir = '{}/yangvalidator-dependencies-{}'.format(temp_dir, suffix)
+    dep_dir = f'{temp_dir}/yangvalidator-dependencies-{suffix}'
     os.mkdir(dep_dir)
     if len(out.split(':')) == 2:
         dependencies = out.split(':')[1].strip().split(' ')
     else:
         dependencies = []
     for dep in dependencies:
-        for file in glob.glob(r'{}/{}@*.yang'.format(yang_models, dep)):
+        for file in glob.glob(rf'{yang_models}/{dep}@*.yang'):
             shutil.copy(file, dep_dir)
     return dep_dir
 
 
 def validate_yangfile(infilename, workdir):
-    logger.info('validating {}'.format(infilename))
+    logger.info(f'validating {infilename}')
     pyang_res = {}
     yanglint_res = {}
     confdc_res = {}
@@ -228,7 +228,7 @@ def validate_yangfile(infilename, workdir):
             basic_append_p = ['-p', yang_import_dir]
             pyang_context_directories.append(yang_import_dir)
             yang_import_dir_split = yang_import_dir.split('/')
-            yang_import_dir_split[-1] = 'libs-{}'.format(yang_import_dir_split[-1])
+            yang_import_dir_split[-1] = f'libs-{yang_import_dir_split[-1]}'
             libs = '/'.join(yang_import_dir_split)
             pyang_command_to_json.extend([pyang_cmd, '-p', libs])
             confdc_command_to_json.extend([confdc_cmd, '--yangpath', libs])
@@ -356,11 +356,13 @@ def validate_yangfile(infilename, workdir):
 
         context = {'path': dep_dir}
 
-        path, filename = os.path.split(os.path.dirname(__file__) + '/../templates/yangdump-pro-yangvalidator.conf')
+        path, filename = os.path.split(
+            os.path.join(os.path.dirname(__file__), '/../templates/yangdump-pro-yangvalidator.conf'),
+        )
         rendered_config_text = (
             jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')).get_template(filename).render(context)
         )
-        conf_yangdump_dir = '{}-conf'.format(dep_dir)
+        conf_yangdump_dir = f'{dep_dir}-conf'
         os.mkdir(conf_yangdump_dir)
         yangdump_config_file = '{}/yangdump-pro-yangvalidator.conf'
         with open(yangdump_config_file.format(conf_yangdump_dir), 'w') as ff:
@@ -396,7 +398,7 @@ def validate_yangfile(infilename, workdir):
         logger.info(' '.join(yangdump_command))
 
     except Exception as e:
-        logger.error('Error: {}'.format(e))
+        logger.error(f'Error: {e}')
 
     finally:
         logger.info('Removing temporary directories')
@@ -422,7 +424,7 @@ def upload_draft(request):
                     f.write(chunk)
             context['results'] = create_output(filepath)
     except Exception as e:
-        logger.error('Error: %s : %s' % (savedir, e))
+        logger.error(f'Error: {savedir} : {e}')
     finally:
         if os.path.exists(savedir):
             shutil.rmtree(savedir)
@@ -467,7 +469,7 @@ def upload_file(request):
                 'name_split': file_name,
             }
     except Exception as e:
-        logger.error('Error: %s : %s' % (savedir, e))
+        logger.error(f'Error: {savedir} : {e}')
     finally:
         if os.path.exists(savedir):
             shutil.rmtree(savedir)
@@ -476,8 +478,8 @@ def upload_file(request):
 
 
 def json_validate_rfc(request, rfc):
-    logger.info('validating rfc {}'.format(rfc))
-    url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
+    logger.info(f'validating rfc {rfc}')
+    url = f'https://tools.ietf.org/rfc/rfc{rfc}.txt'
     results = create_output(url)
     results = json.dumps(results, cls=DjangoJSONEncoder)
     return HttpResponse(results, content_type='application/json')
@@ -486,8 +488,8 @@ def json_validate_rfc(request, rfc):
 def json_validate_draft(request, draft):
     if draft.endswith('.txt'):
         draft = draft[:-4]
-    logger.info('validating draft {}'.format(draft))
-    url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
+    logger.info(f'validating draft {draft}')
+    url = f'https://tools.ietf.org/id/{draft}.txt'
     results = create_output(url)
     results = json.dumps(results, cls=DjangoJSONEncoder)
     return HttpResponse(results, content_type='application/json')
@@ -497,8 +499,8 @@ def datatracker_rfc(request):
     documents = []
     rfcs = request.GET.getlist('doc')
     for doc in rfcs:
-        logger.info('validating rfc {}'.format(doc))
-        url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(doc)
+        logger.info(f'validating rfc {doc}')
+        url = f'https://tools.ietf.org/rfc/rfc{doc}.txt'
         results = create_output(url, for_datatracker=True)
         results['name'] = doc
         documents.append(results)
@@ -513,8 +515,8 @@ def datatracker_draft(request):
     for doc in drafts:
         if doc.endswith('.txt'):
             doc = doc[:-4]
-        logger.info('validating draft {}'.format(doc))
-        url = 'http://tools.ietf.org/id/{!s}.txt'.format(doc)
+        logger.info(f'validating draft {doc}')
+        url = f'http://tools.ietf.org/id/{doc}.txt'
         results = create_output(url, for_datatracker=True)
         results['name'] = doc
         documents.append(results)
@@ -530,8 +532,8 @@ def get_versions(request):
 
 def validate_rfc_param(request):
     rfc = request.GET['number']
-    logger.info('validating rfc {}'.format(rfc))
-    url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
+    logger.info(f'validating rfc {rfc}')
+    url = f'https://tools.ietf.org/rfc/rfc{rfc}.txt'
     results = {'results': create_output(url)}
     return render(request, 'result.html', results)
 
@@ -540,15 +542,15 @@ def validate_draft_param(request):
     draft = request.GET['name']
     if draft.endswith('.txt'):
         draft = draft[:-4]
-    logger.info('validating draft {}'.format(draft))
-    url = 'http://tools.ietf.org/id/{!s}.txt'.format(draft)
+    logger.info(f'validating draft {draft}')
+    url = f'http://tools.ietf.org/id/{draft}.txt'
     results = {'results': create_output(url)}
     return render(request, 'result.html', results)
 
 
 def validate_rfc(request, rfc):
-    logger.info('validating rfc {}'.format(rfc))
-    url = 'https://tools.ietf.org/rfc/rfc{!s}.txt'.format(rfc)
+    logger.info(f'validating rfc {rfc}')
+    url = f'https://tools.ietf.org/rfc/rfc{rfc}.txt'
     results = {'results': create_output(url)}
     return render(request, 'main.html', results)
 
@@ -556,8 +558,8 @@ def validate_rfc(request, rfc):
 def validate_draft(request, draft):
     if draft.endswith('.txt'):
         draft = draft[:-4]
-    logger.info('validating draft {}'.format(draft))
-    url = 'https://tools.ietf.org/id/{!s}.txt'.format(draft)
+    logger.info(f'validating draft {draft}')
+    url = f'https://tools.ietf.org/id/{draft}.txt'
     results = {'results': create_output(url)}
     return render(request, 'main.html', results)
 

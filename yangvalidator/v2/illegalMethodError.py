@@ -24,4 +24,4 @@ class IllegalMethodError(Exception):
         self.__used_method = used_method
 
     def __str__(self) -> str:
-        return 'Only POST request allowed but {} found'.format(self.__used_method)
+        return f'Only POST request allowed but {self.__used_method} found'

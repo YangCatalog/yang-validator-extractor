@@ -29,9 +29,9 @@ class ConfdParser:
     Cover the parsing of the module with confd parser and validator
     """
 
-    CONFDC_CMD = '/home/yangvalidator/confd-{}/bin/confdc'.format(os.environ['CONFD_VERSION'])
+    CONFDC_CMD = f'/home/yangvalidator/confd-{os.environ["CONFD_VERSION"]}/bin/confdc'
     try:
-        VERSION = check_output('{} --version'.format(CONFDC_CMD), shell=True).decode('utf-8').rstrip()
+        VERSION = check_output(f'{CONFDC_CMD} --version', shell=True).decode('utf-8').rstrip()
     except CalledProcessError:
         VERSION = 'undefined'
     LOG = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class ConfdParser:
         outfp = open(self.__confdc_outfile, 'w+')
         cresfp = open(self.__confdc_resfile, 'w+')
 
-        self.LOG.info('Starting to confd parse use command {}'.format(' '.join(self.__confdc_command)))
+        self.LOG.info(f'Starting to confd parse use command {" ".join(self.__confdc_command)}')
         status = call(self.__confdc_command, stdout=outfp, stderr=cresfp)
 
         confdc_output = confdc_stderr = ''
@@ -70,8 +70,8 @@ class ConfdParser:
         outfp.close()
         dirname = os.path.dirname(self.__working_directory)
 
-        confdc_res['stdout'] = confdc_output.replace('{}/'.format(dirname), '')
-        confdc_res['stderr'] = confdc_stderr.replace('{}/'.format(dirname), '')
+        confdc_res['stdout'] = confdc_output.replace(f'{dirname}/', '')
+        confdc_res['stderr'] = confdc_stderr.replace(f'{dirname}/', '')
         confdc_res['name'] = 'confdc'
         confdc_res['version'] = self.VERSION
         confdc_res['code'] = status
