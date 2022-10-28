@@ -3,6 +3,7 @@ line-length = 120
 skip-string-normalization = true
 
 [tool.isort]
+profile = 'black'
 skip = [".git", "__pycache__", "docs/source/conf.py", "old", "build", "dist", "venv"]
 skip_glob = ["./lib/*", "./bin/*"]
 line_length = 120
