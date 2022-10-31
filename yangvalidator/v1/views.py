@@ -60,17 +60,17 @@ yangdump_cmd = '/usr/bin/yangdump-pro'
 debug = False
 
 try:
-    yanglint_version = check_output(yanglint_cmd + ' --version', shell=True).decode('utf-8').rstrip()
+    yanglint_version = check_output(f'{yanglint_cmd} --version', shell=True).decode('utf-8').rstrip()
 except CalledProcessError:
     yanglint_version = 'undefined'
 
 try:
-    confdc_version = check_output(confdc_cmd + ' --version', shell=True).decode('utf-8').rstrip()
+    confdc_version = check_output(f'{confdc_cmd} --version', shell=True).decode('utf-8').rstrip()
 except CalledProcessError:
     confdc_version = 'undefined'
 
 try:
-    yangdump_version = check_output(yangdump_cmd + ' --version', shell=True).decode('utf-8').strip()
+    yangdump_version = check_output(f'{yangdump_cmd} --version', shell=True).decode('utf-8').strip()
 except CalledProcessError:
     yangdump_version = 'undefined'
 
@@ -207,12 +207,12 @@ def validate_yangfile(infilename, workdir):
     yangdump_res = {}
     confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr = ''
     infile = os.path.join(workdir, infilename)
-    confdc_resfile = str(os.path.join(workdir, infilename) + '.cres')
-    confdc_outfile = str(os.path.join(workdir, infilename) + '.cout')
-    yanglint_resfile = str(os.path.join(workdir, infilename) + '.lres')
-    yanglint_outfile = str(os.path.join(workdir, infilename) + '.lout')
-    yangdump_resfile = str(os.path.join(workdir, infilename) + '.ypres')
-    yangdump_outfile = str(os.path.join(workdir, infilename) + '.ypout')
+    confdc_resfile = f'{os.path.join(workdir, infilename)}.cres'
+    confdc_outfile = f'{os.path.join(workdir, infilename)}.cout'
+    yanglint_resfile = f'{os.path.join(workdir, infilename)}.lres'
+    yanglint_outfile = f'{os.path.join(workdir, infilename)}.lout'
+    yangdump_resfile = f'{os.path.join(workdir, infilename)}.ypres'
+    yangdump_outfile = f'{os.path.join(workdir, infilename)}.ypout'
 
     basic_append_p = []
     pyang_command = []

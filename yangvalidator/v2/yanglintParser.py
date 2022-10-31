@@ -31,15 +31,15 @@ class YanglintParser:
 
     YANGLINT_CMD = '/usr/local/bin/yanglint'
     try:
-        VERSION = check_output(YANGLINT_CMD + ' --version', shell=True).decode('utf-8').rstrip()
+        VERSION = check_output(f'{YANGLINT_CMD} --version', shell=True).decode('utf-8').rstrip()
     except CalledProcessError:
         VERSION = 'undefined'
     LOG = logging.getLogger(__name__)
 
     def __init__(self, context_directories, file_name: str, working_directory: str):
         self.__working_directory = working_directory
-        self.__yanglint_resfile = str(os.path.join(working_directory, file_name) + '.lres')
-        self.__yanglint_outfile = str(os.path.join(working_directory, file_name) + '.lout')
+        self.__yanglint_resfile = f'{os.path.join(working_directory, file_name)}.lres'
+        self.__yanglint_outfile = f'{os.path.join(working_directory, file_name)}.lout'
         cmds = [self.YANGLINT_CMD, '-i', '-p', working_directory]
         for dep_dir in context_directories:
             if dep_dir not in cmds:
