@@ -24,6 +24,7 @@ __email__ = 'richard.zilincik@pantheon.tech'
 import json
 import os
 import shutil
+from copy import deepcopy
 from unittest import mock
 
 from django.http import JsonResponse
@@ -33,23 +34,28 @@ import yangvalidator.v2.views as v
 
 
 class TestViews(SimpleTestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.resource_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources')
-        parsers = ['Confd', 'YangdumpPro']
-        for parser in parsers:
+    @classmethod
+    def setUpClass(cls):
+        cls.factory = RequestFactory()
+        resource_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources')
+        for parser in ('Confd', 'YangdumpPro'):
             patcher = mock.patch(f'yangvalidator.v2.views.{parser}Parser', mock.MagicMock)
             mock_parser = patcher.start()
-            self.addCleanup(patcher.stop)
+            cls.addClassCleanup(patcher.stop)
             mock_parser.parse_module = lambda self: 'test'
+        ownership_patcher = mock.patch('yangvalidator.v2.views.change_ownership_recursive')
+        cls.mock_ownership = ownership_patcher.start()
+        cls.addClassCleanup(ownership_patcher.stop)
+        cls.mock_ownership.return_value = None
+        with open(os.path.join(resource_path, 'payloads.json')) as f:
+            cls.payloads_data = json.load(f)
 
-        self.ownership_patcher = mock.patch('yangvalidator.v2.views.change_ownership_recursive')
-        self.mock_ownership = self.ownership_patcher.start()
-        self.addCleanup(self.ownership_patcher.stop)
-        self.mock_ownership.return_value = None
+    @classmethod
+    def tearDownClass(cls):
+        pass
 
     def test_validate(self):
-        validate_json = self.load_payload('validate_json')
+        validate_json = deepcopy(self.payloads_data['validate_json'])
         del validate_json['dependencies']
         result = v.validate(
             self.factory.post('/yangvalidator/v2/validate', validate_json, content_type='application/json'),
@@ -67,7 +73,7 @@ class TestViews(SimpleTestCase):
         self.assertEqual(data['output']['ietf-yang-types@2013-07-15.yang'].get('yanglint', {}).get('code'), 0)
 
     def test_validate_skip(self):
-        validate_json = self.load_payload('validate_json')
+        validate_json = self.payloads_data['validate_json']
         result = v.validate(
             self.factory.post('/yangvalidator/v2/validate', validate_json, content_type='application/json'),
         )
@@ -121,7 +127,6 @@ class TestViews(SimpleTestCase):
         )
 
     def test_validate_no_user_or_repo_modules(self):
-        result = v.validate(mock.MagicMock(method='POST', body=json.dumps({'modules-to-validate': {'test': 'test'}})))
         result = v.validate(
             self.factory.post(
                 '/yangvalidator/v2/validate',
@@ -141,7 +146,7 @@ class TestViews(SimpleTestCase):
 
     @mock.patch('yangvalidator.v2.views.os.mkdir', mock.MagicMock(side_effect=Exception('test')))
     def test_validate_error(self):
-        validate_json = self.load_payload('validate_json')
+        validate_json = self.payloads_data['validate_json']
         result = v.validate(
             self.factory.post('/yangvalidator/v2/validate', validate_json, content_type='application/json'),
         )
@@ -390,7 +395,7 @@ class TestViews(SimpleTestCase):
         self.assertJSONEqual(
             result.content,
             {
-                'Message': f'Cache file with id - {1} does not exist.'
+                'Message': 'Cache file with id - 1 does not exist.'
                 ' Please use pre setup first. Post request on path'
                 ' /yangvalidator/v2/upload-files-setup where you provide'
                 ' "latest" and "get-from-options" key with true or false values',
@@ -493,7 +498,7 @@ class TestViews(SimpleTestCase):
         mock_validate: mock.MagicMock,
         mock_checker: mock.MagicMock,
     ):
-        json_body = self.load_payload('create_output')
+        json_body = deepcopy(self.payloads_data['create_output'])
         json_body['dependencies'] = {'missing': [], 'existing': {}}
         mock_validate.return_value = 'test'
         mock_checker = mock.MagicMock
@@ -507,7 +512,7 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.ModelsChecker')
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
     def test_create_output_choose_options_and_missing(self, mock_checker: mock.MagicMock):
-        json_body = self.load_payload('create_output')
+        json_body = deepcopy(self.payloads_data['create_output'])
         json_body['dependencies'] = {'missing': ['missing'], 'existing': {}}
         mock_checker = mock.MagicMock
         mock_checker.find_missing = lambda self: ['missing']
@@ -521,7 +526,7 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.validate')
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=True))
     def test_create_output_latest(self, mock_validate: mock.MagicMock, mock_checker: mock.MagicMock):
-        json_body = self.load_payload('create_output')
+        json_body = deepcopy(self.payloads_data['create_output'])
         json_body['dependencies'] = {'repo-modules': []}
         mock_validate.return_value = 'test'
         mock_checker = mock.MagicMock
@@ -536,7 +541,7 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.validate')
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=False))
     def test_create_output_none_missing(self, mock_validate: mock.MagicMock, mock_checker: mock.MagicMock):
-        json_body = self.load_payload('create_output')
+        json_body = self.payloads_data['create_output']
         mock_validate.return_value = 'test'
         mock_checker = mock.MagicMock
         mock_checker.find_missing = lambda self: []
@@ -548,7 +553,7 @@ class TestViews(SimpleTestCase):
     @mock.patch('yangvalidator.v2.views.ModelsChecker')
     @mock.patch('yangvalidator.v2.views.check_missing_amount_one_only', mock.MagicMock(return_value=False))
     def test_create_output_missing(self, mock_checker: mock.MagicMock):
-        json_body = self.load_payload('create_output')
+        json_body = deepcopy(self.payloads_data['create_output'])
         json_body['dependencies'] = {'missing': ['missing']}
         json_body['xym'] = {'test': 'test'}
         mock_checker = mock.MagicMock
@@ -561,7 +566,3 @@ class TestViews(SimpleTestCase):
     def test_check_missing_amount_one_only(self):
         self.assertTrue(v.check_missing_amount_one_only({'test': ['test']}))
         self.assertFalse(v.check_missing_amount_one_only({'test': ['test'], 'multiple': ['test', 'more']}))
-
-    def load_payload(self, key: str) -> dict:
-        with open(os.path.join(self.resource_path, 'payloads.json')) as f:
-            return json.load(f)[key]
