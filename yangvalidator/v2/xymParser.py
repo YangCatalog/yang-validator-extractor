@@ -57,12 +57,12 @@ class XymParser:
         sys.stderr = self.__stderr_
         sys.stdout = self.__stdout_
         dirname = os.path.dirname(self.__source)
-        xym_res['stdout'] = self.__stdout.getvalue().replace('{}/'.format(dirname), '')
-        xym_res['stderr'] = self.__result.getvalue().replace('{}/'.format(dirname), '')
+        xym_res['stdout'] = self.__stdout.getvalue().replace(f'{dirname}/', '')
+        xym_res['stderr'] = self.__result.getvalue().replace(f'{dirname}/', '')
         xym_res['name'] = 'xym'
         xym_res['version'] = self.VERSION
         xym_res['command'] = (
-            'xym.xym(source_id="{}", dstdir="{}", srcdir="", strict=True, strict_examples=False,'
-            ' debug_level=0, force_revision_regexp=True)'.format(self.__source, self.__working_directory)
+            f'xym.xym(source_id="{self.__source}", dstdir="{self.__working_directory}", srcdir="", '
+            'strict=True, strict_examples=False, debug_level=0, force_revision_regexp=True)'
         )
         return extracted_models, xym_res

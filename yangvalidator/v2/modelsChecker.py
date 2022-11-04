@@ -98,10 +98,7 @@ class ModelsChecker:
 
             try:
                 ret.append(
-                    '{}@{}.yang'.format(
-                        module_name,
-                        revisions[revisions_to_sort.index(max(revisions_to_sort, default=0))],
-                    ),
+                    f'{module_name}@{revisions[revisions_to_sort.index(max(revisions_to_sort, default=0))]}.yang',
                 )
             except ValueError:
                 pass

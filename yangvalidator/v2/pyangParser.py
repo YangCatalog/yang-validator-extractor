@@ -81,8 +81,8 @@ class PyangParser:
         pyang_stderr, pyang_output = self.__print_pyang_output()
         dirname = os.path.dirname(self.__working_directory)
 
-        pyang_res['stdout'] = pyang_output.replace('{}/'.format(dirname), '')
-        pyang_res['stderr'] = pyang_stderr.replace('{}/'.format(dirname), '')
+        pyang_res['stdout'] = pyang_output.replace(f'{dirname}/', '')
+        pyang_res['stderr'] = pyang_stderr.replace(f'{dirname}/', '')
         pyang_res['name'] = 'pyang'
         pyang_res['version'] = self.VERSION
         pyang_res['code'] = 0 if not pyang_stderr else 1
@@ -122,7 +122,7 @@ class PyangParser:
             dependencies = []
         ret = {}
         for dep in dependencies:
-            ret[dep] = glob.glob(r'{}/{}@*.yang'.format(yang_models, dep))
+            ret[dep] = glob.glob(rf'{yang_models}/{dep}@*.yang')
         restore_statements()
         del self.__ctx
         return ret
@@ -137,5 +137,5 @@ class PyangParser:
             else:
                 kind = 'error'
 
-            err += '{}: {}: {}\n'.format(epos, kind, error.err_to_str(etag, eargs))
+            err += f'{epos}: {kind}: {error.err_to_str(etag, eargs)}\n'
         return err, out

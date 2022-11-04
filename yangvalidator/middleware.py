@@ -54,7 +54,7 @@ def record_analytic(headers: dict, client_ip: str) -> None:
         piwik_tracker.set_token_auth(settings.MATOMO_TOKEN_AUTH)
         piwik_tracker.set_ip(client_ip)
     visited_url = fake_request.META['PATH_INFO'][:1000]
-    piwik_tracker.do_track_page_view('API yangvalidator {}'.format(visited_url))
+    piwik_tracker.do_track_page_view(f'API yangvalidator {visited_url}')
 
 
 def should_skip(request: WSGIRequest) -> bool:
