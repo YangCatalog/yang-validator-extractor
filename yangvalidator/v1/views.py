@@ -207,12 +207,12 @@ def validate_yangfile(infilename, workdir):
     yangdump_res = {}
     confdc_output = yanglint_output = confdc_stderr = yanglint_stderr = yangdump_output = yangdump_stderr = ''
     infile = os.path.join(workdir, infilename)
-    confdc_resfile = f'{os.path.join(workdir, infilename)}.cres'
-    confdc_outfile = f'{os.path.join(workdir, infilename)}.cout'
-    yanglint_resfile = f'{os.path.join(workdir, infilename)}.lres'
-    yanglint_outfile = f'{os.path.join(workdir, infilename)}.lout'
-    yangdump_resfile = f'{os.path.join(workdir, infilename)}.ypres'
-    yangdump_outfile = f'{os.path.join(workdir, infilename)}.ypout'
+    confdc_resfile = f'{infile}.cres'
+    confdc_outfile = f'{infile}.cout'
+    yanglint_resfile = f'{infile}.lres'
+    yanglint_outfile = f'{infile}.lout'
+    yangdump_resfile = f'{infile}.ypres'
+    yangdump_outfile = f'{infile}.ypout'
 
     basic_append_p = []
     pyang_command = []
