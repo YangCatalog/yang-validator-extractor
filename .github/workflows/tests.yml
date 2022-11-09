@@ -1,6 +1,9 @@
 name: Python tests
 
-on: [push]
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize, edited]
 
 jobs:
   build:
@@ -31,6 +34,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r lint_requirements.txt
+          pip install -r tests_requirements.txt
 
       - name: Check isort
         uses: jamescurtin/isort-action@master
@@ -46,5 +50,79 @@ jobs:
           YANGCATALOG_CONFIG_PATH: tests/resources/test.conf
           DJANGO_SETTINGS_MODULE: tests.resources.settings
           CONFD_VERSION: 0
-        run: python3 manage.py test tests
+        run: coverage run manage.py test tests
+
+      - name: Store coverage file
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: .coverage
+
+      - name: Write coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          COMMENT_TEMPLATE: '
+            {% extends "base" %}
+            {% block title %}
+            {{ super() }}
+  
+            <details>
+            <summary>Full coverage report summary (click to unfold)</summary>
+            {% for file_coverage in coverage.files.values() %}
+            {{ file_coverage.path }}: <b>{{ ((file_coverage.info.percent_covered * 100)|int) }}%</b><br>
+            {% endfor %}
+            </details>
+  
+            {% endblock title %}
+          '
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v3
+        if: ${{ steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true' }}
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
+
+  update-coverage-badge:
+    needs: build
+    runs-on: ubuntu-18.04
+    if: ${{ github.event_name == 'push' && github.event.push.head.repo.full_name != 'YangCatalog/yang-validator-extractor' }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.push.head.ref }}
+          repository: ${{ github.event.push.head.repo.full_name }}
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: coverage
+
+      - name: Coverage badge
+        uses: tj-actions/coverage-badge-py@v1.8
+
+      - name: Move coverage badge to images folder
+        run: mv coverage.svg .github/images
+
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v9
+        id: changed_files
+        with:
+          files: .github/images/coverage.svg
+
+      - name: Commit files
+        if: ${{ steps.changed_files.outputs.files_changed == 'true' }}
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/images/coverage.svg
+          git commit -m "Updated coverage.svg"
+          git push
   
