@@ -1,5 +1,9 @@
 # Django-based YANG Extractor and Validator
 
+<img src=".github/images/coverage.svg" alt="">
+
+---
+
 A web application that allows you to fetch, extract and validate YANG modules by RFC number, by IETF draft name, or by uploading YANG files. 
 It is built on top of the [Django](https://www.djangoproject.com/) Python web framework. [xym](https://github.com/xym-tool/xym) tool is used to fetch and extract YANG modules from IETF specifications. Combination of the following YANG compilators/validators are used on the extracted modules:
 - [pyang](https://github.com/mbj4668/pyang)
@@ -24,7 +28,7 @@ Information about the YANG Validator API can be found here:
 
 ## Building and Deploying Docker Image
 
-The NSO configuration is setup to listen to port 8080 to avoid requiring root to run it, so remember to use portmapping when you start the container:
+The NSO configuration is set up to listen to port 8080 to avoid requiring root to run it, so remember to use port mapping when you start the container:
 
 ```console
 docker run -p 0.0.0.0:80:8080
