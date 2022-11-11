@@ -517,7 +517,7 @@
                 },
                 "yanglint-version": {
                     "type": "string",
-                    "example": "yanglint 2.0.231"
+                    "example": "yanglint 2.1.4"
                 }
             }
         },
@@ -657,7 +657,7 @@
                 },
                 "version": {
                     "type": "string",
-                    "example": "yanglint 2.0.231",
+                    "example": "yanglint 2.1.4",
                     "description": "Version of the validator"
                 },
                 "code": {

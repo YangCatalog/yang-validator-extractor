@@ -2,6 +2,16 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.7.0 - 2022-11-11
+
+  * Coverage badge added to the README.md file
+  * Coverage report generation adde to GitHub Actions [#122](https://github.com/YangCatalog/yang-validator-extractor/issues/122)
+  * setUpClass and tearDownClass methods use for tests [#119](https://github.com/YangCatalog/yang-validator-extractor/issues/119)
+  * Bugfix: Fetch the content of draft from tool.ietf if not available locally [#111](https://github.com/YangCatalog/yang-validator-extractor/issues/111)
+  * Absolute path removed from xym error message [#110](https://github.com/YangCatalog/yang-validator-extractor/issues/110)
+  * Code reformatted according to the defined style guide [deployment #163](https://github.com/YangCatalog/deployment/issues/163)
+  * f-strings used for string concatenation in whole repo [#109](https://github.com/YangCatalog/yang-validator-extractor/issues/109)
+
 * ##### v5.6.1 - 2022-10-10
 
   * Loading xym tool version from .env file [deployment #161](https://github.com/YangCatalog/deployment/issues/161)
