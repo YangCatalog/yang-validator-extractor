@@ -9,15 +9,15 @@ on:
 jobs:
 
   coverage-comment:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: 3.9
 
       - name: Post comment
         uses: py-cov-action/python-coverage-comment-action@v3
