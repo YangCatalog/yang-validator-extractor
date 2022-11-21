@@ -8,12 +8,12 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Set up yanglint
         run: |
           sudo apt update
-          sudo apt install libpcre2-dev libssl1.0.0 libssl-dev libxml2-dev
+          sudo apt install libpcre2-dev libssl3 libssl-dev libxml2-dev
           git clone --single-branch --depth 1 https://github.com/CESNET/libyang.git
           mkdir libyang/build
           cd libyang/build
@@ -22,12 +22,17 @@ jobs:
           sudo make install
           sudo ldconfig
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            tests_requirements.txt
+            lint_requirements.txt
 
       - name: Install dependencies
         run: |
@@ -53,7 +58,7 @@ jobs:
         run: coverage run manage.py test tests
 
       - name: Store coverage file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: coverage
           path: .coverage
@@ -79,7 +84,7 @@ jobs:
           '
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         if: ${{ steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true' }}
         with:
           name: python-coverage-comment-action
@@ -87,7 +92,7 @@ jobs:
 
   update-coverage-badge:
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     if: ${{ github.event_name == 'push' && github.event.push.head.repo.full_name != 'YangCatalog/yang-validator-extractor' }}
 
     steps:
@@ -99,9 +104,9 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: 3.9
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v3.0.1
         with:
           name: coverage
 
@@ -112,7 +117,7 @@ jobs:
         run: mv coverage.svg .github/images
 
       - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v9
+        uses: tj-actions/verify-changed-files@v12
         id: changed_files
         with:
           files: .github/images/coverage.svg
