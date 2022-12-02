@@ -1,4 +1,4 @@
-FROM python:3.9-bullseye
+FROM python:3.10-bullseye
 ARG YANG_ID
 ARG YANG_GID
 ARG YANGCATALOG_CONFIG_PATH
