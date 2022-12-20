@@ -501,7 +501,7 @@
             "properties": {
                 "confd-version": {
                     "type": "string",
-                    "example": "confd-7.6"
+                    "example": "confd-8.0"
                 },
                 "pyang-version": {
                     "type": "string",
@@ -618,7 +618,7 @@
                 },
                 "version": {
                     "type": "string",
-                    "example": "confd-7.6",
+                    "example": "confd-8.0",
                     "description": "Version of the validator"
                 },
                 "code": {

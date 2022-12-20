@@ -1,6 +1,11 @@
 ## YANG Validator Release Notes
 
-* ##### vm.m.p - 2022-MM-DD
+* ##### vm.m.p - 2023-MM-DD
+
+* ##### v5.8.0 - 2022-12-20
+
+  * GitHub Actions environment updated to use Ubuntu 22.04 [deployment #173](https://github.com/YangCatalog/deployment/issues/173)
+  * Python base image bumped to version 3.10 [deployment #172](https://github.com/YangCatalog/deployment/issues/172)
 
 * ##### v5.7.0 - 2022-11-11
 
