@@ -40,11 +40,11 @@ COPY ./yang-validator-extractor/pyang_plugin/depend.py /usr/lib/python3.6/site-p
 
 RUN mkdir -p /home/yangvalidator/confd-${CONFD_VERSION}
 COPY ./resources/confd-${CONFD_VERSION}.linux.x86_64.installer.bin $VIRTUAL_ENV/confd-${CONFD_VERSION}.linux.x86_64.installer.bin
-COPY ./resources/yumapro-client-20.10-9.u1804.amd64.deb $VIRTUAL_ENV/yumapro-client-20.10-9.u1804.amd64.deb
+COPY ./resources/yumapro-client-21.10-12.deb11.amd64.deb $VIRTUAL_ENV/yumapro-client-21.10-12.deb11.amd64.deb
 RUN $VIRTUAL_ENV/confd-${CONFD_VERSION}.linux.x86_64.installer.bin /home/yangvalidator/confd-${CONFD_VERSION}
 
 WORKDIR $VIRTUAL_ENV
-RUN dpkg -i $VIRTUAL_ENV/yumapro-client-20.10-9.u1804.amd64.deb
+RUN dpkg -i $VIRTUAL_ENV/yumapro-client-21.10-12.deb11.amd64.deb
 COPY ./yang-validator-extractor/ $VIRTUAL_ENV/
 RUN chown -R ${YANG_ID}:${YANG_GID} /home
 RUN mkdir /var/run/yang
