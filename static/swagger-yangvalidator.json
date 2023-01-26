@@ -513,11 +513,11 @@
                 },
                 "yangdump-version": {
                     "type": "string",
-                    "example": "yangdump-pro 20.10-9"
+                    "example": "yangdump-pro 21.10-12"
                 },
                 "yanglint-version": {
                     "type": "string",
-                    "example": "yanglint 2.1.4"
+                    "example": "yanglint 2.1.30"
                 }
             }
         },
@@ -657,7 +657,7 @@
                 },
                 "version": {
                     "type": "string",
-                    "example": "yanglint 2.1.4",
+                    "example": "yanglint 2.1.30",
                     "description": "Version of the validator"
                 },
                 "code": {
@@ -696,7 +696,7 @@
                 },
                 "version": {
                     "type": "string",
-                    "example": "yangdump-pro 20.10-9",
+                    "example": "yangdump-pro 21.10-12",
                     "description": "Version of the validator"
                 },
                 "code": {
