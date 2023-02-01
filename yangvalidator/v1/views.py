@@ -168,7 +168,7 @@ def create_output(url, for_datatracker=False):
 def print_pyang_output(ctx):
     err = ''
     out = ''
-    for (epos, etag, eargs) in ctx.errors:
+    for epos, etag, eargs in ctx.errors:
         elevel = error.err_level(etag)
         if error.is_warning(elevel):
             kind = 'warning'

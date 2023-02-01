@@ -130,7 +130,7 @@ class PyangParser:
     def __print_pyang_output(self):
         err = ''
         out = ''
-        for (epos, etag, eargs) in self.__ctx.errors:
+        for epos, etag, eargs in self.__ctx.errors:
             elevel = error.err_level(etag)
             if error.is_warning(elevel):
                 kind = 'warning'
