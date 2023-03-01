@@ -68,7 +68,7 @@ def change_ownership_recursive(path: str, user: str = 'yang', group: str = 'yang
 def validate(request: WSGIRequest, xym_result=None, json_body=None):
     """
     Validate yang module using 4 different validators. Yanglint, Pyang, Confdc, Yumadump-pro.
-    Check if the are valid modules according to these validators and if not return problems that
+    Check if they are valid modules according to these validators and if not return problems that
     occurred while validating by each parser.
     :param json_body: json body sent from other function
     :param request: request sent from user
@@ -81,7 +81,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         # Missing json content or bad json content
         return JsonResponse({'Message': f'Not a json content - {e}', 'Type': 'error'}, status=400)
     except IllegalMethodError as e:
-        # Method other then POST
+        # Method other than POST
         return JsonResponse({'Message': f'{e}', 'Type': 'error'}, status=405)
     to_validate = json_body.get('modules-to-validate')
     if to_validate is None:
@@ -113,7 +113,7 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
         skipped_modules = []
         dependencies = json_body.get('dependencies', {})
 
-        # Keep this uncommented code in here. Several lines bellow explaind why we want to keep this
+        # Keep this uncommented code in here. Several lines bellow explained why we want to keep this
         # user_dependencies = dependencies.get('user-modules', [])
 
         repo_dependencies = dependencies.get('repo-modules', [])
@@ -177,7 +177,8 @@ def validate(request: WSGIRequest, xym_result=None, json_body=None):
 
 
 def validate_doc(request: WSGIRequest):
-    """Request contains either the RFC number or the name of the Draft to be validated.
+    """
+    Request contains either the RFC number or the name of the Draft to be validated.
     URL (or path to cached document) is composed according to whether it is a validation of RFC or Draft.
     Cache directory name is generated and both path and URL are passed to the extract_files() method.
     """
