@@ -24,7 +24,7 @@
 | yangvalidator/v2/modelsChecker.py      |       58 |        6 |     90% |39-45, 95, 103-104 |
 | yangvalidator/v2/pyangParser.py        |      104 |       46 |     56% |59-69, 77, 95-128, 134-140 |
 | yangvalidator/v2/urls.py               |        9 |        0 |    100% |           |
-| yangvalidator/v2/views.py              |      293 |       21 |     93% |55-65, 175, 203-204, 309-310, 353, 438, 444, 457, 461, 492 |
+| yangvalidator/v2/views.py              |      293 |       21 |     93% |55-65, 175, 204-205, 310-311, 354, 439, 445, 458, 462, 493 |
 | yangvalidator/v2/xymParser.py          |       35 |        0 |    100% |           |
 | yangvalidator/v2/yangdumpProParser.py  |       54 |       35 |     35% |42-57, 60-88 |
 | yangvalidator/v2/yanglintParser.py     |       50 |        6 |     88% |35-36, 46, 60-62, 66 |
