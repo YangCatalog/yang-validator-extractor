@@ -44,10 +44,10 @@ class YangdumpProParser:
         self.__yangdump_outfile = str(os.path.join(working_directory, file_name.replace('.yang', '.cout')))
         context = {'path': working_directory}
         path, filename = os.path.split(
-            os.path.join(os.path.dirname(__file__), '/../templates/yangdump-pro-yangvalidator.conf'),
+            os.path.realpath(os.path.join(os.path.dirname(__file__), '../templates/yangdump-pro-yangvalidator.conf')),
         )
         rendered_config_text = (
-            jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')).get_template(filename).render(context)
+            jinja2.Environment(loader=jinja2.FileSystemLoader(path)).get_template(filename).render(context)
         )
         yangdump_config_file = os.path.join(working_directory, 'yangdump-pro-yangvalidator.conf')
         with open(yangdump_config_file.format(working_directory), 'w') as ff:
