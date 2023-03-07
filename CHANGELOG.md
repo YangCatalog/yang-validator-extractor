@@ -1,5 +1,10 @@
 ## YANG Validator Release Notes
 
+* ##### v5.10.0 - 2023-03-07
+
+  * Bugfix: path to yangdump-pro-yangvalidator.conf file fixed [#133](https://github.com/YangCatalog/yang-validator-extractor/issues/133)
+  * flake8-black and django packages updated
+
 * ##### v5.9.0 - 2023-01-26
 
   * YumaPro validator updated to version 21.10-12 [deployment #178](https://github.com/YangCatalog/deployment/issues/178)
