@@ -1,5 +1,9 @@
 ## YANG Validator Release Notes
 
+* ##### v5.11.0 - 2023-04-13
+
+  * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
+
 * ##### v5.10.1 - 2023-03-20
 
   * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
