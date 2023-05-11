@@ -1,0 +1,16 @@
+codecov:
+  require_ci_to_pass: false
+
+comment:
+  layout: "diff, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: no
+
+coverage:
+  status:
+    patch: off
+    project:
+      default:
+        target: 70%

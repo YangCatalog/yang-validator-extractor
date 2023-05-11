@@ -50,7 +50,6 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             tests_requirements.txt
-            lint_requirements.txt
 
       - name: Install dependencies
         run: |

@@ -1,6 +1,6 @@
 # Django-based YANG Extractor and Validator
 
-<img src=".github/images/coverage.svg" alt="">
+[![codecov](https://codecov.io/gh/YangCatalog/yang-validator-extractor/branch/master/graph/badge.svg?token=xFDIybuCiU)](https://codecov.io/gh/YangCatalog/yang-validator-extractor)
 
 ---
 
