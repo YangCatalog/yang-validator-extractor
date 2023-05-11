@@ -1,15 +1,25 @@
 name: Python tests
 
 on:
-  push:
-  pull_request:
-    types: [opened, reopened, ready_for_review, synchronize, edited]
+  workflow_run:
+    workflows: [ 'Linting' ]
+    types:
+      - completed
 
 jobs:
   build:
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-22.04
+
     steps:
+      - name: Get PR information
+        uses: potiuk/get-workflow-origin@v1_5
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        id: source-run-info
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+
       - name: Set up yanglint
         run: |
           sudo apt update
@@ -23,6 +33,14 @@ jobs:
           sudo ldconfig
 
       - uses: actions/checkout@v3
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        with:
+          ref: ${{ steps.source-run-info.outputs.mergeCommitSha }}
+
+      - uses: actions/checkout@v3
+        if: ${{ github.event.workflow_run.event != 'pull_request' }}
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
@@ -38,96 +56,42 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -r lint_requirements.txt
           pip install -r tests_requirements.txt
-
-      - name: Check isort
-        uses: jamescurtin/isort-action@master
-
-      - name: Check flake8
-        run: flake8 .
-
-      - name: Check black
-        uses: psf/black@stable
 
       - name: Run tests
         env:
           YANGCATALOG_CONFIG_PATH: tests/resources/test.conf
           DJANGO_SETTINGS_MODULE: tests.resources.settings
           CONFD_VERSION: 0
-        run: coverage run manage.py test tests
-
-      - name: Store coverage file
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: coverage
-          path: .coverage
-
-      - name: Write coverage comment
-        id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
-        with:
-          GITHUB_TOKEN: ${{ github.token }}
-          COMMENT_TEMPLATE: '
-            {% extends "base" %}
-            {% block title %}
-            {{ super() }}
-  
-            <details>
-            <summary>Full coverage report summary (click to unfold)</summary>
-            {% for file_coverage in coverage.files.values() %}
-            {{ file_coverage.path }}: <b>{{ ((file_coverage.info.percent_covered * 100)|int) }}%</b><br>
-            {% endfor %}
-            </details>
-  
-            {% endblock title %}
-          '
-
-      - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3.1.1
-        if: ${{ steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true' }}
-        with:
-          name: python-coverage-comment-action
-          path: python-coverage-comment-action.txt
-
-  update-coverage-badge:
-    needs: build
-    runs-on: ubuntu-22.04
-    if: ${{ github.event_name == 'push' && github.event.push.head.repo.full_name != 'YangCatalog/yang-validator-extractor' }}
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.push.head.ref }}
-          repository: ${{ github.event.push.head.repo.full_name }}
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - uses: actions/download-artifact@v3.0.1
-        with:
-          name: coverage
-
-      - name: Coverage badge
-        uses: tj-actions/coverage-badge-py@v1.8
-
-      - name: Move coverage badge to images folder
-        run: mv coverage.svg .github/images
-
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v12
-        id: changed_files
-        with:
-          files: .github/images/coverage.svg
-
-      - name: Commit files
-        if: ${{ steps.changed_files.outputs.files_changed == 'true' }}
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add .github/images/coverage.svg
-          git commit -m "Updated coverage.svg"
-          git push
-  
+          coverage run manage.py test tests
+          coverage xml
+
+      - name: Coverage report PR
+        if: ${{ github.repository == 'YangCatalog/yang-validator-extractor' && github.event.workflow_run.event == 'pull_request' }}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          override_commit: ${{ steps.source-run-info.outputs.mergeCommitSha }}
+          override_pr: ${{ steps.source-run-info.outputs.pullRequestNumber }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Coverage report
+        if: ${{ github.repository == 'YangCatalog/yang-validator-extractor' && github.event.workflow_run.event != 'pull_request'}}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+
+      - uses: LouisBrunner/checks-action@v1.5.0
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.workflow_run.head_sha }}
+          name: Tests
+          conclusion: ${{ job.status }}
+          output: "{\"summary\":\"Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
