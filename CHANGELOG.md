@@ -1,5 +1,10 @@
 ## YANG Validator Release Notes
 
+* ##### v5.12.0 - 2023-05-31
+
+  * django and requests packages updated
+  * Replaced method for generating coverage reports [#138](https://github.com/YangCatalog/yang-validator-extractor/issues/138)
+
 * ##### v5.11.1 - 2023-05-03
 
   * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
