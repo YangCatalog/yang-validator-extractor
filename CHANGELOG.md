@@ -1,5 +1,10 @@
 ## YANG Validator Release Notes
 
+* ##### v5.14.0 - 2023-08-09
+
+  * Reviewed logs and potential for a longer retention period [#203](https://github.com/YangCatalog/deployment/issues/203)
+  * certifi and django packaged updated
+
 * ##### v5.13.0 - 2023-07-06
 
   * No changes - released with other [deployment submodules](https://github.com/YangCatalog/deployment)
