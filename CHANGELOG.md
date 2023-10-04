@@ -1,9 +1,14 @@
 ## YANG Validator Release Notes
 
+* ##### v5.15.0 - 2023-10-04
+
+  * gevent and urllib3 packages updated
+  * yanglint updated to 2.1.111
+
 * ##### v5.14.0 - 2023-08-09
 
   * Reviewed logs and potential for a longer retention period [#203](https://github.com/YangCatalog/deployment/issues/203)
-  * certifi and django packaged updated
+  * certifi and django packages updated
 
 * ##### v5.13.0 - 2023-07-06
 
