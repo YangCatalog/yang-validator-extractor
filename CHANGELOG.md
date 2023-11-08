@@ -1,5 +1,9 @@
 ## YANG Validator Release Notes
 
+* ##### v5.16.0 - 2023-11-08
+
+  * urllib3 updated to 1.26.18
+
 * ##### v5.15.0 - 2023-10-04
 
   * gevent and urllib3 packages updated
