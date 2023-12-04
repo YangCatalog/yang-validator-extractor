@@ -1,6 +1,6 @@
 certifi==2023.7.22
 chardet==3.0.4
-Django==3.2.20
+Django==3.2.23
 idna==2.8
 lxml==4.9.1
 pyang==2.5.3
