@@ -59,7 +59,6 @@ ALLOWED_HOSTS = [
     'www.yangvalidator.org',
     'yangvalidator.com',
     'yangvalidator.org',
-    '18.224.127.129',
 ]
 
 
